@@ -1,0 +1,8 @@
+__pycache__
+*.m~
+*INSTRUCTIONS.md
+apk_processing/sgm_exports
+apk_processing/common.json
+apk_processing/study.json
+portrait_processing/Art Capture
+Phone

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body {
+			margin: 0;
+		}
+		img {
+			height: 256px;
+		}
+		#colors {
+			position: fixed;
+			background: white;
+			z-index: 1;
+		}
+		#overlay {
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background: #FFF;
+			mix-blend-mode: darken;
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="colors">
+		<input type="checkbox" checked id="r"><label for="r">Red (Lighting)</label>
+		<br>
+		<input type="checkbox" checked id="g"><label for="g">Green (Linework)</label>
+		<br>
+		<input type="checkbox" checked id="b"><label for="b">Blue (Shading)</label>
+		<br>
+		<input type="checkbox" id="a"><label for="a">Interactive Light Source</label>
+	</div>
+	<div id="overlay"></div>
+	<script src="overlay.js"></script>
+</body>
+</html>
