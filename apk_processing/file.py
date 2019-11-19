@@ -1,7 +1,6 @@
 import os
 import json
-import re
-from shutil import copyfile
+from shutil import copyfile, rmtree
 
 def iter_json_dir(directory, show_error=False):
     'Generate all valid JSON files in given directory.'
@@ -15,18 +14,16 @@ def iter_json_dir(directory, show_error=False):
                 if show_error:
                     print('Error opening {}: {}.'.format(filename, message))
 
-def load(directory, key_pattern=None):
+def load(directory, is_mono_dir=False):
     'Build python object from JSON file directory.'
-    if isinstance(key_pattern, str):
-        key_pattern = re.compile(key_pattern)
     obj = {}
     for stem, content in iter_json_dir(directory):
-        if key_pattern == None:
-            obj.setdefault(stem, content)
+        if is_mono_dir:
+            substem = stem.split('-')
+            obj.setdefault(substem[1], {})
+            obj[substem[1]].setdefault(substem[2], content)
         else:
-            keys = re.findall(key_pattern, stem)
-            for key in keys:
-                obj.setdefault(key, content)
+            obj.setdefault(stem, content)
     return obj
 
 def save(obj, path, pretty=True):
@@ -44,3 +41,8 @@ def copy(src, dst, show_error=False):
     except FileNotFoundError:
         if show_error:
             print('FileNotFoundError:', src, ' to ', dst)
+
+def resetdir(path):
+    if os.path.exists(path):
+        rmtree(path)
+    os.mkdir(path)

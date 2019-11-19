@@ -1,4 +1,4 @@
-from data_processing.main import *
+from apk_processing.main import *
 
 def study_dictionary(dictionary):
     'Print a nicely formatted dictionary to study its structure.'
