@@ -56,21 +56,31 @@ def build_ma(ma_key, ma_subkey):
     components = monoglobal[ma_key]
     ma_core = monoglobal[ma_key][ma_subkey]['0 GameObject Base']
 
-    def build_subs(substitutions, tieraw):
+    def getsubval(value):
+        if isinstance(value, str):
+            return float(value)
+        if isinstance(value, dict):
+            return value['value'] / 2048
+        return value
+
+    def build_subs(ft, substitutions, tieraw):
         subs = []
         for substitution in substitutions:
             sub0, sub1 = substitution.split('.')
-            # sub0 = sub0.upper()
             sub1 = sub1[0].lower() + sub1[1:]
+            keepsearching = True
             for ngyy in iter_thing(tieraw):
                 if ngyy['id'] == sub0:
-                    value = ngyy[sub1]
-                    print(value, type(value))
-                    if value % 2048 == 0:
-                        value = value / 2048
+                    value = getsubval(ngyy[sub1])
                     subs.append(value)
-            # for ngyy in iter_thing(abovewards):
-            #     pass
+                    keepsearching = False
+                    break
+            if keepsearching:
+                for ngyy in iter_thing(ft, ['tiers']):
+                    if ngyy['id'] == sub0:
+                        value = getsubval(ngyy[sub1])
+                        subs.append(value)
+                        break
         return subs
 
     def iter_thing(thing, skip_keys=[]):
@@ -89,13 +99,13 @@ def build_ma(ma_key, ma_subkey):
                 for subthing in iter_thing(item, skip_keys):
                     yield subthing
 
-    def build_tiers(temp, paths, substitutions):
+    def build_tiers(ft, paths, substitutions):
         tiers = []
         for path in paths:
             raw = follow_id(components, path)
             tier = {}
             tier['level'] = raw['unlockAtLevel']
-            tier['values'] = build_subs(substitutions, raw)
+            tier['values'] = build_subs(ft, substitutions, raw)
             tiers.append(tier)
         return tiers
 
@@ -106,7 +116,7 @@ def build_ma(ma_key, ma_subkey):
             feature = {}
             # feature['title'] = raw['title']
             feature['description'] = raw['description']
-            feature['tiers'] = build_tiers(raw['description'], raw['tiers']['Array'], raw['substitutions']['Array'])
+            feature['tiers'] = build_tiers(raw, raw['tiers']['Array'], raw['substitutions']['Array'])
             features.append(feature)
         return features
 
@@ -270,7 +280,7 @@ if __name__ =='__main__':
     catalyst_keys = get_keys(catalyst_traits)
 
     for key in character_keys:
-        if monoshared[key]['humanReadableGuid'] == 'rf':
+        if monoshared[key]['humanReadableGuid'] == 'va':
             charkey = key
             break
     for key in variant_keys:
