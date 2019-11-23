@@ -190,10 +190,9 @@ def get_variants(variant_keys):
 def get_sms(character_keys):
     sms = {}
     for character_key in character_keys:
-        character = monoglobal[character_key]
+        character = monoshared[character_key]
         for sm_ref in character['specialMoves']['Array']:
-            sm_key = str(sm_ref['m_PathID'])
-            sm = monoglobal[sm_key]
+            sm = follow_id(monoshared, sm_ref)
             id = sm['humanReadableGuid']
             if id == '':
                 id = sm['guid']
@@ -208,18 +207,17 @@ def get_sms(character_keys):
             data['attack'] = sm['attackDamageMultipliers']
             data['damage'] = sm['damageIndicatorLevels']
             data['cooldown'] = sm['cooldownTimes']
-            ability = follow_id(monoshared, sm['signatureAbility'])
-            data['ability'] = ability_core(ability)
+            # ability_key, ability_subkey = follow_resource(sm['signatureAbility'])
+            # data['ability'] = build_ability(ability_key, ability_subkey)
             sms[id] = data
     return sms
 
 def get_bbs(character_keys):
     bbs = {}
     for character_key in character_keys:
-        character = monoglobal[character_key]
+        character = monoshared[character_key]
         for bb_ref in character['blockbusters']['Array']:
-            bb_key = str(bb_ref['m_PathID'])
-            bb = monoglobal[bb_key]
+            bb = follow_id(monoshared, bb_ref)
             id = bb['humanReadableGuid']
             if id == '':
                 id = bb['guid']
@@ -227,22 +225,22 @@ def get_bbs(character_keys):
             data['base'] = character['humanReadableGuid']
             data['icon'] = follow_id(monoshared, bb['palettizedIcon'])['dynamicSprite']['resourcePath'].split('/')[-1]
             data['title'] = bb['title']
-            data['type'] = 0
+            data['type'] = 1
             data['tier'] = bb['tier']
             data['gear'] = bb['gearDamageTier']
             data['cost'] = bb['gearPointsCost']
             data['attack'] = bb['attackDamageMultipliers']
             data['damage'] = bb['damageIndicatorLevels']
             data['cooldown'] = bb['strengthLevel']
-            ability = follow_id(monoshared, bb['signatureAbility'])
-            data['ability'] = ability_core(ability)
+            # ability_key, ability_subkey = follow_resource(bb['signatureAbility'])
+            # data['ability'] = build_ability(ability_key, ability_subkey)
             bbs[id] = data
     return bbs
 
 def get_catalysts(catalyst_keys):
     catalysts = {}
     for catalyst_key in catalyst_keys:
-        catalyst = monoglobal[catalyst_key]
+        catalyst = monoshared[catalyst_key]
         id = catalyst['humanReadableGuid']
         if id == '':
             id = catalyst['guid']
@@ -263,8 +261,8 @@ def get_catalysts(catalyst_keys):
                 data['constraint']['base'] = 'be' # WHY IS BEOWULF'S FILE MISSING???
         if 'elementsNeeded' in constraint:
             data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
-        ability = follow_id(monoshared, catalyst['signatureAbility'])
-        data['ability'] = ability_core(ability)
+        # ability = follow_id(monoshared, catalyst['signatureAbility'])
+        # data['ability'] = ability_core(ability)
         catalysts[id] = data
     return catalysts
 
