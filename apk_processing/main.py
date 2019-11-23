@@ -1,23 +1,22 @@
 from apk_processing import file
 import re
 
-monocoreraw = file.load('source/sgm_exports/SharedMonoBehaviour', True)
-monocore = monocoreraw['sharedassets0.assets.split0']
-monolith = file.load('source/sgm_exports/GlobalMonoBehaviour', True)
+monosharedraw = file.load('source/sgm_exports/SharedMonoBehaviour', True)
+monoshared = monosharedraw['sharedassets0.assets.split0']
+monoglobal = file.load('source/sgm_exports/GlobalMonoBehaviour', True)
 corpus = file.load('source/sgm_exports/TextAsset')
 
 character_traits = ['characterAbility', 'englishVoArtist']
 variant_traits = ['baseCharacter', 'displayVariantName', 'variantQuote']
 catalyst_traits = ['randomCharacter', 'randomElement']
-ability_traits = ['title', 'feature']
 
-def get_keys(parent, traits): # remove parent if monocore is the only object used here
+def get_keys(traits):
     'Get keys of objects with certain attributes from the parent object.'
     keys = set()
-    for key in parent:
+    for key in monoshared:
         has_all_traits = True
         for trait in traits:
-            if trait not in parent[key]:
+            if trait not in monoshared[key]:
                 has_all_traits = False
                 break
         if has_all_traits:
@@ -37,11 +36,11 @@ def follow_resource(path):
     'Get keys referenced by an resourcePath object.'
     if 'resourcePath' in path:
         pathname = path['resourcePath']
-        for key in monolith:
-            for subkey in monolith[key]:
-                if '0 GameObject Base' in monolith[key][subkey]:
-                    if '1 string m_Name' in monolith[key][subkey]['0 GameObject Base']:
-                        if monolith[key][subkey]['0 GameObject Base']['1 string m_Name'] == pathname:
+        for key in monoglobal:
+            for subkey in monoglobal[key]:
+                if '0 GameObject Base' in monoglobal[key][subkey]:
+                    if '1 string m_Name' in monoglobal[key][subkey]['0 GameObject Base']:
+                        if monoglobal[key][subkey]['0 GameObject Base']['1 string m_Name'] == pathname:
                             return key, subkey
     return '', ''
 
@@ -54,35 +53,88 @@ def build_ca(ability): # combine with other build_s?
     return data
 
 def build_ma(ma_key, ma_subkey):
-    components = monolith[ma_key]
-    ma_core = monolith[ma_key][ma_subkey]['0 GameObject Base']
-    data = {}
+    components = monoglobal[ma_key]
+    ma_core = monoglobal[ma_key][ma_subkey]['0 GameObject Base']
+
+    def build_subs(substitutions, tieraw):
+        subs = []
+        for substitution in substitutions:
+            sub0, sub1 = substitution.split('.')
+            # sub0 = sub0.upper()
+            sub1 = sub1[0].lower() + sub1[1:]
+            for ngyy in iter_thing(tieraw):
+                if ngyy['id'] == sub0:
+                    value = ngyy[sub1]
+                    print(value, type(value))
+                    if value % 2048 == 0:
+                        value = value / 2048
+                    subs.append(value)
+            # for ngyy in iter_thing(abovewards):
+            #     pass
+        return subs
+
+    def iter_thing(thing, skip_keys=[]):
+        'Iterate through everything nested within an object.'
+        if isinstance(thing, dict):
+            if 'm_PathID' in thing:
+                thing = follow_id(components, thing)
+            if 'id' in thing:
+                yield thing
+            for key in thing:
+                if key not in skip_keys:
+                    for subthing in iter_thing(thing[key], skip_keys):
+                        yield subthing
+        elif isinstance(thing, list):
+            for item in thing:
+                for subthing in iter_thing(item, skip_keys):
+                    yield subthing
+
+    def build_tiers(temp, paths, substitutions):
+        tiers = []
+        for path in paths:
+            raw = follow_id(components, path)
+            tier = {}
+            tier['level'] = raw['unlockAtLevel']
+            tier['values'] = build_subs(substitutions, raw)
+            tiers.append(tier)
+        return tiers
+
+    def build_features(paths):
+        features = []
+        for path in paths:
+            raw = follow_id(components, path)
+            feature = {}
+            # feature['title'] = raw['title']
+            feature['description'] = raw['description']
+            feature['tiers'] = build_tiers(raw['description'], raw['tiers']['Array'], raw['substitutions']['Array'])
+            features.append(feature)
+        return features
+
+    ability = {}
     if '1 string m_Name' in ma_core:
-        data['title'] = ma_core['1 string m_Name']
+        ability['title'] = ma_core['1 string m_Name']
     if '0 vector m_Component' in ma_core:
-        if '1 Array Array' in ma_core['0 vector m_Component']:
-            for thing in ma_core['0 vector m_Component']['1 Array Array']:
-                component = follow_id(components, thing['0 ComponentPair data']['0 PPtr<Component> component'])
-                if 'title' in component and 'features' in component:
-                    data['title'] = component['title']
-                    for feature in component['features']['Array']:
-                        print(follow_id(components, feature))
-                    break
-    return data
+        for thing in ma_core['0 vector m_Component']['1 Array Array']:
+            component = follow_id(components, thing['0 ComponentPair data']['0 PPtr<Component> component'])
+            if 'title' in component and 'features' in component:
+                ability['title'] = component['title']
+                ability['features'] = build_features(component['features']['Array'])
+                break
+    return ability
 
 def get_characters(character_keys, variant_keys): # figure out why beowulf is gone
     characters = {}
     for character_key in character_keys:
-        character = monocore[character_key]
+        character = monoshared[character_key]
         id = character['humanReadableGuid']
         if id == '':
             id = character['guid']
         data = {}
         data['name'] = character['displayName']
-        ca = follow_id(monocore, character['characterAbility'])
+        ca = follow_id(monoshared, character['characterAbility'])
         data['ca'] = build_ca(ca)
         for variant_key in variant_keys:
-            variant = monocore[variant_key]
+            variant = monoshared[variant_key]
             if variant['superAbility']['resourcePath'] == '': # dummy
                 continue
             base = variant['baseCharacter']
@@ -97,12 +149,12 @@ def get_characters(character_keys, variant_keys): # figure out why beowulf is go
 def get_variants(variant_keys):
     variants = {}
     for variant_key in variant_keys:
-        variant = monocore[variant_key]
+        variant = monoshared[variant_key]
         id = variant['humanReadableGuid']
         if id == '':
             id = variant['guid']
         data = {}
-        character = follow_id(monocore, variant['baseCharacter'])
+        character = follow_id(monoshared, variant['baseCharacter'])
         if character == {}:
             print('Cannot find', variant['baseCharacter'], 'for', id)
         else:
@@ -112,7 +164,7 @@ def get_variants(variant_keys):
         data['tier'] = variant['initialTier']
         data['element'] = variant['elementAffiliation']
         data['stats'] = variant['baseScaledValuesByTier']['Array']
-        # sa = follow_id(monocore, variant['signatureAbility'])
+        # sa = follow_id(monoshared, variant['signatureAbility'])
         # data['sa'] = ability_core(sa)
         data['fandom'] = corpus['en'][variant['displayVariantName']]
         variants[id] = data
@@ -121,16 +173,16 @@ def get_variants(variant_keys):
 def get_sms(character_keys):
     sms = {}
     for character_key in character_keys:
-        character = monolith[character_key]
+        character = monoglobal[character_key]
         for sm_ref in character['specialMoves']['Array']:
             sm_key = str(sm_ref['m_PathID'])
-            sm = monolith[sm_key]
+            sm = monoglobal[sm_key]
             id = sm['humanReadableGuid']
             if id == '':
                 id = sm['guid']
             data = {}
             data['base'] = character['humanReadableGuid']
-            data['icon'] = follow_id(monocore, sm['palettizedIcon'])['dynamicSprite']['resourcePath'].split('/')[-1]
+            data['icon'] = follow_id(monoshared, sm['palettizedIcon'])['dynamicSprite']['resourcePath'].split('/')[-1]
             data['title'] = sm['title']
             data['type'] = 0
             data['tier'] = sm['tier']
@@ -139,7 +191,7 @@ def get_sms(character_keys):
             data['attack'] = sm['attackDamageMultipliers']
             data['damage'] = sm['damageIndicatorLevels']
             data['cooldown'] = sm['cooldownTimes']
-            ability = follow_id(monocore, sm['signatureAbility'])
+            ability = follow_id(monoshared, sm['signatureAbility'])
             data['ability'] = ability_core(ability)
             sms[id] = data
     return sms
@@ -147,16 +199,16 @@ def get_sms(character_keys):
 def get_bbs(character_keys):
     bbs = {}
     for character_key in character_keys:
-        character = monolith[character_key]
+        character = monoglobal[character_key]
         for bb_ref in character['blockbusters']['Array']:
             bb_key = str(bb_ref['m_PathID'])
-            bb = monolith[bb_key]
+            bb = monoglobal[bb_key]
             id = bb['humanReadableGuid']
             if id == '':
                 id = bb['guid']
             data = {}
             data['base'] = character['humanReadableGuid']
-            data['icon'] = follow_id(monocore, bb['palettizedIcon'])['dynamicSprite']['resourcePath'].split('/')[-1]
+            data['icon'] = follow_id(monoshared, bb['palettizedIcon'])['dynamicSprite']['resourcePath'].split('/')[-1]
             data['title'] = bb['title']
             data['type'] = 0
             data['tier'] = bb['tier']
@@ -165,7 +217,7 @@ def get_bbs(character_keys):
             data['attack'] = bb['attackDamageMultipliers']
             data['damage'] = bb['damageIndicatorLevels']
             data['cooldown'] = bb['strengthLevel']
-            ability = follow_id(monocore, bb['signatureAbility'])
+            ability = follow_id(monoshared, bb['signatureAbility'])
             data['ability'] = ability_core(ability)
             bbs[id] = data
     return bbs
@@ -173,7 +225,7 @@ def get_bbs(character_keys):
 def get_catalysts(catalyst_keys):
     catalysts = {}
     for catalyst_key in catalyst_keys:
-        catalyst = monolith[catalyst_key]
+        catalyst = monoglobal[catalyst_key]
         id = catalyst['humanReadableGuid']
         if id == '':
             id = catalyst['guid']
@@ -183,18 +235,18 @@ def get_catalysts(catalyst_keys):
         data['icon'] = catalyst['icon']['resourcePath']
         data['characterLock'] = catalyst['randomCharacter']
         data['elementLock'] = catalyst['randomElement']
-        constraint = follow_id(monocore, catalyst['abilityConstraint'])
+        constraint = follow_id(monoshared, catalyst['abilityConstraint'])
         data['constraint'] = {}
         if 'charactersNeeded' in constraint:
             character_ref = constraint['charactersNeeded']['Array'][0]
-            character = follow_id(monocore, character_ref)
+            character = follow_id(monoshared, character_ref)
             if 'humanReadableGuid' in character:
                 data['constraint']['base'] = character['humanReadableGuid']
             else:
                 data['constraint']['base'] = 'be' # WHY IS BEOWULF'S FILE MISSING???
         if 'elementsNeeded' in constraint:
             data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
-        ability = follow_id(monocore, catalyst['signatureAbility'])
+        ability = follow_id(monoshared, catalyst['signatureAbility'])
         data['ability'] = ability_core(ability)
         catalysts[id] = data
     return catalysts
@@ -213,12 +265,20 @@ def get_corpus_keys(object):
     return keys
 
 if __name__ =='__main__':
-    character_keys = get_keys(monocore, character_traits)
-    variant_keys = get_keys(monocore, variant_traits)
-    catalyst_keys = get_keys(monocore, catalyst_traits)
+    character_keys = get_keys(character_traits)
+    variant_keys = get_keys(variant_traits)
+    catalyst_keys = get_keys(catalyst_traits)
 
-    get_possible_referenceicneindeindiend('18062')
-    get_possible_referenceicneindeindiend('17996')
+    for key in character_keys:
+        if monoshared[key]['humanReadableGuid'] == 'rf':
+            charkey = key
+            break
+    for key in variant_keys:
+        if str(monoshared[key]['baseCharacter']['m_PathID']) == charkey:
+            varkey = key
+            break
+    ma_key, ma_subkey = follow_resource(monoshared[varkey]['superAbility'])
+    monoglobal[ma_key]
 
     characters = get_characters(character_keys, variant_keys)
     variants = get_variants(variant_keys)
