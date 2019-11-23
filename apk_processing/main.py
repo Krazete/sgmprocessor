@@ -52,9 +52,9 @@ def build_ca(ability): # combine with other build_s?
         data['description'] = ability['description']
     return data
 
-def build_ma(ma_key, ma_subkey):
-    components = monoglobal[ma_key]
-    ma_core = monoglobal[ma_key][ma_subkey]['0 GameObject Base']
+def build_ability(ability_key, ability_subkey):
+    components = monoglobal[ability_key]
+    ma_core = monoglobal[ability_key][ability_subkey]['0 GameObject Base']
 
     def getsubval(value):
         if isinstance(value, str):
@@ -114,7 +114,8 @@ def build_ma(ma_key, ma_subkey):
         for path in paths:
             raw = follow_id(components, path)
             feature = {}
-            # feature['title'] = raw['title']
+            if raw['title'] != '': # find a better way to detect if ability is a marquee
+                feature['title'] = raw['title']
             feature['description'] = raw['description']
             feature['tiers'] = build_tiers(raw, raw['tiers']['Array'], raw['substitutions']['Array'])
             features.append(feature)
@@ -132,6 +133,9 @@ def build_ma(ma_key, ma_subkey):
                 break
     return ability
 
+def is_dummy(variant):
+    return variant['superAbility']['resourcePath'] == ''
+
 def get_characters(character_keys, variant_keys): # figure out why beowulf is gone
     characters = {}
     for character_key in character_keys:
@@ -145,13 +149,13 @@ def get_characters(character_keys, variant_keys): # figure out why beowulf is go
         data['ca'] = build_ca(ca)
         for variant_key in variant_keys:
             variant = monoshared[variant_key]
-            if variant['superAbility']['resourcePath'] == '': # dummy
+            if is_dummy(variant):
                 continue
             base = variant['baseCharacter']
             base_key = str(base['m_PathID'])
             if base_key == character_key:
-                ma_key, ma_subkey = follow_resource(variant['superAbility'])
-                data['ma'] = build_ma(ma_key, ma_subkey)
+                ability_key, ability_subkey = follow_resource(variant['superAbility'])
+                data['ma'] = build_ability(ability_key, ability_subkey)
                 break
         characters[id] = data
     return characters
@@ -160,6 +164,8 @@ def get_variants(variant_keys):
     variants = {}
     for variant_key in variant_keys:
         variant = monoshared[variant_key]
+        if is_dummy(variant):
+            continue
         id = variant['humanReadableGuid']
         if id == '':
             id = variant['guid']
@@ -174,8 +180,9 @@ def get_variants(variant_keys):
         data['tier'] = variant['initialTier']
         data['element'] = variant['elementAffiliation']
         data['stats'] = variant['baseScaledValuesByTier']['Array']
-        # sa = follow_id(monoshared, variant['signatureAbility'])
-        # data['sa'] = ability_core(sa)
+        sa_key, sa_subkey = follow_resource(variant['signatureAbility'])
+        # print(id, variant['signatureAbility'])
+        data['sa'] = build_ability(sa_key, sa_subkey)
         data['fandom'] = corpus['en'][variant['displayVariantName']]
         variants[id] = data
     return variants
@@ -279,16 +286,16 @@ if __name__ =='__main__':
     variant_keys = get_keys(variant_traits)
     catalyst_keys = get_keys(catalyst_traits)
 
-    for key in character_keys:
-        if monoshared[key]['humanReadableGuid'] == 'va':
-            charkey = key
-            break
-    for key in variant_keys:
-        if str(monoshared[key]['baseCharacter']['m_PathID']) == charkey:
-            varkey = key
-            break
-    ma_key, ma_subkey = follow_resource(monoshared[varkey]['superAbility'])
-    monoglobal[ma_key]
+    # for key in character_keys:
+    #     if monoshared[key]['humanReadableGuid'] == 'va':
+    #         charkey = key
+    #         break
+    # for key in variant_keys:
+    #     if str(monoshared[key]['baseCharacter']['m_PathID']) == charkey:
+    #         varkey = key
+    #         break
+    # ability_key, ability_subkey = follow_resource(monoshared[varkey]['superAbility'])
+    # monoglobal[ability_key]
 
     characters = get_characters(character_keys, variant_keys)
     variants = get_variants(variant_keys)
