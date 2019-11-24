@@ -207,8 +207,9 @@ def get_sms(character_keys):
             data['attack'] = sm['attackDamageMultipliers']
             data['damage'] = sm['damageIndicatorLevels']
             data['cooldown'] = sm['cooldownTimes']
-            # ability_key, ability_subkey = follow_resource(sm['signatureAbility'])
-            # data['ability'] = build_ability(ability_key, ability_subkey)
+            if sm['signatureAbility']['resourcePath'] != '':
+                ability_key, ability_subkey = follow_resource(sm['signatureAbility'])
+                data['ability'] = build_ability(ability_key, ability_subkey)
             sms[id] = data
     return sms
 
@@ -232,8 +233,9 @@ def get_bbs(character_keys):
             data['attack'] = bb['attackDamageMultipliers']
             data['damage'] = bb['damageIndicatorLevels']
             data['cooldown'] = bb['strengthLevel']
-            # ability_key, ability_subkey = follow_resource(bb['signatureAbility'])
-            # data['ability'] = build_ability(ability_key, ability_subkey)
+            if bb['signatureAbility']['resourcePath'] != '':
+                ability_key, ability_subkey = follow_resource(bb['signatureAbility'])
+                data['ability'] = build_ability(ability_key, ability_subkey)
             bbs[id] = data
     return bbs
 
@@ -261,8 +263,10 @@ def get_catalysts(catalyst_keys):
                 data['constraint']['base'] = 'be' # WHY IS BEOWULF'S FILE MISSING???
         if 'elementsNeeded' in constraint:
             data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
-        # ability = follow_id(monoshared, catalyst['signatureAbility'])
-        # data['ability'] = ability_core(ability)
+        # if catalyst['signatureAbility']['resourcePath'] != '':
+        #     skasdasd, skasdasdasdk = follow_resource(catalyst['signatureAbility'])
+        #     print(id, follow_resource(catalyst['signatureAbility']))
+        #     data['ability'] = build_ability(skasdasd, skasdasdasdk)
         catalysts[id] = data
     return catalysts
 
