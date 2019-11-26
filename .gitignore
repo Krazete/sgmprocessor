@@ -1,8 +1,11 @@
 __pycache__
 *.m~
 source
+data
 apk_processing/sgm_exports
 apk_processing/common.json
 apk_processing/study.json
 portrait_processing/Art Capture
+portrait_processing/raw_mask
+move_processing/Sprite
 Phone
