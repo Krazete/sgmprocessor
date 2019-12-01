@@ -1,9 +1,9 @@
 import os
 import json
-from shutil import copyfile, rmtree
+from shutil import rmtree
 
 def iter_json_dir(directory, show_error=False):
-    'Generate all valid JSON files in given directory.'
+    'Generate all valid JSON files from given directory.'
     for filename in os.listdir(directory):
         with open(os.path.join(directory, filename), encoding='utf-8') as file:
             try:
@@ -34,15 +34,8 @@ def save(obj, path, pretty=True):
         else:
             json.dump(obj, file, sort_keys=True)
 
-def copy(src, dst, show_error=False):
-    'Copy a file.'
-    try:
-        copyfile(src, dst)
-    except FileNotFoundError:
-        if show_error:
-            print('FileNotFoundError:', src, ' to ', dst)
-
 def resetdir(path):
+    'Make or clear a directory.'
     if os.path.exists(path):
         rmtree(path)
     os.mkdir(path)

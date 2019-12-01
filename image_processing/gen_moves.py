@@ -1,4 +1,5 @@
 import os
+from apk_processing import file
 from PIL import Image, ImageMath
 
 def iter_p(directory, show_error=False):
@@ -27,7 +28,7 @@ def dothings(im, filename, liquids):
     i.putalpha(a)
     i.save('data/' + filename)
 
-for im, filename in iter_p('source/Sprite'):
+for im, filename in file.iter_img_dir('source/Sprite'):
     if '_BB' in filename or '_SM' in filename:
         liquids = []
         if 'Beowulf_' in filename:

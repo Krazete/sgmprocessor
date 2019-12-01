@@ -265,7 +265,7 @@ def get_catalysts(catalyst_keys):
             data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
         # if catalyst['signatureAbility']['resourcePath'] != '':
         #     skasdasd, skasdasdasdk = follow_resource(catalyst['signatureAbility'])
-        #     print(id, follow_resource(catalyst['signatureAbility']))
+        #     print(id, catalyst['signatureAbility'], follow_resource(catalyst['signatureAbility']))
         #     data['ability'] = build_ability(skasdasd, skasdasdasdk)
         catalysts[id] = data
     return catalysts
@@ -298,6 +298,12 @@ if __name__ =='__main__':
     #         break
     # ability_key, ability_subkey = follow_resource(monoshared[varkey]['superAbility'])
     # monoglobal[ability_key]
+
+    # sa = follow_id(monoshared, monoshared[charkey]['specialMoves']['Array'][2])
+    # k, sk = follow_resource(sa['signatureAbility'])
+    # monoglobal[k][sk]
+    #
+    # build_ability(k, sk)
 
     characters = get_characters(character_keys, variant_keys)
     variants = get_variants(variant_keys)
