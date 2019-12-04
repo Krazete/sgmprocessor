@@ -1,16 +1,18 @@
 from data_processing import file
 
-common = [
+corpus = file.load('data_processing/input/TextAsset')
+
+keys = [
     'Key_DisplayName',
     'Key_Fighter',
     'SkillTree_Gear',
-    'MainMenu_Collection', # UNUSED
+    'MainMenu_Collection', # unused
     'Version_Login',
     'Popup_Download_Confirm_Header',
     'Collection_Characters',
     'Collection_SMoves',
     'Collection_NodeModifiers',
-    'Ranked_Rating', # UNUSED (pluralized in css)
+    'Ranked_Rating', # unused (pluralized in css)
     'Loading_Status_Loading',
     'Popup_Error_Header',
 
@@ -34,12 +36,12 @@ common = [
     'Dmg_05_Ultra',
     'SM_Cooldown',
     'Stat_Seconds_Full',
-    'Stat_Seconds_Short', # UNUSED
+    'Stat_Seconds_Short', # unused
     'SM_Upgrade',
     'Sell',
 
     'Key_Options',
-    'Stat_Lvl', # UNUSED
+    'Stat_Lvl', # unused
     'Character_Evolve_Button',
     'Character_Sorting_Level',
     'None',
@@ -55,11 +57,11 @@ common = [
     'Sort_Type'
 ]
 
-corpus = file.load('data_processing/sgm_exports/TextAsset')
-commoncorpus = {key: {language: corpus[language][key] for language in corpus} for key in common}
-file.save(commoncorpus, 'data_processing/common.json')
+common = {key: {language: corpus[language][key] for language in corpus} for key in keys}
 
-# REGEX-SEARCH FOR:
-# "(.+?)": "(.+?)",?
-# REPLACE WITH:
-# html[lang='$1'] :before {content: '$2';}
+file.save(common, 'data_processing/output/common.json', True)
+
+# regex-search for:
+#     "(.+?)": "(.+?)",?
+# and replace with:
+#     html[lang='$1'] :before {content: '$2';}
