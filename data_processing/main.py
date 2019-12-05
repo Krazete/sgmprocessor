@@ -18,14 +18,6 @@ def get_keys(attributes):
             keys.add(key)
     return keys
 
-def build_character_ablity(ability):
-    if 'title' in ability and 'description' in ability:
-        return {
-            'title': ability['title'],
-            'description': ability['description']
-        }
-    return {} # fukua
-
 def follow_id(parent, pointer):
     'Get object (from specified parent object) referenced by m_PathID object.'
     m_PathID = 'm_PathID' if 'm_PathID' in pointer else '0 SInt64 m_PathID'
@@ -44,6 +36,26 @@ def follow_resource(pointer):
                 if path == pointer['resourcePath']:
                     return key, subkey
     return '', ''
+
+def create_id(parent, data):
+    'Retrieve ID from data and alter it to be unique if necessary.'
+    id = data['humanReadableGuid']
+    if id == '':
+        id = data['guid']
+    while id in parent:
+        id += '_'
+    return id
+
+def is_dummy(variant):
+    return variant['superAbility']['resourcePath'] == ''
+
+def build_character_ablity(ability):
+    if 'title' in ability and 'description' in ability:
+        return {
+            'title': ability['title'],
+            'description': ability['description']
+        }
+    return {} # for fukua
 
 def build_ability(ability_key, ability_subkey, has_subtitles=False):
     if ability_key not in monoglobal:
@@ -132,16 +144,11 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False):
             }
     return {}
 
-def is_dummy(variant):
-    return variant['superAbility']['resourcePath'] == ''
-
 def get_characters(character_keys, variant_keys): # where is beowulf's file?
     characters = {}
     for character_key in character_keys:
         character = monoshared[character_key]
-        id = character['humanReadableGuid']
-        if id == '':
-            id = character['guid']
+        id = build_id(characters, character)
         ca = follow_id(monoshared, character['characterAbility'])
         ma_key, ma_subkey = None, None # prevent assigning previous ma
         for variant_key in variant_keys:
@@ -166,9 +173,7 @@ def get_variants(variant_keys):
         variant = monoshared[variant_key]
         if is_dummy(variant):
             continue
-        id = variant['humanReadableGuid']
-        if id == '':
-            id = variant['guid']
+        id = create_id(variants, variant)
         character = follow_id(monoshared, variant['baseCharacter'])
         if character == {}:
             print('Cannot find', variant['baseCharacter'], 'for', id)
@@ -191,9 +196,7 @@ def get_sms(character_keys):
         character = monoshared[character_key]
         for pointer in character['specialMoves']['Array']:
             sm = follow_id(monoshared, pointer)
-            id = sm['humanReadableGuid']
-            if id == '':
-                id = sm['guid']
+            id = create_id(sms, sm)
             icon = follow_id(monoshared, sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             sma_key, sma_subkey = follow_resource(sm['signatureAbility'])
@@ -218,9 +221,7 @@ def get_bbs(character_keys):
         character = monoshared[character_key]
         for pointer in character['blockbusters']['Array']:
             bb = follow_id(monoshared, pointer)
-            id = bb['humanReadableGuid']
-            if id == '':
-                id = bb['guid']
+            id = create_id(bbs, bb)
             icon = follow_id(monoshared, bb['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             bba_key, bba_subkey = follow_resource(bb['signatureAbility'])
@@ -243,9 +244,7 @@ def get_catalysts(catalyst_keys): #
     catalysts = {}
     for catalyst_key in catalyst_keys:
         catalyst = monoshared[catalyst_key]
-        id = catalyst['humanReadableGuid']
-        if id == '':
-            id = catalyst['guid']
+        id = create_id(catalysts, catalyst)
         catalysts[id] = {
             'title': catalyst['title'],
             'tier': catalyst['tier'],
@@ -254,16 +253,19 @@ def get_catalysts(catalyst_keys): #
             'elementLock': catalyst['randomElement'],
             'constraint': {}
         }
-        constraint = follow_id(monoshared, catalyst['abilityConstraint'])
-        if 'charactersNeeded' in constraint:
-            character_ref = constraint['charactersNeeded']['Array'][0]
-            character = follow_id(monoshared, character_ref)
-            if 'humanReadableGuid' in character:
-                data['constraint']['base'] = character['humanReadableGuid']
-            else:
-                data['constraint']['base'] = 'be' # WHY IS BEOWULF'S FILE MISSING???
-        if 'elementsNeeded' in constraint:
-            data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
+
+        # constraint = follow_id(monoshared, catalyst['abilityConstraint'])
+        # print
+        # if 'charactersNeeded' in constraint:
+        #     character_ref = constraint['charactersNeeded']['Array'][0]
+        #     character = follow_id(monoshared, character_ref)
+        #     if 'humanReadableGuid' in character:
+        #         data['constraint']['base'] = character['humanReadableGuid']
+        #     else:
+        #         data['constraint']['base'] = 'be'
+        # if 'elementsNeeded' in constraint:
+        #     data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
+
         # if catalyst['signatureAbility']['resourcePath'] != '':
         #     skasdasd, skasdasdasdk = follow_resource(catalyst['signatureAbility'])
         #     print(id, catalyst['signatureAbility'], follow_resource(catalyst['signatureAbility']))
@@ -289,10 +291,10 @@ if __name__ == '__main__':
 
     ### study marquee ability of specific character
     # for charkey in character_keys:
-    #     if monoshared[key]['humanReadableGuid'] == 'va':
+    #     if monoshared[charkey]['humanReadableGuid'] == 'va':
     #         break
     # for varkey in variant_keys:
-    #     if str(monoshared[key]['baseCharacter']['m_PathID']) == charkey:
+    #     if str(monoshared[varkey]['baseCharacter']['m_PathID']) == charkey:
     #         break
     # key, subkey = follow_resource(monoshared[varkey]['superAbility'])
     # monoglobal[key]
