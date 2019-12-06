@@ -250,32 +250,25 @@ def get_catalysts(catalyst_keys):
     for catalyst_key in catalyst_keys:
         catalyst = monoshared[catalyst_key]
         id = create_id(catalysts, catalyst)
-
-        # constraint = follow_id(monoshared, catalyst['abilityConstraint'])
-        # print(constraint)
-        # if 'charactersNeeded' in constraint:
-        #     character_ref = constraint['charactersNeeded']['Array'][0]
-        #     character = follow_id(monoshared, character_ref)
-        #     if 'humanReadableGuid' in character:
-        #         data['constraint']['base'] = character['humanReadableGuid']
-        #     else:
-        #         data['constraint']['base'] = 'be'
-        # if 'elementsNeeded' in constraint:
-        #     data['constraint']['element'] = constraint['elementsNeeded']['Array'][0]
-
-        # if catalyst['signatureAbility']['resourcePath'] != '':
-        #     skasdasd, skasdasdasdk = follow_resource(catalyst['signatureAbility'])
-        #     print(id, catalyst['signatureAbility'], follow_resource(catalyst['signatureAbility']))
-        #     data['ability'] = build_ability(skasdasd, skasdasdasdk)
-
+        characters = []
+        elements = []
+        constraint = follow_id(monoshared, catalyst['abilityConstraint'])
+        if 'charactersNeeded' in constraint:
+            for pointer in constraint['charactersNeeded']['Array']:
+                character = follow_id(monoshared, pointer)
+                characters.append(character['humanReadableGuid'])
+        if 'elementsNeeded' in constraint:
+            for element in constraint['elementsNeeded']['Array']:
+                elements.append(element)
         cata_key, cata_subkey = follow_resource(catalyst['signatureAbility'])
         catalysts[id] = {
             'title': catalyst['title'],
             'tier': catalyst['tier'],
             'icon': catalyst['icon']['resourcePath'],
-            'characterLock': catalyst['randomCharacter'],
-            'elementLock': catalyst['randomElement'],
-            'constraint': {},
+            'randomCharacter': catalyst['randomCharacter'],
+            'randomElement': catalyst['randomElement'],
+            'specialCharacter': characters,
+            'specialElement': elements,
             'ability': build_ability(cata_key, cata_subkey)
         }
     return catalysts
