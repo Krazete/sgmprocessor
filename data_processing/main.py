@@ -148,7 +148,7 @@ def get_characters(character_keys, variant_keys): # where is beowulf's file?
     characters = {}
     for character_key in character_keys:
         character = monoshared[character_key]
-        id = build_id(characters, character)
+        id = create_id(characters, character)
         ca = follow_id(monoshared, character['characterAbility'])
         ma_key, ma_subkey = None, None # prevent assigning previous ma
         for variant_key in variant_keys:
@@ -197,6 +197,9 @@ def get_sms(character_keys):
         for pointer in character['specialMoves']['Array']:
             sm = follow_id(monoshared, pointer)
             id = create_id(sms, sm)
+            if sm['cooldownTimes']['Array'] == [-1]: # competitive pvp burst
+                print(id)
+                continue
             icon = follow_id(monoshared, sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             sma_key, sma_subkey = follow_resource(sm['signatureAbility'])
@@ -309,21 +312,25 @@ if __name__ == '__main__':
     variants = get_variants(variant_keys)
     sms = get_sms(character_keys)
     bbs = get_bbs(character_keys)
-    moves = {**sms, **bbs}
-    # catalysts = get_catalysts(catalyst_keys)
+    # moves = {**sms, **bbs}
+    catalysts = get_catalysts(catalyst_keys)
 
     file.resetdir('data_processing/output')
 
     file.save(characters, 'data_processing/output/characters.json')
     file.save(variants, 'data_processing/output/variants.json')
-    file.save(moves, 'data_processing/output/moves.json')
-    # file.save(catalysts, 'data_processing/output/catalysts.json')
+    file.save(sms, 'data_processing/output/sms.json')
+    file.save(bbs, 'data_processing/output/bbs.json')
+    # file.save(moves, 'data_processing/output/moves.json')
+    file.save(catalysts, 'data_processing/output/catalysts.json')
 
     corpus_keys = set()
     corpus_keys |= get_corpus_keys(characters)
     corpus_keys |= get_corpus_keys(variants)
-    corpus_keys |= get_corpus_keys(moves)
-    # corpus_keys |= get_corpus_keys(catalysts)
+    corpus_keys |= get_corpus_keys(sms)
+    corpus_keys |= get_corpus_keys(bbs)
+    # corpus_keys |= get_corpus_keys(moves)
+    corpus_keys |= get_corpus_keys(catalysts)
 
     for language in corpus:
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
