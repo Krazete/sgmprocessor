@@ -28,12 +28,13 @@ def follow_id(parent, pointer):
 
 def follow_resource(pointer):
     'Get monoglobal key and subkey referenced by resourcePath object.'
+    path = pointer['resourcePath'].split('/')[-1] # .split for catalysts
     if 'resourcePath' in pointer:
         for key in monoglobal:
             for subkey in monoglobal[key]:
                 base = monoglobal[key][subkey].get('0 GameObject Base', {})
-                path = base.get('1 string m_Name')
-                if path == pointer['resourcePath']:
+                name = base.get('1 string m_Name')
+                if name == path:
                     return key, subkey
     return '', ''
 
@@ -55,7 +56,7 @@ def build_character_ablity(ability):
             'title': ability['title'],
             'description': ability['description']
         }
-    return {} # for fukua
+    return {} # fukua
 
 def build_ability(ability_key, ability_subkey, has_subtitles=False):
     if ability_key not in monoglobal:
@@ -92,6 +93,8 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False):
             id, stat = substitution.split('.')
             id = id.lower()
             stat = stat[0].lower() + stat[1:]
+            if stat == 'pERCENTAGE': # buer catalyst
+                stat = 'percentage'
             not_found = True
             for effect in iter_effects(tier):
                 if effect['id'].lower() == id:
@@ -198,7 +201,6 @@ def get_sms(character_keys):
             sm = follow_id(monoshared, pointer)
             id = create_id(sms, sm)
             if sm['cooldownTimes']['Array'] == [-1]: # competitive pvp burst
-                print(id)
                 continue
             icon = follow_id(monoshared, sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
@@ -243,22 +245,14 @@ def get_bbs(character_keys):
             }
     return bbs
 
-def get_catalysts(catalyst_keys): #
+def get_catalysts(catalyst_keys):
     catalysts = {}
     for catalyst_key in catalyst_keys:
         catalyst = monoshared[catalyst_key]
         id = create_id(catalysts, catalyst)
-        catalysts[id] = {
-            'title': catalyst['title'],
-            'tier': catalyst['tier'],
-            'icon': catalyst['icon']['resourcePath'],
-            'characterLock': catalyst['randomCharacter'],
-            'elementLock': catalyst['randomElement'],
-            'constraint': {}
-        }
 
         # constraint = follow_id(monoshared, catalyst['abilityConstraint'])
-        # print
+        # print(constraint)
         # if 'charactersNeeded' in constraint:
         #     character_ref = constraint['charactersNeeded']['Array'][0]
         #     character = follow_id(monoshared, character_ref)
@@ -273,6 +267,17 @@ def get_catalysts(catalyst_keys): #
         #     skasdasd, skasdasdasdk = follow_resource(catalyst['signatureAbility'])
         #     print(id, catalyst['signatureAbility'], follow_resource(catalyst['signatureAbility']))
         #     data['ability'] = build_ability(skasdasd, skasdasdasdk)
+
+        cata_key, cata_subkey = follow_resource(catalyst['signatureAbility'])
+        catalysts[id] = {
+            'title': catalyst['title'],
+            'tier': catalyst['tier'],
+            'icon': catalyst['icon']['resourcePath'],
+            'characterLock': catalyst['randomCharacter'],
+            'elementLock': catalyst['randomElement'],
+            'constraint': {},
+            'ability': build_ability(cata_key, cata_subkey)
+        }
     return catalysts
 
 def get_corpus_keys(data):
@@ -312,16 +317,14 @@ if __name__ == '__main__':
     variants = get_variants(variant_keys)
     sms = get_sms(character_keys)
     bbs = get_bbs(character_keys)
-    # moves = {**sms, **bbs}
     catalysts = get_catalysts(catalyst_keys)
 
-    file.resetdir('data_processing/output')
+    file.rmkdir('data_processing/output')
 
     file.save(characters, 'data_processing/output/characters.json')
     file.save(variants, 'data_processing/output/variants.json')
     file.save(sms, 'data_processing/output/sms.json')
     file.save(bbs, 'data_processing/output/bbs.json')
-    # file.save(moves, 'data_processing/output/moves.json')
     file.save(catalysts, 'data_processing/output/catalysts.json')
 
     corpus_keys = set()
@@ -329,7 +332,6 @@ if __name__ == '__main__':
     corpus_keys |= get_corpus_keys(variants)
     corpus_keys |= get_corpus_keys(sms)
     corpus_keys |= get_corpus_keys(bbs)
-    # corpus_keys |= get_corpus_keys(moves)
     corpus_keys |= get_corpus_keys(catalysts)
 
     for language in corpus:
