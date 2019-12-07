@@ -59,6 +59,7 @@ keys = [
 
 common = {key: {language: corpus[language][key] for language in corpus} for key in keys}
 
+file.mkdir('data_processing/output')
 file.save(common, 'data_processing/output/common.json', True)
 
 # regex-search for:

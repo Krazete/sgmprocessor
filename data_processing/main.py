@@ -312,7 +312,7 @@ if __name__ == '__main__':
     bbs = get_bbs(character_keys)
     catalysts = get_catalysts(catalyst_keys)
 
-    file.rmkdir('data_processing/output')
+    file.mkdir('data_processing/output')
 
     file.save(characters, 'data_processing/output/characters.json')
     file.save(variants, 'data_processing/output/variants.json')

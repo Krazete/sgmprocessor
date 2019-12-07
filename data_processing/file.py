@@ -1,6 +1,5 @@
 import os
 import json
-from shutil import rmtree
 
 def iter_json(directory, show_error=False):
     'Generate labeled objects from JSON files of the specified directory.'
@@ -34,8 +33,7 @@ def save(data, path, pretty=False):
         else:
             json.dump(data, file, sort_keys=True)
 
-def rmkdir(directory):
-    'Delete directory if it exists, then create directory with the same name.'
-    if os.path.exists(directory):
-        rmtree(directory)
-    os.mkdir(directory)
+def mkdir(directory):
+    'Create directory unless it already exists.'
+    if not os.path.exists(directory):
+        os.mkdir(directory)

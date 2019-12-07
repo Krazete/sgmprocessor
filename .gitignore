@@ -1,6 +1,8 @@
 __pycache__
-*/output
-data_processing/input/MonoBehaviour*
+data_processing/input/MonoBehaviourGlobal
+data_processing/input/MonoBehaviourShared
 data_processing/input/TextAsset
+data_processing/output
 image_processing/input/Art Capture
 image_processing/input/Sprite
+image_processing/output
