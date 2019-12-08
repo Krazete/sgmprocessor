@@ -112,7 +112,7 @@ For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extrac
 11. Search for `MonoBehaviour Beowulf_BB*`.
 12. In the `Beowulf-` file, update all blockbusters' Path IDs. These numbers are also sequential.
 
-## VI. Verify Data
+## V. Verify Data
 
 There is no need to verify that the extracted data is correct; I just wanted to include a link to DevX in this document. This program helps in understanding the file structure of the APK.
 
