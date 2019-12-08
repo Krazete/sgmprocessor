@@ -122,3 +122,8 @@ There is no need to verify that the extracted data is correct; I just wanted to 
 
 1. With DevX, open `sgm.apk`. Use the default settings.
 2. Browse and view whichever files you want.
+
+# Processing
+
+1. Move the `TextAsset`, `MonoBehaviourShared`, `MonoBehaviourGlobal` folders into `data_processing/input`.
+2. Run `data_processing/main.py`.
