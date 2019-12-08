@@ -108,13 +108,13 @@ For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extrac
 
 9. Sort by Name.
 10. Search for `MonoBehaviour Beowulf_SM*`.
-11. In the `Beowulf-` file, update all specialMoves' Path IDs. This should be easy since they are sequential.
+11. In the `Beowulf-` file, update specialMoves' Path IDs. This should be easy since they are sequential.
 12. Search for `MonoBehaviour Beowulf_BB*`.
-13. In the `Beowulf-` file, update all blockbusters' Path IDs. These numbers are also sequential.
+13. In the `Beowulf-` file, update blockbusters' Path IDs. These numbers are also sequential.
 
 ## V. Verify Data
 
-There is no need to verify that the extracted data is correct; I just wanted to include a link to DevX in this document. This program helps in understanding the file structure of the APK.
+There is no need to verify the extracted data; I just wanted to include a link to DevX in this document. This program helps in understanding the file structure of the APK and does not require a Windows machine.
 
 | Download | Link |
 |---|---|
@@ -125,6 +125,14 @@ There is no need to verify that the extracted data is correct; I just wanted to 
 
 # Processing
 
-1. Move the `TextAsset`, `MonoBehaviourShared`, `MonoBehaviourGlobal` folders into `data_processing/input`.
+## I. Process Input Data
+
+| Download | Link |
+|---|---|
+| Python 3 | https://www.python.org/downloads |
+
+1. Move `TextAsset`, `MonoBehaviourShared`, and `MonoBehaviourGlobal` into `data_processing/input`.
 2. Run `data_processing/main.py`.
 3. For localizations of common terms, run `data_processing/common.py`.
+
+* If an `ImportError` occurs, edit first line of the script from `from data_processing import file` to just `import file`.
