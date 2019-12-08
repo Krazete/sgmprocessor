@@ -1,48 +1,124 @@
-# How to Mine the APK
+# Obtaining Input Data
 
-## (For Mac Users) Install Windows
-1. Get a [Windows 10 ISO](https://www.microsoft.com/en-us/software-download/windows10ISO).
-2. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
-3. Create a new Windows 10 Virtual Machine (WVM) in VirtualBox.
-4. Create a Shared Folder in the Settings window for WVM.
-5. Start WVM and select `Insert Guest Additions CD Image...` under the `Devices` menu in the Mac menu bar.
+## N. (For MacOS) Install Windows
 
-## (Within Windows) Install APK Mining Tools
-1. Download [APKTool](https://ibotpeaches.github.io/Apktool/install/).
-2. Download [AssetStudio](https://github.com/Perfare/AssetStudio) and its [Requirements](https://github.com/Perfare/AssetStudio#requirements).
-3. Open Notepad and enter `apktool d sgm.apk -f -o sgm_decoded`. Save the file as `decode_sgm.bat`.
-4. Download [UnityAssetBundleExtractor](https://github.com/DerPopo/UABE) (UABE).
-5. Download [Visual C++ 2010](https://www.microsoft.com/en-us/download/details.aspx?id=14632) (required for UABE).
-6. Download [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) (required for UABE).
+| Download | Link |
+|---|---|
+| VirtualBox | https://www.virtualbox.org/wiki/Downloads |
+| Windows 10 ISO | https://www.microsoft.com/en-us/software-download/windows10ISO |
 
-## Decompile the APK
-1. Download the latest [APK](https://apkpure.com/skullgirls/com.autumn.skullgirls).
-2. Rename the APK to `sgm.apk` and move it into the folder where `decode_sgm.bat` is located.
-3. Run `decode_sgm.bat`.
+1. In VirtualBox, create a new Windows 10 Virtual Machine (WVM).
+2. In the WVM Settings window, create a Shared Folder.
+3. With the WVM open, click `Devices` in the Mac menu bar and select `Insert Guest Additions CD Image...`. This enables the Shared Folder, allowing you to transfer files between the WVM and your Mac.
 
-## Extract the Game's Entire Corpus and Other Files
-1. Run AssetStudio and load the folder `sgm_decoded`.
-2. For corpus files, select `TextAsset` in the `Filter Type` menu.
-3. For image files, select `Sprite` and `Texture2D` in the `Filter Type` menu.
-4. Make sure `Group by type` is checked in the dropdown list under the `Options` menu.
-5. Click `Filtered assets` in the `Export` menu. Save to a new folder named `sgm_exports`.
+## I. Decompile the APK
 
-## Extract Scripts
-1. Run Il2CppDumper and open `sgm_decoded/lib/x86/libil2cpp.so` and then `sgm_decoded/assets/bin/Data/Managed/Metadata/global-metadata.dat` when prompted. Unless this document is severely outdated, enter `2018.3` when prompted for the Unity version number. Select the mode Auto (Plus) and note the new `DummyDll` folder, created in the same directory as the Il2CppDumper program.
-2. Run UABE and open `sgm_decoded/assets/bin/data/sharedassets0.assets.split0`.
-3. Click `Get script information` in the `Tools` menu. Several windows will appear sequentially.
-4. Navigate to the `DummyDll` folder and select the file that appears (if no file appears, click Cancel). Repeat. Afterwards, there will be a window detailing errors; click OK.
-5. Sort by Type. Select all MonoBehaviour files and click `Export Dump` in the right panel. Choose the `Unity JsonUtility file` format and save to a new folder named `MonoBehaviour` within `sgm_exports`.
-6. Open `sgm_decoded/assets/bin/data/globalgamemanagers` and repeat steps 3-5. This folder contains essential Ability data.
+| Download | Link |
+|---|---|
+| APKTool | https://ibotpeaches.github.io/Apktool/install |
+| Latest APK | https://apkpure.com/skullgirls/com.autumn.skullgirls |
 
-## (For Mac Users) Transfer Data from Windows VM to Mac
-1. Move `sgm_exports` to the shared folder.
-2. Shut down Windows.
+1. Open Notepad, enter `apktool d sgm.apk -f -o sgm_decoded`, and save it as `decode_sgm.bat`.
+2. Rename the APK to `sgm.apk` and place it in the same folder as `decode_sgm.bat`.
+3. Run `decode_sgm.bat`. This creates the `sgm_decoded` folder.
 
-#### Notes
-- AssetStudio is used for extracting most files because it's easier to use and it organizes its exported assets by type.
-- UABE is used for extracting scripts because AssetStudio misses important data when exporting scripts.
-- The art for portraits, cards, and moves are not located within the APK; they reside in the game files downloaded to the phone. To access those, use an app like iMazing to copy the `com.autumn.skullgirls` folder from your phone and then open it with AssetStudio or UABE.
-- As of version 2.7.0, MonoBehaviour:VariantData files cannot be properly extracted.
-- As of version 3.1.0, MonoBehaviour:VariantData files can be extracted again, but Ability files are inaccessible. Beowulf's character data is also inaccessible for some reason.
-- To fill in missing data, check [INSTRUCGTIONS.md]().
+## II. Extract the Corpus, Image Assets, and Fonts
+
+AssetStudio is used for extracting most files because it's easier to use and it organizes its exported assets by type.
+
+| Download | Link |
+|---|---|
+| AssetStudio Requirements | https://github.com/Perfare/AssetStudio#requirements |
+| AssetStudio | https://github.com/Perfare/AssetStudio |
+| Pngyu* |https://nukesaq88.github.io/Pngyu |
+| iMazing* | https://imazing.com |
+
+<sup>*\*Optional*</sup>
+
+### APK Data
+
+1. With AssetStudio, open `sgm_decoded`.
+2. In the `Filter Type` menu, select `TextAsset`, `Sprite`, `Texture2D`, and `Font`.
+3. In the `Options` menu, ensure `Group by type` is checked.
+4. In the `Export` menu, click `Filtered assets`. This creates the folders `TextAsset`, `Sprite`, `Texture2D`, and `Font`.
+
+* `TextAsset` is used within this repository's `data_processing/input` folder.
+* `Sprite`, `Texture2D`, and `Font` contain assets ready to use without processing, though you may want to compress the images using Pngyu.
+
+### Phone Data
+
+5. Get a phone which has the Skullgirls Mobile app downloaded and updated.
+6. Copy the `com.autumn.skullgirls` folder from your phone. For Android, this is located in `Android/data`. For iPhone, you need a program like iMazing to extract this folder from the app.
+6. Repeat steps 1-4, but with the `com.autumn.skullgirls` folder and export `Sprite` only. Save into a different folder to prevent mixing the APK's `Sprite` files with your phone's `Sprite` files.
+
+* This `Sprite` is used within this repository's `image_processing/input` folder.
+* Do not compress these images.
+
+## III. Extract MonoBehaviour Files
+
+UABE is used for extracting scripts because AssetStudio tends to miss important script data.
+
+| Download | Link |
+|---|---|
+| Visual C++ 2010 | https://www.microsoft.com/en-us/download/details.aspx?id=14632 |
+| UnityAssetBundleExtractor | https://github.com/DerPopo/UABE |
+| Il2CppDumper | https://github.com/Perfare/Il2CppDumper |
+
+### Recreate DLL
+
+1. With Il2CppDumper, open `sgm_decoded/lib/x86/libil2cpp.so` and then `sgm_decoded/assets/bin/Data/Managed/Metadata/global-metadata.dat` when prompted.
+2. For the Unity version number, enter `2018.3`.
+3. Choose `Auto (Plus)` mode, which will create the folder `DummyDll` within in the same directory as the Il2CppDumper program.
+
+### General Data
+
+4. With UABE, open `sgm_decoded/assets/bin/data/sharedassets0.assets.split0`.
+5. In the `Tools` menu, click `Get script information`. Several windows will appear sequentially. Navigate to the `DummyDll` folder and select the file that appears (if no file appears, click Cancel). Repeat. Afterwards, there will be a window detailing errors; click OK when complete.
+6. Sort by Type. Select all MonoBehaviour files and click `Export Dump` in the right panel. Choose the `Unity serialized JSON` format and save to a new folder named `MonoBehaviourShared`.
+
+* `MonoBehaviourShared` is used within this repository's `data_processing/input` folder.
+
+### Ability Data
+
+7. With UABE, open `sgm_decoded/assets/bin/data/globalgamemanagers`.
+8. Repeat step 5.
+9. Select all MonoBehaviour and GameObject files and export to `MonoBehaviourGlobal`.
+
+* `MonoBehaviourGlobal` is used within this repository's `data_processing/input` folder.
+
+## IV. Recreate Beowulf's Data
+
+For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extracted using the steps in the previous section. It must be manually recreated.
+
+### Filename
+
+1. With UABE, open `sgm_decoded/assets/bin/data/sharedassets0.assets.split0`.
+2. In the `View` menu, click `Search by name` and enter `MonoBehaviour Beowulf`. Note the resulting entry's Path ID.
+3. Within this repository's `data_processing/input` folder, there is a file whose name starts with `Beowulf-` and contains a 5-digit number. Update the filename by replacing that number with the aforementioned Path ID.
+4. Open the `Beowulf-` file. You will be updating all `m_PathID` entries.
+
+### Character Ability
+
+5. Search for `GameObject CharAbility_Beowulf`.
+6. Click `View Data` in the right panel.
+7. Expand the menus to reach `GameObject Base/vector m_Component/Array Array/1/ComponentPair data/PPtr<Component> component/SInt64 m_PathID`.
+7. In the `Beowulf-` file, change characterAbility's `m_PathID` to the `SInt64 m_PathID` value.
+
+### Moves
+
+8. Sort by Name.
+9. Search for `MonoBehaviour Beowulf_SM*`.
+10. In the `Beowulf-` file, update all specialMoves' Path IDs. This should be easy since they are sequential.
+11. Search for `MonoBehaviour Beowulf_BB*`.
+12. In the `Beowulf-` file, update all blockbusters' Path IDs. These numbers are also sequential.
+
+## VI. Verify Data
+
+There is no need to verify that the extracted data is correct; I just wanted to include a link to DevX in this document. This program helps in understanding the file structure of the APK.
+
+| Download | Link |
+|---|---|
+| DevX Unity Unpacker | http://devxdevelopment.com/UnityUnpacker |
+
+1. With DevX, open `sgm.apk`. Use the default settings.
+2. Browse and view whichever files you want.
