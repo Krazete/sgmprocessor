@@ -127,3 +127,4 @@ There is no need to verify that the extracted data is correct; I just wanted to 
 
 1. Move the `TextAsset`, `MonoBehaviourShared`, `MonoBehaviourGlobal` folders into `data_processing/input`.
 2. Run `data_processing/main.py`.
+3. For localizations of common terms, run `data_processing/common.py`.
