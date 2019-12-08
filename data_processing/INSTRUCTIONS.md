@@ -102,15 +102,15 @@ For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extrac
 5. Search for `GameObject CharAbility_Beowulf`.
 6. Click `View Data` in the right panel.
 7. Expand the menus to reach `GameObject Base/vector m_Component/Array Array/1/ComponentPair data/PPtr<Component> component/SInt64 m_PathID`.
-7. In the `Beowulf-` file, change characterAbility's `m_PathID` to the `SInt64 m_PathID` value.
+8. In the `Beowulf-` file, change characterAbility's `m_PathID` to the `SInt64 m_PathID` value.
 
 ### Moves
 
-8. Sort by Name.
-9. Search for `MonoBehaviour Beowulf_SM*`.
-10. In the `Beowulf-` file, update all specialMoves' Path IDs. This should be easy since they are sequential.
-11. Search for `MonoBehaviour Beowulf_BB*`.
-12. In the `Beowulf-` file, update all blockbusters' Path IDs. These numbers are also sequential.
+9. Sort by Name.
+10. Search for `MonoBehaviour Beowulf_SM*`.
+11. In the `Beowulf-` file, update all specialMoves' Path IDs. This should be easy since they are sequential.
+12. Search for `MonoBehaviour Beowulf_BB*`.
+13. In the `Beowulf-` file, update all blockbusters' Path IDs. These numbers are also sequential.
 
 ## V. Verify Data
 
