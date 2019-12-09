@@ -2,6 +2,8 @@
 
 ## N. (For MacOS) Install Windows
 
+Sections II-IV require programs that only run on Windows, so you must install a Windows machine if you are working on a Mac.
+
 | Download | Link |
 |---|---|
 | VirtualBox | https://www.virtualbox.org/wiki/Downloads |
@@ -12,6 +14,8 @@
 3. With the WVM open, click `Devices` in the Mac menu bar and select `Insert Guest Additions CD Image...`. This enables the Shared Folder, allowing you to transfer files between the WVM and your Mac.
 
 ## I. Decompile the APK
+
+This step is necessary for the AssetStudio and UABE programs in sections II-IV.
 
 | Download | Link |
 |---|---|
@@ -30,10 +34,9 @@ AssetStudio is used for extracting most files because it's easier to use and it 
 |---|---|
 | AssetStudio Requirements | https://github.com/Perfare/AssetStudio#requirements |
 | AssetStudio | https://github.com/Perfare/AssetStudio |
-| Pngyu* |https://nukesaq88.github.io/Pngyu |
 | iMazing* | https://imazing.com |
 
-<sup>*\*Optional*</sup>
+<sup>*\*for iOS only*</sup>
 
 ### APK Data
 
@@ -42,21 +45,15 @@ AssetStudio is used for extracting most files because it's easier to use and it 
 3. In the `Options` menu, ensure `Group by type` is checked.
 4. In the `Export` menu, click `Filtered assets`. This creates the folders `TextAsset`, `Sprite`, `Texture2D`, and `Font`.
 
-* `TextAsset` is used within this repository's `data_processing/input` folder.
-* `Sprite`, `Texture2D`, and `Font` contain assets ready to use without processing, though you may want to compress the images using Pngyu.
-
 ### Phone Data
 
 5. Get a phone which has the Skullgirls Mobile app downloaded and updated.
 6. Copy the `com.autumn.skullgirls` folder from your phone. For Android, this is located in `Android/data`. For iPhone, you need a program like iMazing to extract this folder from the app.
 6. Repeat steps 1-4, but with the `com.autumn.skullgirls` folder and export `Sprite` only. Save into a different folder to prevent mixing the APK's `Sprite` files with your phone's `Sprite` files.
 
-* This `Sprite` is used within this repository's `image_processing/input` folder.
-* Do not compress these images.
-
 ## III. Extract MonoBehaviour Files
 
-UABE is used for extracting scripts because AssetStudio tends to miss important script data.
+UABE is used for extracting scripts because it exports nicely formatted JSON files while AssetStudio tends to miss important script data.
 
 | Download | Link |
 |---|---|
@@ -76,19 +73,15 @@ UABE is used for extracting scripts because AssetStudio tends to miss important 
 5. In the `Tools` menu, click `Get script information`. Several windows will appear sequentially. Navigate to the `DummyDll` folder and select the file that appears (if no file appears, click Cancel). Repeat. Afterwards, there will be a window detailing errors; click OK when complete.
 6. Sort by Type. Select all MonoBehaviour files and click `Export Dump` in the right panel. Choose the `Unity serialized JSON` format and save to a new folder named `MonoBehaviourShared`.
 
-* `MonoBehaviourShared` is used within this repository's `data_processing/input` folder.
-
 ### Ability Data
 
 7. With UABE, open `sgm_decoded/assets/bin/data/globalgamemanagers`.
 8. Repeat step 5.
 9. Select all MonoBehaviour and GameObject files and export to `MonoBehaviourGlobal`.
 
-* `MonoBehaviourGlobal` is used within this repository's `data_processing/input` folder.
-
 ## IV. Recreate Beowulf's Data
 
-For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extracted using the steps in the previous section. It must be manually recreated.
+For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extracted using the steps in section III. It must be manually recreated.
 
 ### Filename
 
@@ -123,9 +116,20 @@ There is no need to verify the extracted data; I just wanted to include a link t
 1. With DevX, open `sgm.apk`. Use the default settings.
 2. Browse and view whichever files you want.
 
-# Processing
+## VI. Gain Access to the Art Capture Folder
 
-## I. Process Input Data
+The `Art Capture` folder contains officially rendered portraits, cards, and move icons. Like section V, this section is pretty much useless.
+
+1. You must gain permission in order to access the `Art Capture` folder.
+2. This permission may not be requested.
+3. It's an invitation-only thing.
+4. Sorry.
+
+# Processing Input Data
+
+If an `ImportError` occurs for any `.py` file, modify each script so the line `from *_processing import file` becomes just `import file`.
+
+## I. Generate Gallery Data
 
 | Download | Link |
 |---|---|
@@ -135,4 +139,33 @@ There is no need to verify the extracted data; I just wanted to include a link t
 2. Run `data_processing/main.py`.
 3. For localizations of common terms, run `data_processing/common.py`.
 
-* If an `ImportError` occurs, edit first line of the script from `from data_processing import file` to just `import file`.
+## II. Generate Portraits
+
+| Download | Link |
+|---|---|
+| Pillow | https://pillow.readthedocs.io/en/stable/installation.html |
+
+1. Move `Art Capture` into `image_processing/input`.
+2. Run `image_processing/gen_masks.py`.
+3. Edit the masks.
+4. Make a copy of the masks and trim them down further.
+5. Run `image_processing/gen_portraits.py`.
+
+## III. Generate Move Icons
+
+1. Move `Sprite` (extracted from your phone data) into `image_processing/input`.
+2. Run `image_processing/gen_moves.py`.
+
+## IV. Generate Loading GIFs
+
+1. Run `image_processing/gen_throbbers.py`.
+
+## V. Compress Images
+
+| Download | Link |
+|---|---|
+| Pngyu | https://nukesaq88.github.io/Pngyu |
+
+1. Open Pngyu and drag the `blah` and `blah` from `data_processing/output` into the Pngyu window.
+2. Click `Compress Start`.
+3. Optionally, click `Clear` and repeat the process with `Sprite` (extracted from the APK data) and `Texture2D`. Do not compress the `Sprite` extracted from your phone data.
