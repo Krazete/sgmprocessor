@@ -2,7 +2,7 @@ from image_processing import file
 from PIL import ImageMath
 
 def petrify_sprite(im, spectral_ids=[]):
-    'Returns grayscale version of codified sprite, with spectral areas rendered translucent.'
+    'Return grayscale version of codified sprite, with spectral areas rendered translucent.'
     r = im.getchannel(0) # palette
     g = im.getchannel(1) # linework
     b = im.getchannel(2) # detail

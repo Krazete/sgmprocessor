@@ -156,16 +156,7 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 1. Move `Sprite` (extracted from your phone data) into `image_processing/input`.
 2. Run `image_processing/gen_moves.py`.
 
-## IV. Generate Loading GIFs
-
-| Download | Link |
-|---|---|
-| Gifsicle | http://www.lcdf.org/gifsicle |
-
-1. If you want optimized GIFs, install Gifsicle by following instructions found on its GitHub repository.
-1. Run `image_processing/gen_throbbers.py`.
-
-## V. Compress Images
+## IV. Compress PNG Images
 
 | Download | Link |
 |---|---|
@@ -174,3 +165,17 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 1. Open Pngyu and drag `portrait` and `move` from `data_processing/output` into the Pngyu window.
 2. Click `Compress Start`.
 3. Optionally, click `Clear` and repeat the process with `Sprite` (extracted from the APK data) and `Texture2D`. Do not compress the `Sprite` extracted from your phone data.
+
+## V. Generate Loading GIFs
+
+| Download | Link |
+|---|---|
+| Gifsicle | http://www.lcdf.org/gifsicle |
+
+1. If you want optimized GIFs, install Gifsicle by following instructions found on its GitHub repository.
+2. Run `image_processing/gen_throbbers.py`.
+
+## VI. Generate Idle Animations
+
+1. Run `image_processing/gen_idles.py`.
+2. Throw away the results because they're glitchy and unusable.
