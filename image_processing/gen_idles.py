@@ -1,5 +1,5 @@
-from image_processing import file
 import re
+from image_processing import file
 
 if __name__ == '__main__':
     pattern = re.compile('(.*)_\d+\.png')
@@ -13,6 +13,8 @@ if __name__ == '__main__':
         if len(stems):
             stem = stems[0]
             gifs.setdefault(stem, [])
+            if 'shelldag' in stem:
+                im = im.rotate(270, expand=True)
             gifs[stem].append(im.convert('RGB', dither=False))
 
     for stem in gifs:

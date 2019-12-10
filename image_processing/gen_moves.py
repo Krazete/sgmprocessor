@@ -1,5 +1,5 @@
-from image_processing import file
 from PIL import ImageMath
+from image_processing import file
 
 def petrify_sprite(im, spectral_ids=[]):
     'Return grayscale version of codified sprite, with spectral areas rendered translucent.'

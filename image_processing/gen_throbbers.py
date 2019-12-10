@@ -1,5 +1,5 @@
-from image_processing import file
 from PIL import ImageOps
+from image_processing import file
 
 def dichotimize_gif(im):
     'Return frames of GIF converted to black and white and inverted.'
