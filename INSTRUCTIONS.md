@@ -166,6 +166,6 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 |---|---|
 | Pngyu | https://nukesaq88.github.io/Pngyu |
 
-1. Open Pngyu and drag the `blah` and `blah` from `data_processing/output` into the Pngyu window.
+1. Open Pngyu and drag `portraits` and `moves` from `data_processing/output` into the Pngyu window.
 2. Click `Compress Start`.
 3. Optionally, click `Clear` and repeat the process with `Sprite` (extracted from the APK data) and `Texture2D`. Do not compress the `Sprite` extracted from your phone data.
