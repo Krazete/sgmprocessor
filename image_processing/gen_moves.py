@@ -27,7 +27,7 @@ def petrify_sprite(im, spectral_ids=[]):
 
 if __name__ == '__main__':
     file.mkdir('image_processing/output')
-    file.mkdir('image_processing/output/moves')
+    file.mkdir('image_processing/output/move')
 
     for filename, im in file.iter_img('image_processing/input/Sprite'):
         if '_BB' in filename or '_SM' in filename:
@@ -45,4 +45,4 @@ if __name__ == '__main__':
             elif 'Squigly_' in filename:
                 spectral_ids = [0xCE]
             sprite = petrify_sprite(im, spectral_ids)
-            sprite.save('image_processing/output/moves/' + filename)
+            sprite.save('image_processing/output/move/' + filename)
