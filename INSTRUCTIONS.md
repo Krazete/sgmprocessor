@@ -71,13 +71,13 @@ UABE is used for extracting scripts because it exports nicely formatted JSON fil
 
 4. With UABE, open `sgm_decoded/assets/bin/data/sharedassets0.assets.split0`.
 5. In the `Tools` menu, click `Get script information`. Several windows will appear sequentially. Navigate to the `DummyDll` folder and select the file that appears (if no file appears, click Cancel). Repeat. Afterwards, there will be a window detailing errors; click OK when complete.
-6. Sort by Type. Select all MonoBehaviour files and click `Export Dump` in the right panel. Choose the `Unity serialized JSON` format and save to a new folder named `MonoBehaviourShared`.
+6. Sort by Type. Select all MonoBehaviour files and click `Export Dump` in the right panel. Choose the `Unity JsonUtility file` or `Unity serialized JSON` format and save to a new folder named `MonoBehaviourShared`.
 
 ### Ability Data
 
 7. With UABE, open `sgm_decoded/assets/bin/data/globalgamemanagers`.
 8. Repeat step 5.
-9. Select all MonoBehaviour and GameObject files and export to `MonoBehaviourGlobal`.
+9. Sort by Container. Select all files that have a container and export to `MonoBehaviourGlobal`.
 
 ## IV. Recreate Beowulf's Data
 
@@ -99,7 +99,7 @@ For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extrac
 
 ### Moves
 
-9. Sort by Name.
+9. Sort by PathID.
 10. Search for `MonoBehaviour Beowulf_SM*`.
 11. In the `Beowulf-` file, update specialMoves' Path IDs. This should be easy since they are sequential.
 12. Search for `MonoBehaviour Beowulf_BB*`.
