@@ -1,4 +1,7 @@
+from random import seed
 from data_processing import file
+
+seed(0)
 
 monosharedraw = file.load('data_processing/input/MonoBehaviourShared', True)
 monoshared = monosharedraw['sharedassets0.assets.split0']

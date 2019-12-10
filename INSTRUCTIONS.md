@@ -135,9 +135,10 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 |---|---|
 | Python 3 | https://www.python.org/downloads |
 
-1. Move `TextAsset`, `MonoBehaviourShared`, and `MonoBehaviourGlobal` into `data_processing/input`.
-2. Run `data_processing/main.py`.
-3. For localizations of common terms, run `data_processing/common.py`.
+1. Move a copy of the `Beowulf-` file into `MonoBehaviourShared`.
+2. Move `TextAsset`, `MonoBehaviourShared`, and `MonoBehaviourGlobal` into `data_processing/input`.
+3. Run `data_processing/main.py`. If a recursion error appears, shut down the process and try again.
+4. For localizations of common terms, run `data_processing/common.py`.
 
 ## II. Generate Portraits
 
