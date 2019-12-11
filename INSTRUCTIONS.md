@@ -151,7 +151,8 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 3. Edit the images in `image_processing/output/mask/shadow`. Create a nice silhouette of each portrait, using `image_processing/input/circle.png` to help with edges.
 3. Edit the images in `image_processing/output/mask/color`. Cut out areas that do not contain any information about the portraits' color.
 4. Move `mask` into `image_processing/input`.
-5. Run `image_processing/gen_portraits.py`.
+5. Ensure `image_processing/portrait_ids.py` is up-to-date.
+6. Run `image_processing/gen_portraits.py`.
 
 ## III. Generate Move Icons
 
