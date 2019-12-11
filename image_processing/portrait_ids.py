@@ -10,7 +10,7 @@ fid = {
     'Painwheel': 'pw',
     'Parasoul': 'pa',
     'Peacock': 'pe',
-    'Robo-Fortune': 'rf',
+    'Robo Fortune': 'rf',
     'Squigly': 'sq',
     'Valentine': 'va'
 }
@@ -170,10 +170,10 @@ vid = {
     'Kill Joy': 'kJoy',
     'Last Hope': 'lHope',
     'Oh Mai': 'oMai',
-    # 'Petty in Pink': 'aGreed',
+    'Petty in Pink': 'aGreed',
     'Pyro-Technique': 'pTech',
     'Scrub': 'scrub',
     'Silent Kill': 'sKill',
     'Surgeon General': 'sGeneral',
-    'Très Chic': 'tChic'
+    'Tre_s Chic': 'tChic'
 }
