@@ -1,25 +1,18 @@
 import os
 from PIL import Image, ImageOps
-
-def iter_p(directory, show_error=False):
-    for filename in os.listdir(directory):
-        try:
-            yield Image.open(os.path.join(directory, filename)), filename
-        except Exception as message:
-            if show_error:
-                print('Error opening {}: {}.'.format(filename, message))
+from image_processing import file
 
 if __name__ == '__main__':
-    bigder = 'source/Art Capture'
-    for dirname in os.listdir(bigder):
-        directory = os.path.join(bigder, dirname)
+    shadow = 'image_processing/input/shadow'
+    color = 'image_processing/input/color'
+
+    file.mkdir('image_processing/output')
+    file.mkdir('image_processing/output/portrait')
+
+    capture = 'image_processing/input/Art Capture'
+    for character in os.listdir(capture):
+        directory = os.path.join(capture, character)
         if os.path.isdir(directory):
-            p = None
-            k = None
-            for im, filename in iter_p(directory):
+            for filename, im in file.iter_img(directory):
                 if '_PortraitMarquee_' in filename:
-                    if not p or not k:
-                        p = im
-                        k = im
-                    p = ImageChops.lighter(p, im)
-                    k = ImageChops.screen(k, im)
+                    im.save('image_processing/output/portrait/' + filename)
