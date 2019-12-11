@@ -12,9 +12,12 @@ def iter_img(directory, show_error=False):
             if show_error:
                 print('Error opening {}: {}.'.format(filename, message))
 
-def save_gif(frames, path, delay=0, show_error=True):
+def save_gif(frames, path, delay=-1, show_error=True):
     'Save frames as GIF and attempt to compress results with Gifsicle.'
-    frames[0].save(path, save_all=True, append_images=frames[1:], transparency=0, disposal=2, duration=delay, loop=0)
+    if delay < 0:
+        frames[0].save(path, save_all=True, append_images=frames[1:], transparency=0, disposal=2, loop=0)
+    else:
+        frames[0].save(path, save_all=True, append_images=frames[1:], transparency=0, disposal=2, duration=delay, loop=0)
     try:
         run(['gifsicle', path, '-o', path])
     except Exception as message:
