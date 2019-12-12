@@ -1,9 +1,12 @@
+import re
 from data_processing import file
 
 monosharedraw = file.load('data_processing/input/MonoBehaviourShared', True)
 monoshared = monosharedraw['sharedassets0.assets.split0']
 monoglobal = file.load('data_processing/input/MonoBehaviourGlobal', True)
 corpus = file.load('data_processing/input/TextAsset')
+
+placeholder = re.compile('{.*?}') # for build_features in build_ability
 
 def get_keys(attributes):
     'Get monoshared keys of objects with certain attributes.'
@@ -64,7 +67,7 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False):
     components = monoglobal[ability_key]
     base = components[ability_subkey]['0 GameObject Base']
 
-    visited = set() # visited
+    visited = set()
     def iter_effects(data, skip_keys=[], root=True):
         'Iterate through all effects nested within an object.'
         if root:
@@ -137,6 +140,23 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False):
                 'description': feature['description'],
                 'tiers': build_tiers(feature, tierlist, substitutions)
             }
+
+            ### fill in missing data
+            # # level 9 value for center stage
+            if data['description'] == 'Char_Cerebella_SUP_CenterStage_Feat2_Desc':
+                data['tiers'][8]['values'] = [13]
+            # # resurrect values for forbidden procedure
+            if data['description'] == 'SA_Valentine_BB4':
+                data['tiers'][0]['values'] = [0.15]
+                data['tiers'][1]['values'] = [0.2]
+                data['tiers'][2]['values'] = [0.25]
+            # double check if there are enough values for all placeholders
+            variables = set(re.findall(placeholder, corpus['en'].get(feature['description'], '')))
+            for i, tier in enumerate(data['tiers']):
+                if len(tier['values']) < len(variables):
+                    print('Warning: Missing ability data for tier {} ({}) of feature \'{}\'.'.format(i, tier, data['description']))
+
+            # afaik only marquees have subtitles
             if has_subtitles:
                 data['title'] = feature['title']
             features.append(data)
@@ -186,7 +206,7 @@ def get_variants(variant_keys):
         id = create_id(variants, variant)
         character = follow_id(monoshared, variant['baseCharacter'])
         if character == {}:
-            print('Cannot find', variant['baseCharacter'], 'for', id)
+            print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
         sa_key, sa_subkey = follow_resource(variant['signatureAbility'])
         variants[id] = {
             'base': character['humanReadableGuid'],
