@@ -1,7 +1,4 @@
-from random import seed
 from data_processing import file
-
-seed(0)
 
 monosharedraw = file.load('data_processing/input/MonoBehaviourShared', True)
 monoshared = monosharedraw['sharedassets0.assets.split0']
@@ -67,20 +64,27 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False):
     components = monoglobal[ability_key]
     base = components[ability_subkey]['0 GameObject Base']
 
-    def iter_effects(data, skip_keys=[]):
+    visited = set() # visited
+    def iter_effects(data, skip_keys=[], root=True):
         'Iterate through all effects nested within an object.'
+        if root:
+            skip_keys.append('randomModifierList') # prevent faulty values e.g. for circular breathing
+            visited.clear()
         if isinstance(data, dict):
             if 'm_PathID' in data:
-                data = follow_id(components, data)
+                m_PathID = data.get('m_PathID')
+                if m_PathID not in visited:
+                    data = follow_id(components, data)
+                visited.add(m_PathID)
             if 'id' in data:
                 yield data
             for key in data:
                 if key not in skip_keys:
-                    for subdata in iter_effects(data[key], skip_keys):
+                    for subdata in iter_effects(data[key], skip_keys, False):
                         yield subdata
         elif isinstance(data, list):
             for item in data:
-                for subdata in iter_effects(item, skip_keys):
+                for subdata in iter_effects(item, skip_keys, False):
                     yield subdata
 
     def get_true_value(value):
