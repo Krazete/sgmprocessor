@@ -1,6 +1,6 @@
 import os
 import re
-from PIL import Image, ImageChops
+from PIL import Image, ImageOps, ImageChops
 from image_processing import file
 from image_processing.portrait_ids import fid, vid
 
