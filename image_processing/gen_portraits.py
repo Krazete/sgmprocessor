@@ -31,7 +31,7 @@ if __name__ == '__main__':
                     # mask colors with c and mask alpha with s
                     portrait = ImageChops.subtract(im, ImageOps.invert(c).convert('RGBA'))
                     portrait.putalpha(s)
-                    scaled_portrait = portrait.resize((int(dim * scale) for dim in portrait.size))
+                    scaled_portrait = portrait.resize((int(dim * scale) for dim in portrait.size), Image.LANCZOS)
                     # save with ids instead of names
                     variant = re.sub('[^a-zA-Z0-9 -_!]', '_', stems[0])
                     file.mkdir(os.path.join(dir_portrait, fid[character]))
