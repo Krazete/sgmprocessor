@@ -81,7 +81,7 @@ UABE is used for extracting scripts because it exports nicely formatted JSON fil
 
 ## IV. Recreate Beowulf's Data
 
-For some reason, Beowulf's BaseCharacter file is unreadable and cannot be extracted using the steps in section III. It must be manually recreated.
+For some reason, Beowulf's BaseCharacter file is sometimes unreadable and cannot be extracted using the steps in section III. If this is the case, it must be manually recreated.
 
 ### Filename
 
@@ -135,7 +135,7 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 |---|---|
 | Python 3 | https://www.python.org/downloads |
 
-1. Move a copy of the `Beowulf-` file into `MonoBehaviourShared`.
+1. Move a copy of the `Beowulf-` file into `MonoBehaviourShared` if necessary.
 2. Move `TextAsset`, `MonoBehaviourShared`, and `MonoBehaviourGlobal` into `data_processing/input`.
 3. Run `data_processing/main.py`.
 4. For localizations of common terms, run `data_processing/common.py`.
