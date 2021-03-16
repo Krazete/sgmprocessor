@@ -1,10 +1,47 @@
 import re
+import UnityPy
 from data_processing import file
+import json
 
 monosharedraw = file.load('data_processing/input/MonoBehaviourShared', True)
 monoshared = monosharedraw['sharedassets0.assets.split0']
-monoglobal = file.load('data_processing/input/MonoBehaviourGlobal', True)
-corpus = file.load('data_processing/input/TextAsset')
+
+phone = UnityPy.load(
+    'data_processing/input/localization',
+    'data_processing/input/signatureabilities'
+)
+
+def all_assets(bundle):
+    for sf in phone.assets[bundle].values():
+        if isinstance(sf, UnityPy.files.SerializedFile):
+            for k in sf.keys():
+                yield k, sf[k]
+
+def read_obj(obj):
+    return obj.read().read_type_tree().to_dict()
+
+def get_phonebook():
+    index = {}
+    for pid, obj in all_assets('signatureabilities'):
+        index[pid] = obj
+    return index
+
+def get_corpus():
+    corpus = {}
+    for pid, obj in all_assets('localization'):
+        data = read_obj(obj)
+        if 'name' in data and 'm_Script' in data:
+            corpus[data['name']] = json.loads(data['m_Script'])
+    return corpus
+
+def find_by_pathid(bundle, m_PathID):
+    for pid, obj in all_assets(bundle):
+        if pid == m_PathID:
+            yield read_asset(obj)
+
+
+
+
 
 placeholder = re.compile('{.*?}') # for build_features in build_ability
 
@@ -29,7 +66,7 @@ def follow_id(parent, pointer):
         return parent.get(key, {})
     return {}
 
-def follow_resource(pointer):
+def follow_resource(pointer): # todo
     'Get monoglobal key and subkey referenced by resourcePath object.'
     path = pointer['resourcePath'].split('/')[-1] # .split for catalysts
     if 'resourcePath' in pointer:
@@ -61,7 +98,7 @@ def build_character_ablity(ability):
         }
     return {} # fukua
 
-def build_ability(ability_key, ability_subkey, has_subtitles=False):
+def build_ability(ability_key, ability_subkey, has_subtitles=False): # todo
     if ability_key not in monoglobal:
         return {}
     components = monoglobal[ability_key]
@@ -187,12 +224,12 @@ def get_characters(character_keys, variant_keys): # where is beowulf's file?
                 continue
             base_key = str(variant['baseCharacter']['m_PathID'])
             if base_key == character_key:
-                ma_key, ma_subkey = follow_resource(variant['superAbility'])
+                ma_key = variant['superAbility']
                 break
         character = {
             'name': character['displayName'],
             'ca': build_character_ablity(ca),
-            'ma': build_ability(ma_key, ma_subkey, True)
+            'ma': build_ability(ma_key, True)
         }
         characters[id] = character
     return characters
@@ -207,7 +244,7 @@ def get_variants(variant_keys):
         character = follow_id(monoshared, variant['baseCharacter'])
         if character == {}:
             print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
-        sa_key, sa_subkey = follow_resource(variant['signatureAbility'])
+        sa_key = variant['signatureAbility']
         variants[id] = {
             'base': character['humanReadableGuid'],
             'name': variant['displayVariantName'],
@@ -215,7 +252,7 @@ def get_variants(variant_keys):
             'tier': variant['initialTier'],
             'element': variant['elementAffiliation'],
             'stats': variant['baseScaledValuesByTier']['Array'],
-            'sa': build_ability(sa_key, sa_subkey),
+            'sa': build_ability(sa_key),
             'fandom': corpus['en'][variant['displayVariantName']]
         }
     return variants
@@ -231,7 +268,7 @@ def get_sms(character_keys):
                 continue
             icon = follow_id(monoshared, sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
-            sma_key, sma_subkey = follow_resource(sm['signatureAbility'])
+            sma_key = sm['signatureAbility']
             sms[id] = {
                 'base': character['humanReadableGuid'],
                 'icon': icon_name,
@@ -243,7 +280,7 @@ def get_sms(character_keys):
                 'attack': sm['attackDamageMultipliers'],
                 'damage': sm['damageIndicatorLevels'],
                 'cooldown': sm['cooldownTimes'],
-                'ability': build_ability(sma_key, sma_subkey)
+                'ability': build_ability(sma_key)
             }
     return sms
 
@@ -256,7 +293,7 @@ def get_bbs(character_keys):
             id = create_id(bbs, bb)
             icon = follow_id(monoshared, bb['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
-            bba_key, bba_subkey = follow_resource(bb['signatureAbility'])
+            bba_key = bb['signatureAbility']
             bbs[id] = {
                 'base': character['humanReadableGuid'],
                 'icon': icon_name,
@@ -268,7 +305,7 @@ def get_bbs(character_keys):
                 'attack': bb['attackDamageMultipliers'],
                 'damage': bb['damageIndicatorLevels'],
                 'strength': bb['strengthLevel'],
-                'ability': build_ability(bba_key, bba_subkey)
+                'ability': build_ability(bba_key)
             }
     return bbs
 
@@ -287,7 +324,7 @@ def get_catalysts(catalyst_keys):
         if 'elementsNeeded' in constraint:
             for element in constraint['elementsNeeded']['Array']:
                 elements.append(element)
-        cata_key, cata_subkey = follow_resource(catalyst['signatureAbility'])
+        cata_key = catalyst['signatureAbility']
         catalysts[id] = {
             'title': catalyst['title'],
             'tier': catalyst['tier'],
@@ -296,7 +333,7 @@ def get_catalysts(catalyst_keys):
             'randomElement': catalyst['randomElement'],
             'specialCharacter': characters,
             'specialElement': elements,
-            'ability': build_ability(cata_key, cata_subkey)
+            'ability': build_ability(cata_key)
         }
     return catalysts
 
@@ -312,20 +349,140 @@ def get_corpus_keys(data):
             keys |= get_corpus_keys(data[key])
     return keys
 
+def get_ability(thing):
+    return read_obj(phone.container[thing['resourcePath']])
+
 if __name__ == '__main__':
+    phonebook = get_phonebook()
+    corpus = get_corpus()
+
     character_keys = get_keys(['characterAbility', 'englishVoArtist'])
     variant_keys = get_keys(['baseCharacter', 'displayVariantName', 'variantQuote'])
-    catalyst_keys = get_keys(['randomCharacter', 'randomElement'])
+    # catalyst_keys = get_keys(['randomCharacter', 'randomElement'])
 
     ### study marquee ability of specific character
-    # for charkey in character_keys:
-    #     if monoshared[charkey]['humanReadableGuid'] == 'va':
-    #         break
-    # for varkey in variant_keys:
-    #     if str(monoshared[varkey]['baseCharacter']['m_PathID']) == charkey:
-    #         break
-    # key, subkey = follow_resource(monoshared[varkey]['superAbility'])
-    # monoglobal[key]
+    for charkey in character_keys:
+        if monoshared[charkey]['humanReadableGuid'] == 'va':
+            break
+    for varkey in variant_keys:
+        var = monoshared[varkey]
+        if str(var['baseCharacter']['m_PathID']) == charkey and not is_dummy(var):
+            break
+
+
+    def dereference(pointer):
+        if pointer['m_PathID'] in phonebook:
+            return read_obj(phonebook[pointer['m_PathID']])
+        return {}
+
+    def build_ability(zxc, has_subtitles=False):
+        visited = set()
+        def iter_effects(data, skip_keys=[], root=True):
+            'Iterate through all effects nested within an object.'
+            if root:
+                skip_keys.append('randomModifierList') # prevent faulty values e.g. for circular breathing
+                visited.clear()
+            if isinstance(data, dict):
+                if 'm_PathID' in data:
+                    m_PathID = data.get('m_PathID')
+                    if m_PathID not in visited:
+                        data = dereference(data)
+                    visited.add(m_PathID)
+                if 'id' in data:
+                    yield data
+                for key in data:
+                    if key not in skip_keys:
+                        for subdata in iter_effects(data[key], skip_keys, False):
+                            yield subdata
+            elif isinstance(data, list):
+                for item in data:
+                    for subdata in iter_effects(item, skip_keys, False):
+                        yield subdata
+
+        def get_true_value(value):
+            if isinstance(value, str):
+                return float(value)
+            if isinstance(value, dict):
+                return value['value'] / 2048
+            return value
+
+        def build_values(feature, tier, substitutions):
+            values = []
+            for substitution in substitutions:
+                id, stat = substitution.split('.')
+                id = id.lower()
+                stat = stat[0].lower() + stat[1:]
+                if stat == 'pERCENTAGE': # buer catalyst
+                    stat = 'percentage'
+                not_found = True
+                for effect in iter_effects(tier):
+                    if effect['id'].lower() == id:
+                        value = get_true_value(effect[stat])
+                        values.append(value)
+                        not_found = False
+                        break
+                if not_found:
+                    for effect in iter_effects(feature, ['tiers']):
+                        if effect['id'].lower() == id:
+                            value = get_true_value(effect[stat])
+                            values.append(value)
+                            break
+            return values
+
+        def build_tiers(feature, tierlist, substitutions):
+            tiers = []
+            for pointer in tierlist:
+                tier = dereference(pointer)
+                tiers.append({
+                    'level': tier['unlockAtLevel'],
+                    'values': build_values(feature, tier, substitutions)
+                })
+            return tiers
+
+        def build_features(featurelist):
+            features = []
+            for pointer in featurelist:
+                feature = dereference(pointer)
+                data = {
+                    'title': feature['title'], # ma only
+                    'description': feature['description'],
+                    'tiers': build_tiers(feature, feature['tiers'], feature['substitutions'])
+                }
+
+                # resurrect values for forbidden procedure
+                if data['description'] == 'SA_Valentine_BB4':
+                    print(data['description'], data['tiers'])
+                    data['tiers'][0]['values'] = [0.15]
+                    data['tiers'][1]['values'] = [0.2]
+                    data['tiers'][2]['values'] = [0.25]
+                # double check if there are enough values for all placeholders
+                variables = set(re.findall(placeholder, corpus['en'].get(feature['description'], '')))
+                for i, tier in enumerate(data['tiers']):
+                    if len(tier['values']) < len(variables):
+                        print('Warning: Missing ability data for tier {} ({}) of feature \'{}\'.'.format(i, tier, data['description']))
+
+                features.append(data)
+            return features
+
+        container = read_obj(phone.container[zxc['resourcePath']])
+        for component in container['m_Component']:
+            ability = dereference(component['component'])
+            if 'title' in ability and 'features' in ability:
+                return {
+                    'title': ability['title'],
+                    'features': build_features(ability['features'])
+                }
+        return {}
+    build_ability(var['superAbility'])
+
+    main = get_ability(var['superAbility'])
+    for x in main['m_Component']:
+        w = phonebook[x['component']['m_PathID']]
+        if 'title' in w and 'features' in w:
+            print(w['title'], w['features'])
+    phonebook[3299978497162081884]
+    key, subkey = follow_resource(monoshared[varkey]['superAbility'])
+    monoglobal[key]
 
     ### study how build_ability handles certain ability data
     # sa = follow_id(monoshared, monoshared[charkey]['specialMoves']['Array'][2])
