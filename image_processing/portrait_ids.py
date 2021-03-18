@@ -1,4 +1,5 @@
 fid = {
+    'Annie': 'an',
     'Beowulf': 'be',
     'Big Band': 'bb',
     'Cerebella': 'ce',
@@ -19,6 +20,20 @@ fid = {
 # for (var card of cards) card.innerHTML = card.id;
 
 vid = {
+    'Ageless Wonder': 'aWond',
+    'Fire Branded': 'heat',
+    'Galactic Glamour': 'galaxy',
+    'Materia Girl': 'mGirl',
+    'Model Leader': 'model',
+    'Moonstruck': 'moon',
+    'Ninja Star': 'ninja',
+    'Solar Flair': 'solar',
+    'Star Child': 'starC',
+    'Star Shine': 'sShine',
+    'Timeless Hero': 'hero',
+    'Triple Threat': 'triple',
+
+    'Beast King': 'bKing',
     'Cold Stones': 'cStones',
     'Dark Might': 'dMight',
     'Dragon Brawler': 'dBrawl',
@@ -55,6 +70,7 @@ vid = {
     'Toad Warrior': 'toad',
     'Understudy': 'uStudy',
 
+    'Creature of Habit': 'cHabit',
     'Doublicious': 'dLicious',
     'Evergreen Evil': 'eEvil',
     'Heart of Darkness': 'hDarkn',
@@ -92,6 +108,18 @@ vid = {
     'Rock Star': 'rStar',
     'Windswept': 'wSwept',
 
+    'Chameleon Twist': 'twist',
+    'Feathered Edges': 'feath',
+    'Infernal Twin': 'iTwin',
+    'Night Terror': 'nTerr',
+    'Phantom Threads': 'pThread',
+    'Rain Shadow': 'rain',
+    'Rough Copy': 'rCopy_',
+    'Shadow Puppet': 'puppet',
+    'Souls Sister': 'souls',
+    'Splitting Image': 'sImage',
+    'Vaporwave Vixen': 'vaporW',
+
     'Claw _ Order': 'claw',
     'Feline Lucky': 'lucky',
     'Furry Fury': 'fFury',
@@ -102,8 +130,10 @@ vid = {
     'Ms. Trial': 'mTrial',
     'Purrfect Dark': 'pDark',
     'Rogue Agent': 'rogue',
+    'Time Thief': 'tThief',
     'Wind Stalker': 'wStalk',
 
+    'Biting Cold': 'bCold',
     'Blood Drive': 'bDrive',
     'Buzzkill': 'bKill',
     'Firefly': 'fFly',
@@ -133,6 +163,7 @@ vid = {
     'Inkling': 'ink',
     'Mean One': 'mOne',
     'Pea Shooter': 'pShoot',
+    'Prism Plumage': 'pPlum',
     'Rerun': 'rerun',
     'Sketchy': 'sketch',
     'That_s All Folks!': 'tAFolks',
@@ -155,6 +186,7 @@ vid = {
     'Bio-Exorcist': 'bExor',
     'Dead Heat': 'dHeat',
     'Dead of Winter': 'dOWint',
+    'Gang Green': 'gangG',
     'Love Crafted': 'loveCraft',
     'Nearly Departed': 'nDepart',
     'Necrobreaker': 'necroB',
