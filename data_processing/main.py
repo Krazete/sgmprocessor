@@ -475,14 +475,14 @@ if __name__ == '__main__':
         return {}
     build_ability(var['superAbility'])
 
-    main = get_ability(var['superAbility'])
-    for x in main['m_Component']:
-        w = phonebook[x['component']['m_PathID']]
-        if 'title' in w and 'features' in w:
-            print(w['title'], w['features'])
-    phonebook[3299978497162081884]
-    key, subkey = follow_resource(monoshared[varkey]['superAbility'])
-    monoglobal[key]
+    # main = get_ability(var['superAbility'])
+    # for x in main['m_Component']:
+    #     w = phonebook[x['component']['m_PathID']]
+    #     if 'title' in w and 'features' in w:
+    #         print(w['title'], w['features'])
+    # phonebook[3299978497162081884]
+    # key, subkey = follow_resource(monoshared[varkey]['superAbility'])
+    # monoglobal[key]
 
     ### study how build_ability handles certain ability data
     # sa = follow_id(monoshared, monoshared[charkey]['specialMoves']['Array'][2])
@@ -492,24 +492,24 @@ if __name__ == '__main__':
 
     characters = get_characters(character_keys, variant_keys)
     variants = get_variants(variant_keys)
-    sms = get_sms(character_keys)
-    bbs = get_bbs(character_keys)
-    catalysts = get_catalysts(catalyst_keys)
+    # sms = get_sms(character_keys)
+    # bbs = get_bbs(character_keys)
+    # catalysts = get_catalysts(catalyst_keys)
 
     file.mkdir('data_processing/output')
 
     file.save(characters, 'data_processing/output/characters.json')
     file.save(variants, 'data_processing/output/variants.json')
-    file.save(sms, 'data_processing/output/sms.json')
-    file.save(bbs, 'data_processing/output/bbs.json')
-    file.save(catalysts, 'data_processing/output/catalysts.json')
+    # file.save(sms, 'data_processing/output/sms.json')
+    # file.save(bbs, 'data_processing/output/bbs.json')
+    # file.save(catalysts, 'data_processing/output/catalysts.json')
 
     corpus_keys = set()
     corpus_keys |= get_corpus_keys(characters)
     corpus_keys |= get_corpus_keys(variants)
-    corpus_keys |= get_corpus_keys(sms)
-    corpus_keys |= get_corpus_keys(bbs)
-    corpus_keys |= get_corpus_keys(catalysts)
+    # corpus_keys |= get_corpus_keys(sms)
+    # corpus_keys |= get_corpus_keys(bbs)
+    # corpus_keys |= get_corpus_keys(catalysts)
 
     for language in corpus:
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
