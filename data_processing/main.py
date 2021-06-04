@@ -80,11 +80,15 @@ def follow_resource(pointer): # todo
 
 def create_id(parent, data):
     'Retrieve ID from data and alter it to be unique if necessary.'
+    dupe = False
     id = data['humanReadableGuid']
     if id == '':
         id = data['guid']
     while id in parent:
+        dupe = True
         id += '_'
+    if dupe: # warn about a possible ID inconsistency which may need manual fixing
+        print('WARNING: A non-unique ID has been detected and renamed:', id)
     return id
 
 def is_dummy(variant):
