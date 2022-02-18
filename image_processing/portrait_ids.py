@@ -20,9 +20,11 @@ fid = {
 # for (var card of cards) card.innerHTML = card.id;
 
 vid = {
+    # Annie
     'Ageless Wonder': 'aWond',
     'Fire Branded': 'heat',
     'Galactic Glamour': 'galaxy',
+    'Heat Synced': 'hSync', # replaced with Fire Branded
     'Materia Girl': 'mGirl',
     'Model Leader': 'model',
     'Moonstruck': 'moon',
@@ -32,7 +34,7 @@ vid = {
     'Star Shine': 'sShine',
     'Timeless Hero': 'hero',
     'Triple Threat': 'triple',
-
+    # Beowulf
     'Beast King': 'bKing',
     'Cold Stones': 'cStones',
     'Dark Might': 'dMight',
@@ -45,7 +47,7 @@ vid = {
     'Weekend Warrior': 'wWarr',
     'Wrestler X': 'wresX',
     'Wulfsbane': 'wBane',
-
+    # Big Band
     'Bassline': 'bLine',
     'Beat Box': 'bBox',
     'Dream Band': 'dBand',
@@ -57,9 +59,11 @@ vid = {
     'Resonant Evil': 'rEvil',
     'Robocopy': 'rCopy',
     'Treble Maker': 'tMake',
-
+    'Vintage Virtuoso': 'vVirt',
+    # Cerebella
     'Armed Forces': 'aForce',
     'Big Top': 'bTop',
+    'Blitz _ Glamour': 'bGlam',
     'Brain Freeze': 'bFreeze',
     'Criminal Mind': 'cMind',
     'Gray Matter': 'gMatt',
@@ -69,7 +73,7 @@ vid = {
     'Star-Spangled': 'sSpang',
     'Toad Warrior': 'toad',
     'Understudy': 'uStudy',
-
+    # Double
     'Creature of Habit': 'cHabit',
     'Doublicious': 'dLicious',
     'Evergreen Evil': 'eEvil',
@@ -82,7 +86,7 @@ vid = {
     'Sundae School': 'sSchool',
     'Temple Tyrant': 'tTyrant',
     'Xenomorph': 'xMorph',
-
+    # Eliza
     'Bloodbath': 'bBath',
     'Bloody Valentine': 'bValen',
     'Decrypted': 'dCrypt',
@@ -95,7 +99,7 @@ vid = {
     'Revamped': 'sOut',
     'Scarlet Viper': 'sViper',
     'Tomb _ Gloom': 'gloom',
-
+    # Filia
     'Bad Hair Day': 'bHDay',
     'Bad Ms Frosty': 'bMFrosty',
     'Class Cutter': 'cCutter',
@@ -107,8 +111,9 @@ vid = {
     'Parasite Weave': 'pWeave',
     'Rock Star': 'rStar',
     'Windswept': 'wSwept',
-
+    # Fukua
     'Chameleon Twist': 'twist',
+    'Dream Demon': 'dDemon',
     'Feathered Edges': 'feath',
     'Infernal Twin': 'iTwin',
     'Night Terror': 'nTerr',
@@ -119,7 +124,7 @@ vid = {
     'Souls Sister': 'souls',
     'Splitting Image': 'sImage',
     'Vaporwave Vixen': 'vaporW',
-
+    # Ms. Fortune
     'Claw _ Order': 'claw',
     'Feline Lucky': 'lucky',
     'Furry Fury': 'fFury',
@@ -132,7 +137,7 @@ vid = {
     'Rogue Agent': 'rogue',
     'Time Thief': 'tThief',
     'Wind Stalker': 'wStalk',
-
+    # Painwheel
     'Biting Cold': 'bCold',
     'Blood Drive': 'bDrive',
     'Buzzkill': 'bKill',
@@ -145,8 +150,9 @@ vid = {
     'Raw Nerv': 'rNerv',
     'Rusty': 'rusty',
     'Twisted Mettle': 'tMett',
-
+    # Parasoul
     'Heavy Reign': 'hReign',
+    'High Ruler': 'hRuler',
     'Ivy League': 'iLeague',
     'No Egrets': 'nEgrets',
     'Primed': 'prime',
@@ -157,7 +163,7 @@ vid = {
     'Sheltered': 'shelt',
     'Star-Crossed': 'sCross',
     'Summer Salt': 'sSalt',
-
+    # Peacock
     'Dream Catcher': 'dCatch',
     'Freeze Frame': 'fFrame',
     'Inkling': 'ink',
@@ -170,7 +176,7 @@ vid = {
     'Ultraviolent': 'uViolent',
     'Untouchable': 'uTouch',
     'Wildcard': 'wCard',
-
+    # Robo-Fortune
     'Blue Bomber': 'bBomb',
     'Blue Screen': 'blueS',
     'Head Hunter': 'metro',
@@ -181,8 +187,9 @@ vid = {
     'Prototype': 'pType',
     'Purrminator': 'purr',
     'Terror Byte': 'tByte',
+    'Vector Protector': 'vect',
     'X-Bot': 'xBot',
-
+    # Squigly
     'Bio-Exorcist': 'bExor',
     'Dead Heat': 'dHeat',
     'Dead of Winter': 'dOWint',
@@ -195,7 +202,7 @@ vid = {
     'Scared Stiff': 'sStiff',
     'Stage Fright': 'sFright',
     'Thrill Shrieker': 'shriek',
-
+    # Valentine
     'Assassin_s Greed': 'aGreed',
     'Graveyard Shift': 'gShift',
     'Icy Hot': 'iHot',
@@ -207,5 +214,6 @@ vid = {
     'Scrub': 'scrub',
     'Silent Kill': 'sKill',
     'Surgeon General': 'sGeneral',
-    'Tre_s Chic': 'tChic'
+    'Tre_s Chic': 'tChic',
+    'Wetwork': 'wWork'
 }
