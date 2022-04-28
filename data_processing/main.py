@@ -3,9 +3,8 @@ import UnityPy
 from data_processing import file
 import json
 
-monosharedraw = file.load('data_processing/input/MonoBehaviourShared', True)
-monoshared = monosharedraw['sharedassets0.assets.split0']
-
+monobehaviour = file.load('data_processing/input/MonoBehaviour', True)
+monolith = monobehaviour['sharedassets0.assets.split0']
 phone = UnityPy.load(
     'data_processing/input/localization',
     'data_processing/input/signatureabilities'
@@ -46,12 +45,12 @@ def find_by_pathid(bundle, m_PathID):
 placeholder = re.compile('{.*?}') # for build_features in build_ability
 
 def get_keys(attributes):
-    'Get monoshared keys of objects with certain attributes.'
+    'Get monolith keys of objects with certain attributes.'
     keys = set()
-    for key in monoshared:
+    for key in monolith:
         has_all_attributes = True
         for attribute in attributes:
-            if attribute not in monoshared[key]:
+            if attribute not in monolith[key]:
                 has_all_attributes = False
                 break
         if has_all_attributes:
@@ -215,15 +214,15 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False): # todo
             }
     return {}
 
-def get_characters(character_keys, variant_keys): # where is beowulf's file?
+def get_characters(character_keys, variant_keys):
     characters = {}
     for character_key in character_keys:
-        character = monoshared[character_key]
+        character = monolith[character_key]
         id = create_id(characters, character)
-        ca = follow_id(monoshared, character['characterAbility'])
+        ca = follow_id(monolith, character['characterAbility'])
         ma_key, ma_subkey = None, None # prevent assigning previous ma
         for variant_key in variant_keys:
-            variant = monoshared[variant_key]
+            variant = monolith[variant_key]
             if is_dummy(variant):
                 continue
             base_key = str(variant['baseCharacter']['m_PathID'])
@@ -233,7 +232,8 @@ def get_characters(character_keys, variant_keys): # where is beowulf's file?
         character = {
             'name': character['displayName'],
             'ca': build_character_ablity(ca),
-            'ma': build_ability(ma_key, True)
+            'ma': build_ability(ma_key, True),
+            'pa': build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
         }
         characters[id] = character
     return characters
@@ -241,11 +241,11 @@ def get_characters(character_keys, variant_keys): # where is beowulf's file?
 def get_variants(variant_keys):
     variants = {}
     for variant_key in variant_keys:
-        variant = monoshared[variant_key]
+        variant = monolith[variant_key]
         if is_dummy(variant):
             continue
         id = create_id(variants, variant)
-        character = follow_id(monoshared, variant['baseCharacter'])
+        character = follow_id(monolith, variant['baseCharacter'])
         if character == {}:
             print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
         sa_key = variant['signatureAbility']
@@ -264,13 +264,13 @@ def get_variants(variant_keys):
 def get_sms(character_keys):
     sms = {}
     for character_key in character_keys:
-        character = monoshared[character_key]
+        character = monolith[character_key]
         for pointer in character['specialMoves']['Array']:
-            sm = follow_id(monoshared, pointer)
+            sm = follow_id(monolith, pointer)
             id = create_id(sms, sm)
             if sm['cooldownTimes']['Array'] == [-1]: # competitive pvp burst
                 continue
-            icon = follow_id(monoshared, sm['palettizedIcon'])
+            icon = follow_id(monolith, sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             sma_key = sm['signatureAbility']
             sms[id] = {
@@ -291,11 +291,11 @@ def get_sms(character_keys):
 def get_bbs(character_keys):
     bbs = {}
     for character_key in character_keys:
-        character = monoshared[character_key]
+        character = monolith[character_key]
         for pointer in character['blockbusters']['Array']:
-            bb = follow_id(monoshared, pointer)
+            bb = follow_id(monolith, pointer)
             id = create_id(bbs, bb)
-            icon = follow_id(monoshared, bb['palettizedIcon'])
+            icon = follow_id(monolith, bb['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             bba_key = bb['signatureAbility']
             bbs[id] = {
@@ -316,14 +316,14 @@ def get_bbs(character_keys):
 def get_catalysts(catalyst_keys):
     catalysts = {}
     for catalyst_key in catalyst_keys:
-        catalyst = monoshared[catalyst_key]
+        catalyst = monolith[catalyst_key]
         id = create_id(catalysts, catalyst)
         characters = []
         elements = []
-        constraint = follow_id(monoshared, catalyst['abilityConstraint'])
+        constraint = follow_id(monolith, catalyst['abilityConstraint'])
         if 'charactersNeeded' in constraint:
             for pointer in constraint['charactersNeeded']['Array']:
-                character = follow_id(monoshared, pointer)
+                character = follow_id(monolith, pointer)
                 characters.append(character['humanReadableGuid'])
         if 'elementsNeeded' in constraint:
             for element in constraint['elementsNeeded']['Array']:
@@ -366,10 +366,10 @@ if __name__ == '__main__':
 
     ### study marquee ability of specific character
     for charkey in character_keys:
-        if monoshared[charkey]['humanReadableGuid'] == 'va':
+        if monolith[charkey]['humanReadableGuid'] == 'va':
             break
     for varkey in variant_keys:
-        var = monoshared[varkey]
+        var = monolith[varkey]
         if str(var['baseCharacter']['m_PathID']) == charkey and not is_dummy(var):
             break
 
@@ -485,11 +485,11 @@ if __name__ == '__main__':
     #     if 'title' in w and 'features' in w:
     #         print(w['title'], w['features'])
     # phonebook[3299978497162081884]
-    # key, subkey = follow_resource(monoshared[varkey]['superAbility'])
+    # key, subkey = follow_resource(monolith[varkey]['superAbility'])
     # monoglobal[key]
 
     ### study how build_ability handles certain ability data
-    # sa = follow_id(monoshared, monoshared[charkey]['specialMoves']['Array'][2])
+    # sa = follow_id(monolith, monolith[charkey]['specialMoves']['Array'][2])
     # k, sk = follow_resource(sa['signatureAbility'])
     # monoglobal[k][sk]
     # build_ability(k, sk)
@@ -519,3 +519,6 @@ if __name__ == '__main__':
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
         corpus_core[''] = 'UNDEFINED'
         file.save(corpus_core, 'data_processing/output/{}.json'.format(language))
+
+    # with open('data_processing/output/corpus_en.json', 'w') as file:
+    #     json.dump(corpus['en'], file, indent=4, separators=(',', ': '))
