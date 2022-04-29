@@ -13,6 +13,7 @@ fid = {
     'Peacock': 'pe',
     'Robo Fortune': 'rf',
     'Squigly': 'sq',
+    'Umbrella': 'um',
     'Valentine': 'va'
 }
 
@@ -63,7 +64,7 @@ vid = {
     # Cerebella
     'Armed Forces': 'aForce',
     'Big Top': 'bTop',
-    'Blitz _ Glamour': 'bGlam',
+    'Blitz__Glamour': 'bGlam',
     'Brain Freeze': 'bFreeze',
     'Criminal Mind': 'cMind',
     'Gray Matter': 'gMatt',
@@ -113,7 +114,7 @@ vid = {
     'Windswept': 'wSwept',
     # Fukua
     'Chameleon Twist': 'twist',
-    'Dream Demon': 'dDemon',
+    'Dream_Demon': 'dDemon',
     'Feathered Edges': 'feath',
     'Infernal Twin': 'iTwin',
     'Night Terror': 'nTerr',
@@ -187,7 +188,7 @@ vid = {
     'Prototype': 'pType',
     'Purrminator': 'purr',
     'Terror Byte': 'tByte',
-    'Vector Protector': 'vect',
+    'Vector_Protector': 'vect',
     'X-Bot': 'xBot',
     # Squigly
     'Bio-Exorcist': 'bExor',
@@ -202,6 +203,18 @@ vid = {
     'Scared Stiff': 'sStiff',
     'Stage Fright': 'sFright',
     'Thrill Shrieker': 'shriek',
+    # Umbrella
+    'Candy_Crusher': 'candyCrusher',
+    'Eager_Deceiver': 'eagerDeceiver',
+    'Fresh_Heir': 'freshHeir',
+    'Puddle_Pirate': 'puddlePirate',
+    'Raining_Champ': 'reigningChamp',
+    'Rose-Tinted': 'roseTinted',
+    'Salty': 'salty',
+    'Space_Case': 'spaceCase',
+    'Tidal_Traveler': 'fullSail',
+    'Wild_Child': 'wildChild',
+    'Wunderkind': 'wunderKind',
     # Valentine
     'Assassin_s Greed': 'aGreed',
     'Graveyard Shift': 'gShift',
