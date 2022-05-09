@@ -19,12 +19,6 @@ def all_assets(bundle):
 def read_obj(obj):
     return obj.read().read_type_tree().to_dict()
 
-def get_phonebook():
-    index = {}
-    for pid, obj in all_assets('signatureabilities'):
-        index[pid] = obj
-    return index
-
 def get_corpus():
     corpus = {}
     for pid, obj in all_assets('localization'):
@@ -357,7 +351,7 @@ def get_ability(thing):
     return read_obj(phone.container[thing['resourcePath']])
 
 if __name__ == '__main__':
-    phonebook = get_phonebook()
+    phonebook = dict(all_assets('signatureabilities'))
     corpus = get_corpus()
 
     character_keys = get_keys(['characterAbility', 'englishVoArtist'])
