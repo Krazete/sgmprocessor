@@ -227,7 +227,7 @@ def get_characters(character_keys, variant_keys):
             'name': character['displayName'],
             'ca': build_character_ablity(ca),
             'ma': build_ability(ma_key, True),
-            'pa': build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
+            'pa': '' # build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
         }
         characters[id] = character
     return characters

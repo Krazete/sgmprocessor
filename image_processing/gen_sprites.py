@@ -15,4 +15,4 @@ if __name__ == '__main__':
                     md = sf[k].read()
                     im = UnityPy.export.Texture2DConverter.get_image_from_texture2d(md)
                     fn = md.read_type_tree()['name']
-                    im.save('image_processing/output/sprite/' + fn + '.png')
+                    im.save('image_processing/output/sprite/{}.png'.format(fn))
