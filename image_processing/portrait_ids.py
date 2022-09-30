@@ -207,6 +207,7 @@ vid = {
     'Thrill Shrieker': 'shriek',
     # Umbrella
     'Candy_Crusher': 'candyCrusher',
+    'Death_Wish': 'wishfulEater',
     'Eager_Deceiver': 'eagerDeceiver',
     'Fresh_Heir': 'freshHeir',
     'Puddle_Pirate': 'puddlePirate',
