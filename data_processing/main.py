@@ -496,8 +496,8 @@ if __name__ == '__main__':
 
     file.mkdir('data_processing/output')
 
-    file.save(characters, 'data_processing/output/characters.json')
-    file.save(variants, 'data_processing/output/variants.json')
+    file.save(characters, 'data_processing/output/characters.json', True)
+    file.save(variants, 'data_processing/output/variants.json', True)
     # file.save(sms, 'data_processing/output/sms.json')
     # file.save(bbs, 'data_processing/output/bbs.json')
     # file.save(catalysts, 'data_processing/output/catalysts.json')
