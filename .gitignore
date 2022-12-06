@@ -1,7 +1,9 @@
 __pycache__
-data_processing/input/MonoBehaviour
-data_processing/input/Data
+data_processing/input/localization
+data_processing/input/signatureabilities
 data_processing/output
 image_processing/input/Art Capture
+image_processing/input/palettizedimages
+image_processing/input/talkingheads
 image_processing/output
 venv
