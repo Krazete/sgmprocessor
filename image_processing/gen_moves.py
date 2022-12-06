@@ -41,13 +41,13 @@ def petrify_sprite(im, spectral_ids=[]):
     return sprite
 
 if __name__ == '__main__':
-    phone = UnityPy.load('image_processing/input/palettizedimages')
+    palettizedimages = UnityPy.load('image_processing/input/palettizedimages')
 
     file.mkdir('image_processing/output')
     file.mkdir('image_processing/output/move')
 
-    for key in phone.container:
-        obj = phone.container[key].read()
+    for key in palettizedimages.container:
+        obj = palettizedimages.container[key].read()
         if '_BB' in obj.name or '_SM' in obj.name:
             name_prefix = obj.name.split('_')[0]
             spectral_ids = spectral_log.get(name_prefix, [])
