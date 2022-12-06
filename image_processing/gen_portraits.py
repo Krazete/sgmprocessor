@@ -5,7 +5,8 @@ from image_processing import file
 from image_processing.portrait_ids import fid, vid
 
 if __name__ == '__main__':
-    pattern = re.compile('_(.+)_PortraitMarquee_')
+    fid_suffixes = '|'.join([id.split(' ')[-1] for id in fid])
+    pattern = re.compile('(?:{})_(.+)_PortraitMarquee_'.format(fid_suffixes))
     scale = 3 / 10
 
     dir_shadow = 'image_processing/input/mask/shadow'
@@ -31,7 +32,7 @@ if __name__ == '__main__':
                     # mask colors with c and mask alpha with s
                     portrait = ImageChops.subtract(im, ImageOps.invert(c).convert('RGBA'))
                     portrait.putalpha(s)
-                    scaled_portrait = portrait.resize((int(dim * scale) for dim in portrait.size), Image.LANCZOS)
+                    scaled_portrait = portrait.resize((int(dim * scale) for dim in portrait.size), Image.Resampling.LANCZOS)
                     # save with ids instead of names
                     variant = re.sub('[^a-zA-Z0-9 -_!]', '_', stems[0])
                     file.mkdir(os.path.join(dir_portrait, fid[character]))

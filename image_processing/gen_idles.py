@@ -8,7 +8,7 @@ if __name__ == '__main__':
     file.mkdir('image_processing/output')
     file.mkdir('image_processing/output/idle')
 
-    for filename, im in file.iter_img('image_processing/input/Sprite'):
+    for filename, im in file.iter_img('image_processing/input/Sprite'): # todo: eliminate dependence on AssetStudio (switch to UnityPy)
         stems = re.findall(pattern, filename)
         if len(stems):
             stem = stems[0]

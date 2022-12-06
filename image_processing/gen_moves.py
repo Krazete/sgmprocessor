@@ -1,5 +1,20 @@
+import UnityPy
 from PIL import ImageMath
 from image_processing import file
+
+spectral_log = {
+    'Annie': [47, 48, 49],
+    'Beowulf': [61],
+    'BigBand': [53],
+    'BlackDahlia': [47, 62, 64],
+    'Cerebella': [34],
+    'Eliza': [66],
+    'Fukua': [27, 28],
+    'Parasoul': [37],
+    'RoboFortune': [49, 50, 52, 53],
+    'Squigly': [43],
+    'Umbrella': [35, 36, 47]
+}
 
 def petrify_sprite(im, spectral_ids=[]):
     'Return grayscale version of codified sprite, with spectral areas rendered translucent.'
@@ -26,23 +41,15 @@ def petrify_sprite(im, spectral_ids=[]):
     return sprite
 
 if __name__ == '__main__':
+    phone = UnityPy.load('image_processing/input/palettizedimages')
+
     file.mkdir('image_processing/output')
     file.mkdir('image_processing/output/move')
 
-    for filename, im in file.iter_img('image_processing/input/Sprite'):
-        if '_BB' in filename or '_SM' in filename:
-            spectral_ids = []
-            if 'Beowulf_' in filename:
-                spectral_ids = [0xEC]
-            elif 'Cerebella_' in filename:
-                spectral_ids = [0xB7]
-            elif 'Eliza_' in filename:
-                spectral_ids = [0xED]
-            elif 'Parasoul_' in filename:
-                spectral_ids = [0xCF]
-            elif 'RoboFortune_' in filename:
-                spectral_ids = [0xE4, 0xD2, 0xD7, 0xDF]
-            elif 'Squigly_' in filename:
-                spectral_ids = [0xCE]
-            sprite = petrify_sprite(im, spectral_ids)
-            sprite.save('image_processing/output/move/' + filename)
+    for key in phone.container:
+        obj = phone.container[key].read()
+        if '_BB' in obj.name or '_SM' in obj.name:
+            name_prefix = obj.name.split('_')[0]
+            spectral_ids = spectral_log.get(name_prefix, [])
+            sprite = petrify_sprite(obj.image, spectral_ids)
+            sprite.save('image_processing/output/move/{}.png'.format(obj.name))
