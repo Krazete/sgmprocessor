@@ -4,15 +4,16 @@
 
 Also, Atom is being sunset (goodbye Hydrogen, you were the best). So I'll take this opportunity to start using virtual environments finally.
 
-`python -m venv venv`  
-MAC: `venv/bin/activate`  
-WIN: `venv/Scripts/Activate.ps1`  
-if security error: `Set-ExecutionPolicy Unrestricted -Scope Process`  
-`pip install -r requirements.txt`  
-`deactivate`  
-select all then press Shift+Enter (don't run, it'll use the wrong working folder)  
+> `python -m venv venv`  
+> MAC: `source venv/bin/activate`  
+> WIN: `venv/Scripts/Activate.ps1`  
+> if security error: `Set-ExecutionPolicy Unrestricted -Scope Process`  
+> `pip install -r requirements.txt`  
+> `deactivate`
+> 
+> VSCODE: select all then press Shift+Enter (don't run, it'll use the wrong working folder)  
 
-I'll refine the wording of those steps later.
+I'll refine those instructions later.
 
 # Obtaining Input Data
 

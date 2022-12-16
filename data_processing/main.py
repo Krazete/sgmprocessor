@@ -1,31 +1,35 @@
 import re
+import json
 import UnityPy
 from data_processing import file
-import json
 
-monobehaviour = file.load('data_processing/input/MonoBehaviour', True)
-monolith = monobehaviour['sharedassets0.assets.split0']
-phone = UnityPy.load(
-    'data_processing/input/localization',
-    'data_processing/input/signatureabilities'
-)
-
-def all_assets(bundle):
-    for sf in phone.assets[bundle].values():
-        if isinstance(sf, UnityPy.files.SerializedFile):
-            for k in sf.keys():
-                yield k, sf[k]
+apk = UnityPy.load('data_processing/input/base.apk')
+for sa0 in apk.assets:
+    if 'sharedassets0' in sa0.name:
+        break
+assert sa0.name == 'sharedassets0.assets', 'sa0 is misassigned'
+# asset.objects == {k: v for k, v in zip(asset.keys(), asset.values())}
+loc = UnityPy.load('data_processing/input/localization')
+sig = UnityPy.load('data_processing/input/signatureabilities')
+with open('data_processing/input/typetrees.json', 'r') as fp:
+    typetrees = json.load(fp)
 
 def read_obj(obj):
-    return obj.read().read_type_tree().to_dict()
+    typetree = typetrees[obj.read().m_Script.read().m_Name]
+    return obj.read_typetree(typetree)
 
 def get_corpus():
     corpus = {}
-    for pid, obj in all_assets('localization'):
-        data = read_obj(obj)
-        if 'name' in data and 'm_Script' in data:
-            corpus[data['name']] = json.loads(data['m_Script'])
+    for k in loc.container:
+        v = loc.container[k].read()
+        language = v.name
+        translation = json.loads(bytes(v.script))
+        corpus[language] = translation
     return corpus
+
+##################################
+# above is updated, below is old #
+##################################
 
 def find_by_pathid(bundle, m_PathID):
     for pid, obj in all_assets(bundle):
@@ -39,12 +43,12 @@ def find_by_pathid(bundle, m_PathID):
 placeholder = re.compile('{.*?}') # for build_features in build_ability
 
 def get_keys(attributes):
-    'Get monolith keys of objects with certain attributes.'
+    'Get sa0 keys of objects with certain attributes.'
     keys = set()
-    for key in monolith:
+    for key in sa0:
         has_all_attributes = True
         for attribute in attributes:
-            if attribute not in monolith[key]:
+            if attribute not in sa0[key]:
                 has_all_attributes = False
                 break
         if has_all_attributes:
@@ -211,12 +215,12 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False): # todo
 def get_characters(character_keys, variant_keys):
     characters = {}
     for character_key in character_keys:
-        character = monolith[character_key]
+        character = sa0[character_key]
         id = create_id(characters, character)
-        ca = follow_id(monolith, character['characterAbility'])
+        ca = follow_id(sa0, character['characterAbility'])
         ma_key, ma_subkey = None, None # prevent assigning previous ma
         for variant_key in variant_keys:
-            variant = monolith[variant_key]
+            variant = sa0[variant_key]
             if is_dummy(variant):
                 continue
             base_key = str(variant['baseCharacter']['m_PathID'])
@@ -235,11 +239,11 @@ def get_characters(character_keys, variant_keys):
 def get_variants(variant_keys):
     variants = {}
     for variant_key in variant_keys:
-        variant = monolith[variant_key]
+        variant = sa0[variant_key]
         if is_dummy(variant):
             continue
         id = create_id(variants, variant)
-        character = follow_id(monolith, variant['baseCharacter'])
+        character = follow_id(sa0, variant['baseCharacter'])
         if character == {}:
             print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
         sa_key = variant['signatureAbility']
@@ -258,13 +262,13 @@ def get_variants(variant_keys):
 def get_sms(character_keys):
     sms = {}
     for character_key in character_keys:
-        character = monolith[character_key]
+        character = sa0[character_key]
         for pointer in character['specialMoves']['Array']:
-            sm = follow_id(monolith, pointer)
+            sm = follow_id(sa0, pointer)
             id = create_id(sms, sm)
             if sm['cooldownTimes']['Array'] == [-1]: # competitive pvp burst
                 continue
-            icon = follow_id(monolith, sm['palettizedIcon'])
+            icon = follow_id(sa0, sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             sma_key = sm['signatureAbility']
             sms[id] = {
@@ -285,11 +289,11 @@ def get_sms(character_keys):
 def get_bbs(character_keys):
     bbs = {}
     for character_key in character_keys:
-        character = monolith[character_key]
+        character = sa0[character_key]
         for pointer in character['blockbusters']['Array']:
-            bb = follow_id(monolith, pointer)
+            bb = follow_id(sa0, pointer)
             id = create_id(bbs, bb)
-            icon = follow_id(monolith, bb['palettizedIcon'])
+            icon = follow_id(sa0, bb['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             bba_key = bb['signatureAbility']
             bbs[id] = {
@@ -310,14 +314,14 @@ def get_bbs(character_keys):
 def get_catalysts(catalyst_keys):
     catalysts = {}
     for catalyst_key in catalyst_keys:
-        catalyst = monolith[catalyst_key]
+        catalyst = sa0[catalyst_key]
         id = create_id(catalysts, catalyst)
         characters = []
         elements = []
-        constraint = follow_id(monolith, catalyst['abilityConstraint'])
+        constraint = follow_id(sa0, catalyst['abilityConstraint'])
         if 'charactersNeeded' in constraint:
             for pointer in constraint['charactersNeeded']['Array']:
-                character = follow_id(monolith, pointer)
+                character = follow_id(sa0, pointer)
                 characters.append(character['humanReadableGuid'])
         if 'elementsNeeded' in constraint:
             for element in constraint['elementsNeeded']['Array']:
@@ -360,10 +364,10 @@ if __name__ == '__main__':
 
     ### study marquee ability of specific character
     for charkey in character_keys:
-        if monolith[charkey]['humanReadableGuid'] == 'va':
+        if sa0[charkey]['humanReadableGuid'] == 'va':
             break
     for varkey in variant_keys:
-        var = monolith[varkey]
+        var = sa0[varkey]
         if str(var['baseCharacter']['m_PathID']) == charkey and not is_dummy(var):
             break
 
@@ -479,11 +483,11 @@ if __name__ == '__main__':
     #     if 'title' in w and 'features' in w:
     #         print(w['title'], w['features'])
     # phonebook[3299978497162081884]
-    # key, subkey = follow_resource(monolith[varkey]['superAbility'])
+    # key, subkey = follow_resource(sa0[varkey]['superAbility'])
     # monoglobal[key]
 
     ### study how build_ability handles certain ability data
-    # sa = follow_id(monolith, monolith[charkey]['specialMoves']['Array'][2])
+    # sa = follow_id(sa0, sa0[charkey]['specialMoves']['Array'][2])
     # k, sk = follow_resource(sa['signatureAbility'])
     # monoglobal[k][sk]
     # build_ability(k, sk)

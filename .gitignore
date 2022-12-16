@@ -1,4 +1,7 @@
 __pycache__
+data_processing/input/base.apk
+data_processing/input/DummyDll
+data_processing/input/net6.0
 data_processing/input/localization
 data_processing/input/signatureabilities
 data_processing/output
