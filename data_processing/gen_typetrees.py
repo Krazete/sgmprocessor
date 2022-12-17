@@ -1,27 +1,19 @@
-# py3
+# This script is from the MonoBehaviourFromAssembly example in the UnityPy repo.
+# - https://github.com/K0lb3/UnityPy/tree/ba572869/examples/MonoBehaviourFromAssembly
+# It has been modified to match this project's directories and updated libraries.
+# 
 # requirements:
-#   pythonnet 3+
-#       pip install git+https://github.com/pythonnet/pythonnet/
-#   TypeTreeGenerator
-#       https://github.com/K0lb3/TypeTreeGenerator
-#       requires .NET 5.0 SDK
-#           https://dotnet.microsoft.com/download/dotnet/5.0
-#
-#   pythonnet 2 and TypeTreeGenerator created with net4.8 works on Windows,
-#   so it can do without pythonnet_init,
-#   all other systems need pythonnet 3 and either .net 5 or .net core 3 and pythonnet_init
-
-
-############################
-#
-#   Warning: This example isn't for beginners
-#
-############################
+# - pythonnet 3+ (already installed via requirements.txt)
+#   - pip install git+https://github.com/pythonnet/pythonnet/
+# - TypeTreeGenerator (already installed as the data_processing/input/net6.0 directory)
+#   - https://github.com/K0lb3/TypeTreeGenerator/tree/12ed37d9
+#   - requires .NET 6.0 SDK (this is the only extra thing you need to download)
+#     - https://dotnet.microsoft.com/download/dotnet/6.0
 
 import os
+import json
 import UnityPy
 from typing import Dict
-import json
 
 ROOT = os.path.join('data_processing', 'input')
 TYPETREE_GENERATOR_PATH = os.path.join(ROOT, 'net6.0')
@@ -29,47 +21,11 @@ TYPETREE_GENERATOR_PATH = os.path.join(ROOT, 'net6.0')
 def main():
     # dump the trees for all classes in the assembly
     dll_folder = os.path.join(ROOT, 'DummyDll')
-    tree_path = os.path.join(ROOT, 'assembly_typetrees.json')
-    asset_path = os.path.join(ROOT, 'com.autumn.skullgirls-oYQKeJiRw_MtoVzSMt6Zlw==')
+    tree_path = os.path.join(ROOT, 'typetrees.json')
     trees = dump_assembly_trees(dll_folder, tree_path)
     # by dumping it as json, it can be redistributed,
     # so that other people don't have to setup pythonnet3
     # People who don't like to share their decrypted dlls could also share the relevant structures this way.
-
-    export_monobehaviours(asset_path, trees)
-
-def export_monobehaviours(asset_path: str, trees: dict):
-    for r, d, fs in os.walk(asset_path):
-        for f in fs:
-            try:
-                env = UnityPy.load(os.path.join(r, f))
-            except:
-                continue
-            for obj in env.objects:
-                if obj.type == 'MonoBehaviour':
-                    d = obj.read()
-                    if obj.serialized_type and obj.serialized_type.nodes:
-                        tree = obj.read_typetree()
-                    else:
-                        if not d.m_Script:
-                            continue
-                            # RIP, no referenced script
-                            # can only dump raw
-                        script = d.m_Script.read()
-                        # on-demand solution without already dumped tree
-                        #nodes = generate_tree(
-                        #    g, script.m_AssemblyName, script.m_ClassName, script.m_Namespace
-                        #)
-                        if script.m_ClassName not in trees:
-                            # class not found in known trees,
-                            # might have to add the classes of the other dlls
-                            continue
-                        nodes = FakeNode(**trees[script.m_ClassName])
-                        tree = obj.read_typetree(nodes)
-                
-                # save tree as json whereever you like
-                    
-                    
 
 def dump_assembly_trees(dll_folder: str, out_path: str):
     # init pythonnet, so that it uses the correct .net for the generator
@@ -83,11 +39,9 @@ def dump_assembly_trees(dll_folder: str, out_path: str):
     trees = generate_tree(g, 'Assembly-CSharp.dll', '', '')
 
     if out_path:
-        with open(os.path.join(ROOT, 'typetrees.json'), 'wt', encoding='utf8') as f:
+        with open(out_path, 'wt', encoding='utf8') as f:
             json.dump(trees, f, ensure_ascii=False)
     return trees
-
-
 
 def pythonnet_init():
     '''correctly sets-up pythonnet for the typetree generator'''
@@ -95,23 +49,17 @@ def pythonnet_init():
     from clr_loader import get_coreclr
     from pythonnet import set_runtime
 
-    rt = get_coreclr(
-        # os.path.join(TYPETREE_GENERATOR_PATH, 'TypeTreeGenerator.runtimeconfig.json')
-    )
+    rt = get_coreclr()
     set_runtime(rt)
-
 
 def create_generator(dll_folder: str):
     '''Loads TypeTreeGenerator library and returns an instance of the Generator class.'''
     # temporarily add the typetree generator dir to paths,
     # so that pythonnet can find its files
     import sys
-
     sys.path.append(TYPETREE_GENERATOR_PATH)
 
-    #
     import clr
-
     clr.AddReference('TypeTreeGenerator')
 
     # import Generator class from the loaded library
@@ -123,13 +71,10 @@ def create_generator(dll_folder: str):
     g.loadFolder(dll_folder)
     return g
 
-
 class FakeNode:
     '''A fake/minimal Node class for use in UnityPy.'''
-
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
-
 
 def generate_tree(
     g: 'Generator',
@@ -141,7 +86,6 @@ def generate_tree(
     '''Generates the typetree structure / nodes for the specified class.'''
     # C# System
     from System import Array
-
     unity_version_cs = Array[int](unity_version)
 
     # fetch all type definitions
@@ -165,7 +109,6 @@ def generate_tree(
             for node in nodes
         ]
     return trees
-
 
 if __name__ == '__main__':
     main()
