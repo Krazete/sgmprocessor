@@ -1,6 +1,7 @@
 import re
 import json
 import UnityPy
+from functools import lru_cache
 from data_processing import file
 
 apk = UnityPy.load('data_processing/input/base.apk')
@@ -27,6 +28,7 @@ def get_corpus():
         corpus[language] = translation
     return corpus
 
+@lru_cache
 def get_monos(datatype):
     monos = []
     for mono in sa0.values():
@@ -44,19 +46,6 @@ def get_monos(datatype):
 #             yield read_asset(obj)
 
 # placeholder = re.compile('{.*?}') # for build_features in build_ability
-
-# def get_keys(attributes):
-#     'Get sa0 keys of objects with certain attributes.'
-#     keys = set()
-#     for key in sa0:
-#         has_all_attributes = True
-#         for attribute in attributes:
-#             if attribute not in sa0[key]:
-#                 has_all_attributes = False
-#                 break
-#         if has_all_attributes:
-#             keys.add(key)
-#     return keys
 
 # def follow_id(parent, pointer):
 #     'Get object (from specified parent object) referenced by m_PathID object.'
@@ -96,6 +85,28 @@ def create_id(parent, data):
 def is_deviant(variant):
     'True if Variant has no Marquee Ability (e.g. Sparring Partners and Competitive Fighters).'
     return variant['superAbility']['resourcePath'] == ''
+
+def get_characters():
+    characters = {}
+    for character in get_monos('BaseCharacterData'):
+        id = create_id(characters, character)
+        # ca = follow_id(sa0, character['characterAbility'])
+        # ma_key, ma_subkey = None, None # prevent assigning previous ma
+        for variant in get_monos('VariantCharacterData'):
+            if is_deviant(variant):
+                continue
+            basecharacter = read_obj(sa0[variant['baseCharacter']['m_PathID']])
+            if basecharacter == character:
+                ma_key = variant['superAbility']
+                break
+        character = {
+            'name': character['displayName'],
+            # 'ca': build_character_ablity(ca),
+            'ma': ma_key, #build_ability(ma_key, True),
+            # 'pa': '' # build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
+        }
+        characters[id] = character
+    return characters
 
 def get_variants():
     variants = {}
@@ -246,30 +257,6 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False): # todo
                 'features': build_features(component['features']['Array'])
             }
     return {}
-
-def get_characters(character_keys, variant_keys):
-    characters = {}
-    for character_key in character_keys:
-        character = sa0[character_key]
-        id = create_id(characters, character)
-        ca = follow_id(sa0, character['characterAbility'])
-        ma_key, ma_subkey = None, None # prevent assigning previous ma
-        for variant_key in variant_keys:
-            variant = sa0[variant_key]
-            if is_deviant(variant):
-                continue
-            base_key = str(variant['baseCharacter']['m_PathID'])
-            if base_key == character_key:
-                ma_key = variant['superAbility']
-                break
-        character = {
-            'name': character['displayName'],
-            'ca': build_character_ablity(ca),
-            'ma': build_ability(ma_key, True),
-            'pa': '' # build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
-        }
-        characters[id] = character
-    return characters
 
 def get_sms(character_keys):
     sms = {}
