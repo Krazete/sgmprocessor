@@ -86,26 +86,29 @@ def is_deviant(variant):
     'True if Variant has no Marquee Ability (e.g. Sparring Partners and Competitive Fighters).'
     return variant['superAbility']['resourcePath'] == ''
 
+def get_ability(pointer):
+    return sig.container[pointer['resourcePath']].read_typetree()
+
 def get_characters():
     characters = {}
     for character in get_monos('BaseCharacterData'):
         id = create_id(characters, character)
-        # ca = follow_id(sa0, character['characterAbility'])
-        # ma_key, ma_subkey = None, None # prevent assigning previous ma
+        ca = read_obj(sa0[character['characterAbility']['m_PathID']])
+        ma = None # prevent assigning previous ma
         for variant in get_monos('VariantCharacterData'):
             if is_deviant(variant):
                 continue
-            basecharacter = read_obj(sa0[variant['baseCharacter']['m_PathID']])
-            if basecharacter == character:
-                ma_key = variant['superAbility']
+            base = read_obj(sa0[variant['baseCharacter']['m_PathID']])
+            if base == character:
+                ma = get_ability(variant['superAbility'])
                 break
-        character = {
+        pa = get_ability(character['prestigeAbility'])
+        characters[id] = {
             'name': character['displayName'],
-            # 'ca': build_character_ablity(ca),
-            'ma': ma_key, #build_ability(ma_key, True),
-            # 'pa': '' # build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
+            'ca': ca, #build_character_ablity(ca),
+            'ma': ma, #build_ability(ma_key, True),
+            'pa': pa # build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
         }
-        characters[id] = character
     return characters
 
 def get_variants():
@@ -117,7 +120,7 @@ def get_variants():
         character = read_obj(sa0[variant['baseCharacter']['m_PathID']])
         # if character == {}:
         #     print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
-        # sa_pointer = variant['signatureAbility']
+        sa = get_ability(variant['signatureAbility'])
         variants[id] = {
             'base': character['humanReadableGuid'],
             'name': variant['displayVariantName'],
@@ -125,7 +128,7 @@ def get_variants():
             'tier': variant['initialTier'],
             'element': variant['elementAffiliation'],
             'stats': variant['baseScaledValuesByTier'],
-            # 'sa': build_ability(sa_pointer),
+            'sa': sa, #build_ability(sa_pointer),
             'fandom': corpus['en'][variant['displayVariantName']]
         }
     return variants
@@ -362,20 +365,6 @@ def get_ability(thing):
 if __name__ == '__main__':
     phonebook = dict(all_assets('signatureabilities'))
     corpus = get_corpus()
-
-    character_keys = get_keys(['characterAbility', 'englishVoArtist'])
-    variant_keys = get_keys(['baseCharacter', 'displayVariantName', 'variantQuote'])
-    # catalyst_keys = get_keys(['randomCharacter', 'randomElement'])
-
-    ### study marquee ability of specific character
-    for charkey in character_keys:
-        if sa0[charkey]['humanReadableGuid'] == 'va':
-            break
-    for varkey in variant_keys:
-        var = sa0[varkey]
-        if str(var['baseCharacter']['m_PathID']) == charkey and not is_deviant(var):
-            break
-
 
     def dereference(pointer):
         if pointer['m_PathID'] in phonebook:
