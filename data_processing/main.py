@@ -27,69 +27,104 @@ def get_corpus():
         corpus[language] = translation
     return corpus
 
-##################################
-# above is updated, below is old #
-##################################
+def get_monos(datatype):
+    monos = []
+    for mono in sa0.values():
+        if mono.type.name == 'MonoBehaviour':
+            monotype = mono.read().m_Script.read().m_Name
+            if monotype == datatype: # todo: this is similar to read_obj, see if it can be merged
+                typetree = typetrees[monotype]
+                monotree = mono.read_typetree(typetree)
+                monos.append(monotree)
+    return monos
 
-def find_by_pathid(bundle, m_PathID):
-    for pid, obj in all_assets(bundle):
-        if pid == m_PathID:
-            yield read_asset(obj)
+# def find_by_pathid(bundle, m_PathID):
+#     for pid, obj in all_assets(bundle):
+#         if pid == m_PathID:
+#             yield read_asset(obj)
 
+# placeholder = re.compile('{.*?}') # for build_features in build_ability
 
+# def get_keys(attributes):
+#     'Get sa0 keys of objects with certain attributes.'
+#     keys = set()
+#     for key in sa0:
+#         has_all_attributes = True
+#         for attribute in attributes:
+#             if attribute not in sa0[key]:
+#                 has_all_attributes = False
+#                 break
+#         if has_all_attributes:
+#             keys.add(key)
+#     return keys
 
+# def follow_id(parent, pointer):
+#     'Get object (from specified parent object) referenced by m_PathID object.'
+#     m_PathID = 'm_PathID' if 'm_PathID' in pointer else '0 SInt64 m_PathID'
+#     if m_PathID in pointer:
+#         key = str(pointer[m_PathID])
+#         return parent.get(key, {})
+#     return {}
 
-
-placeholder = re.compile('{.*?}') # for build_features in build_ability
-
-def get_keys(attributes):
-    'Get sa0 keys of objects with certain attributes.'
-    keys = set()
-    for key in sa0:
-        has_all_attributes = True
-        for attribute in attributes:
-            if attribute not in sa0[key]:
-                has_all_attributes = False
-                break
-        if has_all_attributes:
-            keys.add(key)
-    return keys
-
-def follow_id(parent, pointer):
-    'Get object (from specified parent object) referenced by m_PathID object.'
-    m_PathID = 'm_PathID' if 'm_PathID' in pointer else '0 SInt64 m_PathID'
-    if m_PathID in pointer:
-        key = str(pointer[m_PathID])
-        return parent.get(key, {})
-    return {}
-
-def follow_resource(pointer): # todo
-    'Get monoglobal key and subkey referenced by resourcePath object.'
-    path = pointer['resourcePath'].split('/')[-1] # .split for catalysts
-    if 'resourcePath' in pointer:
-        for key in monoglobal:
-            for subkey in monoglobal[key]:
-                base = monoglobal[key][subkey].get('0 GameObject Base', {})
-                name = base.get('1 string m_Name')
-                if name == path:
-                    return key, subkey
-    return '', ''
+# def follow_resource(pointer): # todo
+#     'Get monoglobal key and subkey referenced by resourcePath object.'
+#     path = pointer['resourcePath'].split('/')[-1] # .split for catalysts
+#     if 'resourcePath' in pointer:
+#         for key in monoglobal:
+#             for subkey in monoglobal[key]:
+#                 base = monoglobal[key][subkey].get('0 GameObject Base', {})
+#                 name = base.get('1 string m_Name')
+#                 if name == path:
+#                     return key, subkey
+#     return '', ''
 
 def create_id(parent, data):
     'Retrieve ID from data and alter it to be unique if necessary.'
-    dupe = False
     id = data['humanReadableGuid']
     if id == '':
         id = data['guid']
+
+    dupe = False
     while id in parent:
         dupe = True
         id += '_'
     if dupe: # warn about a possible ID inconsistency which may need manual fixing
         print('WARNING: A non-unique ID has been detected and renamed:', id)
+
     return id
 
-def is_dummy(variant):
+def is_deviant(variant):
+    'True if Variant has no Marquee Ability (e.g. Sparring Partners and Competitive Fighters).'
     return variant['superAbility']['resourcePath'] == ''
+
+def get_variants():
+    variants = {}
+    for variant in get_monos('VariantCharacterData'):
+        if is_deviant(variant):
+            continue
+        id = create_id(variants, variant)
+        character = read_obj(sa0[variant['baseCharacter']['m_PathID']])
+        # if character == {}:
+        #     print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
+        # sa_pointer = variant['signatureAbility']
+        variants[id] = {
+            'base': character['humanReadableGuid'],
+            'name': variant['displayVariantName'],
+            'quote': variant['variantQuote'],
+            'tier': variant['initialTier'],
+            'element': variant['elementAffiliation'],
+            'stats': variant['baseScaledValuesByTier'],
+            # 'sa': build_ability(sa_pointer),
+            'fandom': corpus['en'][variant['displayVariantName']]
+        }
+    return variants
+
+##################################
+# above is updated, below is old #
+##################################
+
+
+
 
 def build_character_ablity(ability):
     if 'title' in ability and 'description' in ability:
@@ -221,7 +256,7 @@ def get_characters(character_keys, variant_keys):
         ma_key, ma_subkey = None, None # prevent assigning previous ma
         for variant_key in variant_keys:
             variant = sa0[variant_key]
-            if is_dummy(variant):
+            if is_deviant(variant):
                 continue
             base_key = str(variant['baseCharacter']['m_PathID'])
             if base_key == character_key:
@@ -235,29 +270,6 @@ def get_characters(character_keys, variant_keys):
         }
         characters[id] = character
     return characters
-
-def get_variants(variant_keys):
-    variants = {}
-    for variant_key in variant_keys:
-        variant = sa0[variant_key]
-        if is_dummy(variant):
-            continue
-        id = create_id(variants, variant)
-        character = follow_id(sa0, variant['baseCharacter'])
-        if character == {}:
-            print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
-        sa_key = variant['signatureAbility']
-        variants[id] = {
-            'base': character['humanReadableGuid'],
-            'name': variant['displayVariantName'],
-            'quote': variant['variantQuote'],
-            'tier': variant['initialTier'],
-            'element': variant['elementAffiliation'],
-            'stats': variant['baseScaledValuesByTier']['Array'],
-            'sa': build_ability(sa_key),
-            'fandom': corpus['en'][variant['displayVariantName']]
-        }
-    return variants
 
 def get_sms(character_keys):
     sms = {}
@@ -354,6 +366,12 @@ def get_corpus_keys(data):
 def get_ability(thing):
     return read_obj(phone.container[thing['resourcePath']])
 
+##########
+##########
+## MAIN ##
+##########
+##########
+
 if __name__ == '__main__':
     phonebook = dict(all_assets('signatureabilities'))
     corpus = get_corpus()
@@ -368,7 +386,7 @@ if __name__ == '__main__':
             break
     for varkey in variant_keys:
         var = sa0[varkey]
-        if str(var['baseCharacter']['m_PathID']) == charkey and not is_dummy(var):
+        if str(var['baseCharacter']['m_PathID']) == charkey and not is_deviant(var):
             break
 
 
