@@ -4,25 +4,29 @@ import UnityPy
 from functools import lru_cache
 from data_processing import file
 
+# DATA INITIALIZATION
+
 apk = UnityPy.load('data_processing/input/base.apk')
 for sa0 in apk.assets:
     if 'sharedassets0' in sa0.name:
         break
-assert sa0.name == 'sharedassets0.assets', 'sa0 is misassigned'
+assert sa0.name == 'sharedassets0.assets', 'Variable sa0 is misassigned.'
 # asset.objects == {k: v for k, v in zip(asset.keys(), asset.values())}
-loc = UnityPy.load('data_processing/input/localization')
+
+loc = UnityPy.load('data_processing/input/localization') # apk contains localization data too, but it is outdated
+corpus = {}
+for key in loc.container:
+    val = loc.container[key].read()
+    language = val.name
+    translations = json.loads(bytes(val.script))
+    corpus[language] = translations
+
 sig = UnityPy.load('data_processing/input/signatureabilities')
+
 with open('data_processing/input/typetrees.json', 'r') as fp:
     typetrees = json.load(fp)
 
-def get_corpus():
-    corpus = {}
-    for key in loc.container:
-        val = loc.container[key].read()
-        language = val.name
-        translations = json.loads(bytes(val.script))
-        corpus[language] = translations
-    return corpus
+# MAIN FUNCTIONS
 
 def read_obj(obj):
     typetree = typetrees[obj.read().m_Script.read().m_Name]
@@ -190,6 +194,17 @@ def get_variants():
             }
     return variants
 
+# UTILITY FUNCTIONS
+
+def tally_monotypes():
+    monotypes = {}
+    for mono in sa0.values():
+        if mono.type.name == 'MonoBehaviour':
+            monotype = mono.read().m_Script.read().m_Name
+            monotypes.setdefault(monotype, 0)
+            monotypes[monotype] += 1
+    return monotypes
+
 def sign(n):
     return 1 if n > 0 else -1 if n < 0 else 0
 
@@ -198,16 +213,16 @@ def check_sas():
         features = variants[key]['sa']['features']
         for i, feature in enumerate(features, 1):
             tiers = [tier['values'] for tier in feature['tiers']]
-            unchanging = True
+            constant = True
             for j in range(len(tiers[0])):
                 avb = tiers[0][j] - tiers[1][j]
                 bvc = tiers[1][j] - tiers[2][j]
                 if sign(avb) != sign(bvc):
                     print('Variant {}\'s SA{} is nonmonotonic at index {}: {}'.format(key, i, j, tiers))
                 if sign(avb) != 0 or sign(bvc) != 0:
-                    unchanging = False
-            if unchanging:
-                print('Variant {}\'s SA{} is unchanging: {}'.format(key, i, tiers))
+                    constant = False
+            if constant:
+                print('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
 
 ##################################
 # above is updated, below is old #
@@ -306,15 +321,13 @@ def get_corpus_keys(data):
     return keys
 
 if __name__ == '__main__':
-    corpus = get_corpus()
-
     characters = get_characters()
     variants = get_variants()
     # sms = get_sms()
     # bbs = get_bbs()
     # catalysts = get_catalysts()
 
-    check_sas()
+    check_sas() # expected: pShoot
 
     file.mkdir('data_processing/output')
 
