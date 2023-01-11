@@ -15,6 +15,8 @@ Also, Atom is being sunset (goodbye Hydrogen, you were the best). So I'll take t
 
 I'll refine those instructions later.
 
+> `pip freeze > requirements.txt`
+
 # Obtaining Input Data
 
 ## N. (For MacOS) Install Windows

@@ -15,21 +15,22 @@ sig = UnityPy.load('data_processing/input/signatureabilities')
 with open('data_processing/input/typetrees.json', 'r') as fp:
     typetrees = json.load(fp)
 
+def get_corpus():
+    corpus = {}
+    for key in loc.container:
+        val = loc.container[key].read()
+        language = val.name
+        translations = json.loads(bytes(val.script))
+        corpus[language] = translations
+    return corpus
+
 def read_obj(obj):
     typetree = typetrees[obj.read().m_Script.read().m_Name]
     return obj.read_typetree(typetree)
 
-def get_corpus():
-    corpus = {}
-    for k in loc.container:
-        v = loc.container[k].read()
-        language = v.name
-        translation = json.loads(bytes(v.script))
-        corpus[language] = translation
-    return corpus
-
 @lru_cache
 def get_monos(datatype):
+    'Get MonoBehaviour of specified type name.'
     monos = []
     for mono in sa0.values():
         if mono.type.name == 'MonoBehaviour':
@@ -40,38 +41,27 @@ def get_monos(datatype):
                 monos.append(monotree)
     return monos
 
-# def find_by_pathid(bundle, m_PathID):
-#     for pid, obj in all_assets(bundle):
-#         if pid == m_PathID:
-#             yield read_asset(obj)
+def sa0_get_id(ptr):
+    return read_obj(sa0[ptr['m_PathID']])
 
-# placeholder = re.compile('{.*?}') # for build_features in build_ability
+def sig_get_id(ptr):
+    id = ptr['m_PathID']
+    if id in sig.assets[0].keys():
+        return sig.assets[0][id].read_typetree() # doesn't use read_obj because typetrees wasn't built with sig
+    return {}
 
-# def follow_id(parent, pointer):
-#     'Get object (from specified parent object) referenced by m_PathID object.'
-#     m_PathID = 'm_PathID' if 'm_PathID' in pointer else '0 SInt64 m_PathID'
-#     if m_PathID in pointer:
-#         key = str(pointer[m_PathID])
-#         return parent.get(key, {})
-#     return {}
-
-# def follow_resource(pointer): # todo
-#     'Get monoglobal key and subkey referenced by resourcePath object.'
-#     path = pointer['resourcePath'].split('/')[-1] # .split for catalysts
-#     if 'resourcePath' in pointer:
-#         for key in monoglobal:
-#             for subkey in monoglobal[key]:
-#                 base = monoglobal[key][subkey].get('0 GameObject Base', {})
-#                 name = base.get('1 string m_Name')
-#                 if name == path:
-#                     return key, subkey
-#     return '', ''
+def sig_get_rp(ptr):
+    rp = ptr['resourcePath']
+    if rp in sig.container:
+        return sig.container[rp].read_typetree()
+    return {}
 
 def create_id(parent, data):
     'Retrieve ID from data and alter it to be unique if necessary.'
     id = data['humanReadableGuid']
     if id == '':
         id = data['guid']
+        print(id)
 
     dupe = False
     while id in parent:
@@ -82,91 +72,56 @@ def create_id(parent, data):
 
     return id
 
-def is_deviant(variant):
-    'True if Variant has no Marquee Ability (e.g. Sparring Partners and Competitive Fighters).'
-    return variant['superAbility']['resourcePath'] == ''
+def is_collectible(variant):
+    'True if Variant has Marquee Ability (e.g. no Sparring Partners or Competitive Fighters).'
+    return variant['superAbility']['resourcePath'] != ''
 
-def get_ability(pointer):
-    return sig.container[pointer['resourcePath']].read_typetree()
+def build_character_ablity(abilityptr):
+    ability = sa0_get_id(abilityptr)
+    return {
+        'title': ability['title'],
+        'description': ability['description']
+    }
 
 def get_characters():
     characters = {}
     for character in get_monos('BaseCharacterData'):
         id = create_id(characters, character)
-        ca = read_obj(sa0[character['characterAbility']['m_PathID']])
-        ma = None # prevent assigning previous ma
+        variant = None # prevent assigning ma from variant in previous loop
         for variant in get_monos('VariantCharacterData'):
-            if is_deviant(variant):
-                continue
-            base = read_obj(sa0[variant['baseCharacter']['m_PathID']])
-            if base == character:
-                ma = get_ability(variant['superAbility'])
-                break
-        pa = get_ability(character['prestigeAbility'])
+            if is_collectible(variant):
+                base = sa0_get_id(variant['baseCharacter'])
+                if base == character:
+                    break
         characters[id] = {
             'name': character['displayName'],
-            'ca': ca, #build_character_ablity(ca),
-            'ma': ma, #build_ability(ma_key, True),
-            'pa': pa # build_ability(read_obj(phonebook[phone.assets['signatureabilities'].container[character['prestigeAbility']['resourcePath']].path_id]))
+            'ca': build_character_ablity(character['characterAbility']),
+            'ma': build_ability(variant['superAbility']), # todo: account for extra subtitle property
+            'pa': build_ability(character['prestigeAbility'])
         }
     return characters
 
-def get_variants():
-    variants = {}
-    for variant in get_monos('VariantCharacterData'):
-        if is_deviant(variant):
-            continue
-        id = create_id(variants, variant)
-        character = read_obj(sa0[variant['baseCharacter']['m_PathID']])
-        # if character == {}:
-        #     print('Warning: Cannot find {} for \'{}\'.'.format(variant['baseCharacter'], id))
-        sa = get_ability(variant['signatureAbility'])
-        variants[id] = {
-            'base': character['humanReadableGuid'],
-            'name': variant['displayVariantName'],
-            'quote': variant['variantQuote'],
-            'tier': variant['initialTier'],
-            'element': variant['elementAffiliation'],
-            'stats': variant['baseScaledValuesByTier'],
-            'sa': sa, #build_ability(sa_pointer),
-            'fandom': corpus['en'][variant['displayVariantName']]
-        }
-    return variants
+def build_ability(abilityptr):
+    ability = sig_get_rp(abilityptr)
 
-##################################
-# above is updated, below is old #
-##################################
-
-
-
-
-def build_character_ablity(ability):
-    if 'title' in ability and 'description' in ability:
-        return {
-            'title': ability['title'],
-            'description': ability['description']
-        }
-    return {} # fukua
-
-def build_ability(ability_key, ability_subkey, has_subtitles=False): # todo
-    if ability_key not in monoglobal:
-        return {}
-    components = monoglobal[ability_key]
-    base = components[ability_subkey]['0 GameObject Base']
+    def get_true_value(value):
+        if isinstance(value, str):
+            return float(value)
+        if isinstance(value, dict):
+            return value['value'] / 2048
+        return value
 
     visited = set()
-    def iter_effects(data, skip_keys=[], root=True):
-        'Iterate through all effects nested within an object.'
+    def iter_effects(data, skip_keys=['randomModifierList'], root=True):
         if root:
-            skip_keys.append('randomModifierList') # prevent faulty values e.g. for circular breathing
             visited.clear()
         if isinstance(data, dict):
             if 'm_PathID' in data:
-                m_PathID = data.get('m_PathID')
-                if m_PathID not in visited:
-                    data = follow_id(components, data)
-                visited.add(m_PathID)
-            if 'id' in data:
+                id = data['m_PathID']
+                if id not in visited:
+                    data = sig_get_id(data)
+                visited.add(id)
+            if 'id' in data and data['id'] != '':
                 yield data
             for key in data:
                 if key not in skip_keys:
@@ -177,89 +132,64 @@ def build_ability(ability_key, ability_subkey, has_subtitles=False): # todo
                 for subdata in iter_effects(item, skip_keys, False):
                     yield subdata
 
-    def get_true_value(value):
-        if isinstance(value, str):
-            return float(value)
-        if isinstance(value, dict):
-            return value['value'] / 2048
-        return value
+    def build_value(subx, suby, tier):
+        for x in iter_effects(tier['modifierSets']):
+            if x['id'] == subx and suby in x:
+                return get_true_value(x[suby])
+        print(subx, suby, tier)
+        # for modifierset in tier['modifierSets']:
+        #     for modifierptr in modifierset['modifiers']:
+        #         print(sig_get_id(modifierptr)['id'], tier, substitution)
 
-    def build_values(feature, tier, substitutions):
-        values = []
-        for substitution in substitutions:
-            id, stat = substitution.split('.')
-            id = id.lower()
-            stat = stat[0].lower() + stat[1:]
-            if stat == 'pERCENTAGE': # buer catalyst
-                stat = 'percentage'
-            not_found = True
-            for effect in iter_effects(tier):
-                if effect['id'].lower() == id:
-                    value = get_true_value(effect[stat])
-                    values.append(value)
-                    not_found = False
-                    break
-            if not_found:
-                for effect in iter_effects(feature, ['tiers']):
-                    if effect['id'].lower() == id:
-                        value = get_true_value(effect[stat])
-                        values.append(value)
-                        break
-        return values
+    def build_tier(tierptr, substitutions):
+        tier = sig_get_id(tierptr)
+        return {
+            "level": tier['unlockAtLevel'],
+            "values": [build_value(subx, suby, tier) for subx, suby in substitutions]
+        }
 
-    def build_tiers(feature, tierlist, substitutions):
-        tiers = []
-        for pointer in tierlist:
-            tier = follow_id(components, pointer)
-            tiers.append({
-                'level': tier['unlockAtLevel'],
-                'values': build_values(feature, tier, substitutions)
-            })
-        return tiers
+    def build_feature(featureptr):
+        feature = sig_get_id(featureptr)
+        substitutions = []
+        for sub in feature['substitutions']: # todo: rename these sub variables
+            subx, suby = sub.split('.')
+            substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
+        return {
+            'description': feature['description'],
+            'tiers': [build_tier(tierptr, substitutions) for tierptr in feature['tiers']]
+        }
 
-    def build_features(featurelist):
-        features = []
-        for pointer in featurelist:
-            feature = follow_id(components, pointer)
-            tierlist = feature['tiers']['Array']
-            substitutions = feature['substitutions']['Array']
-            data = {
-                'description': feature['description'],
-                'tiers': build_tiers(feature, tierlist, substitutions)
-            }
-
-            ### fill in missing data
-            # # level 9 value for center stage
-            if data['description'] == 'Char_Cerebella_SUP_CenterStage_Feat2_Desc':
-                data['tiers'][8]['values'] = [13]
-            # # resurrect values for forbidden procedure
-            if data['description'] == 'SA_Valentine_BB4':
-                data['tiers'][0]['values'] = [0.15]
-                data['tiers'][1]['values'] = [0.2]
-                data['tiers'][2]['values'] = [0.25]
-            # double check if there are enough values for all placeholders
-            variables = set(re.findall(placeholder, corpus['en'].get(feature['description'], '')))
-            for i, tier in enumerate(data['tiers']):
-                if len(tier['values']) < len(variables):
-                    print('Warning: Missing ability data for tier {} ({}) of feature \'{}\'.'.format(i, tier, data['description']))
-
-            # afaik only marquees have subtitles
-            if has_subtitles:
-                data['title'] = feature['title']
-            features.append(data)
-        return features
-
-    title = base['1 string m_Name']
-    componentlist = base['0 vector m_Component']['1 Array Array']
-    for pointerdata in componentlist:
-        pointer = pointerdata['0 ComponentPair data']['0 PPtr<Component> component']
-        component = follow_id(components, pointer)
+    componentptrs = ability['m_Component']
+    for componentptr in componentptrs:
+        component = sig_get_id(componentptr['component'])
         if 'title' in component and 'features' in component:
             return {
                 'title': component['title'],
-                'features': build_features(component['features']['Array'])
+                'features': [build_feature(featureptr) for featureptr in component['features']]
             }
     return {}
+
+def get_variants():
+    variants = {}
+    for variant in get_monos('VariantCharacterData'):
+        if is_collectible(variant):
+            id = create_id(variants, variant)
+            character = sa0_get_id(variant['baseCharacter'])
+            variants[id] = {
+                'base': character['humanReadableGuid'],
+                'name': variant['displayVariantName'],
+                'quote': variant['variantQuote'],
+                'tier': variant['initialTier'],
+                'element': variant['elementAffiliation'],
+                'stats': variant['baseScaledValuesByTier'],
+                'sa': build_ability(variant['signatureAbility']),
+                'fandom': corpus['en'][variant['displayVariantName']]
+            }
+    return variants
+
+##################################
+# above is updated, below is old #
+##################################    
 
 def get_sms(character_keys):
     sms = {}
@@ -353,144 +283,14 @@ def get_corpus_keys(data):
             keys |= get_corpus_keys(data[key])
     return keys
 
-def get_ability(thing):
-    return read_obj(phone.container[thing['resourcePath']])
-
-##########
-##########
-## MAIN ##
-##########
-##########
-
 if __name__ == '__main__':
-    phonebook = dict(all_assets('signatureabilities'))
     corpus = get_corpus()
 
-    def dereference(pointer):
-        if pointer['m_PathID'] in phonebook:
-            return read_obj(phonebook[pointer['m_PathID']])
-        return {}
-
-    def build_ability(zxc, has_subtitles=False):
-        visited = set()
-        def iter_effects(data, skip_keys=[], root=True):
-            'Iterate through all effects nested within an object.'
-            if root:
-                skip_keys.append('randomModifierList') # prevent faulty values e.g. for circular breathing
-                visited.clear()
-            if isinstance(data, dict):
-                if 'm_PathID' in data:
-                    m_PathID = data.get('m_PathID')
-                    if m_PathID not in visited:
-                        data = dereference(data)
-                    visited.add(m_PathID)
-                if 'id' in data:
-                    yield data
-                for key in data:
-                    if key not in skip_keys:
-                        for subdata in iter_effects(data[key], skip_keys, False):
-                            yield subdata
-            elif isinstance(data, list):
-                for item in data:
-                    for subdata in iter_effects(item, skip_keys, False):
-                        yield subdata
-
-        def get_true_value(value):
-            if isinstance(value, str):
-                return float(value)
-            if isinstance(value, dict):
-                return value['value'] / 2048
-            return value
-
-        def build_values(feature, tier, substitutions):
-            values = []
-            for substitution in substitutions:
-                id, stat = substitution.split('.')
-                id = id.lower()
-                stat = stat[0].lower() + stat[1:]
-                if stat == 'pERCENTAGE': # buer catalyst
-                    stat = 'percentage'
-                not_found = True
-                for effect in iter_effects(tier):
-                    if effect['id'].lower() == id:
-                        value = get_true_value(effect[stat])
-                        values.append(value)
-                        not_found = False
-                        break
-                if not_found:
-                    for effect in iter_effects(feature, ['tiers']):
-                        if effect['id'].lower() == id:
-                            value = get_true_value(effect[stat])
-                            values.append(value)
-                            break
-            return values
-
-        def build_tiers(feature, tierlist, substitutions):
-            tiers = []
-            for pointer in tierlist:
-                tier = dereference(pointer)
-                tiers.append({
-                    'level': tier['unlockAtLevel'],
-                    'values': build_values(feature, tier, substitutions)
-                })
-            return tiers
-
-        def build_features(featurelist):
-            features = []
-            for pointer in featurelist:
-                feature = dereference(pointer)
-                data = {
-                    'title': feature['title'], # ma only
-                    'description': feature['description'],
-                    'tiers': build_tiers(feature, feature['tiers'], feature['substitutions'])
-                }
-
-                # resurrect values for forbidden procedure
-                if data['description'] == 'SA_Valentine_BB4':
-                    print(data['description'], data['tiers'])
-                    data['tiers'][0]['values'] = [0.15]
-                    data['tiers'][1]['values'] = [0.2]
-                    data['tiers'][2]['values'] = [0.25]
-                # double check if there are enough values for all placeholders
-                variables = set(re.findall(placeholder, corpus['en'].get(feature['description'], '')))
-                for i, tier in enumerate(data['tiers']):
-                    if len(tier['values']) < len(variables):
-                        print('Warning: Missing ability data for tier {} ({}) of feature \'{}\'.'.format(i, tier, data['description']))
-
-                features.append(data)
-            return features
-
-        container = read_obj(phone.container[zxc['resourcePath']])
-        for component in container['m_Component']:
-            ability = dereference(component['component'])
-            if 'title' in ability and 'features' in ability:
-                return {
-                    'title': ability['title'],
-                    'features': build_features(ability['features'])
-                }
-        return {}
-    build_ability(var['superAbility'])
-
-    # main = get_ability(var['superAbility'])
-    # for x in main['m_Component']:
-    #     w = phonebook[x['component']['m_PathID']]
-    #     if 'title' in w and 'features' in w:
-    #         print(w['title'], w['features'])
-    # phonebook[3299978497162081884]
-    # key, subkey = follow_resource(sa0[varkey]['superAbility'])
-    # monoglobal[key]
-
-    ### study how build_ability handles certain ability data
-    # sa = follow_id(sa0, sa0[charkey]['specialMoves']['Array'][2])
-    # k, sk = follow_resource(sa['signatureAbility'])
-    # monoglobal[k][sk]
-    # build_ability(k, sk)
-
-    characters = get_characters(character_keys, variant_keys)
-    variants = get_variants(variant_keys)
-    # sms = get_sms(character_keys)
-    # bbs = get_bbs(character_keys)
-    # catalysts = get_catalysts(catalyst_keys)
+    characters = get_characters()
+    variants = get_variants()
+    # sms = get_sms()
+    # bbs = get_bbs()
+    # catalysts = get_catalysts()
 
     file.mkdir('data_processing/output')
 
