@@ -154,10 +154,13 @@ def build_ability(abilityptr):
         for sub in feature['substitutions']: # todo: rename these sub variables
             subx, suby = sub.split('.')
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
-        return {
+        blah = { # todo: refine the addition of the title attribute for marquee abilities
             'description': feature['description'],
             'tiers': [build_tier(tierptr, substitutions) for tierptr in feature['tiers']]
         }
+        if 'title' in feature and feature['title'] != '':
+            blah['title'] = feature['title']
+        return blah
 
     componentptrs = ability['m_Component']
     for componentptr in componentptrs:
@@ -186,6 +189,25 @@ def get_variants():
                 'fandom': corpus['en'][variant['displayVariantName']]
             }
     return variants
+
+def sign(n):
+    return 1 if n > 0 else -1 if n < 0 else 0
+
+def check_sas():
+    for key in variants:
+        features = variants[key]['sa']['features']
+        for i, feature in enumerate(features, 1):
+            tiers = [tier['values'] for tier in feature['tiers']]
+            unchanging = True
+            for j in range(len(tiers[0])):
+                avb = tiers[0][j] - tiers[1][j]
+                bvc = tiers[1][j] - tiers[2][j]
+                if sign(avb) != sign(bvc):
+                    print('Variant {}\'s SA{} is nonmonotonic at index {}: {}'.format(key, i, j, tiers))
+                if sign(avb) != 0 or sign(bvc) != 0:
+                    unchanging = False
+            if unchanging:
+                print('Variant {}\'s SA{} is unchanging: {}'.format(key, i, tiers))
 
 ##################################
 # above is updated, below is old #
@@ -291,6 +313,8 @@ if __name__ == '__main__':
     # sms = get_sms()
     # bbs = get_bbs()
     # catalysts = get_catalysts()
+
+    check_sas()
 
     file.mkdir('data_processing/output')
 
