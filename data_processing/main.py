@@ -296,8 +296,6 @@ def get_variants():
                 'sa': build_ability(variant['signatureAbility']),
                 'fandom': corpus['en'][variant['displayVariantName']]
             }
-            if id == 'pTech':
-                assert 0
     return variants
 
 # UTILITY FUNCTIONS
