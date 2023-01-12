@@ -136,20 +136,54 @@ def build_ability(abilityptr):
                 for subdata in iter_effects(item, skip_keys, False):
                     yield subdata
 
-    def build_value(subx, suby, tier):
-        for x in iter_effects(tier['modifierSets']):
-            if x['id'] == subx and suby in x:
-                return get_true_value(x[suby])
-        print(subx, suby, tier)
-        # for modifierset in tier['modifierSets']:
-        #     for modifierptr in modifierset['modifiers']:
-        #         print(sig_get_id(modifierptr)['id'], tier, substitution)
+    def build_value(subx, suby, tier, feature):
+        for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
+            modifier = sig_get_id(ptr)
+            if modifier['id'] == subx:
+                return modifier[suby]
+        for ptr in feature['provokerConditions']: # if it doesn't change, it's not in tiers
+            modifier = sig_get_id(ptr)
+            if modifier['id'] == subx:
+                return modifier[suby]
 
-    def build_tier(tierptr, substitutions):
+        for ptr in tier['triggerConditions']:
+            modifier = sig_get_id(ptr)
+            if modifier['id'] == subx:
+                return modifier[suby]
+        for ptr in tier['provokerConditions']:
+            modifier = sig_get_id(ptr)
+            if modifier['id'] == subx:
+                return modifier[suby]
+
+        for modifierset in tier['modifierSets']:
+            for modifierptr in modifierset['modifiers']:
+                modifier = sig_get_id(modifierptr)
+                if modifier['id'] == subx:
+                    return modifier[suby]
+                if 'delayedModifier' in modifier:
+                    delay = sig_get_id(modifier['delayedModifier'])
+                    if 'id' in delay and delay['id'] == subx:
+                        return delay[suby]
+                if 'convertTo' in modifier:
+                    converttt = sig_get_id(modifier['convertTo'])
+                    if 'id' in converttt and converttt['id'] == subx:
+                        return converttt[suby]
+                if 'effects' in modifier:
+                    for xptr in modifier['effects']:
+                        x = sig_get_id(xptr['modifier'])
+                        if 'id' in x and x['id'] == subx:
+                            return x[suby]
+
+        for modifier in tier['additionalStringSubstitutions']:
+            if modifier['id'] == subx and suby in modifier:
+                return modifier[suby]
+
+    def build_tier(tierptr, feature, substitutions):
         tier = sig_get_id(tierptr)
+
         return {
             "level": tier['unlockAtLevel'],
-            "values": [build_value(subx, suby, tier) for subx, suby in substitutions]
+            "values": [get_true_value(build_value(subx, suby, tier, feature)) for subx, suby in substitutions]
         }
 
     def build_feature(featureptr):
@@ -160,7 +194,7 @@ def build_ability(abilityptr):
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
         blah = { # todo: refine the addition of the title attribute for marquee abilities
             'description': feature['description'],
-            'tiers': [build_tier(tierptr, substitutions) for tierptr in feature['tiers']]
+            'tiers': [build_tier(tierptr, feature, substitutions) for tierptr in feature['tiers']]
         }
         if 'title' in feature and feature['title'] != '':
             blah['title'] = feature['title']
@@ -175,6 +209,76 @@ def build_ability(abilityptr):
                 'features': [build_feature(featureptr) for featureptr in component['features']]
             }
     return {}
+
+# abilityptr = variant['signatureAbility']
+# ability = sig_get_rp(abilityptr)
+# for componentptr in ability['m_Component']:
+#     component = sig_get_id(componentptr['component'])
+#     if 'title' in component and 'features' in component:
+#         print(component['title'])
+#         for featureptr in component['features']:
+#             feature = sig_get_id(featureptr)
+#             substitutions = []
+#             for substitution in feature['substitutions']:
+#                 x, y = substitution.split('.')
+#                 subx = x.upper()
+#                 suby = y[0].lower() + y[1:]
+#                 substitutions.append([subx, suby])
+#                 print(substitutions)
+
+#                 for tierptr in feature['tiers']:
+#                     tier = sig_get_id(tierptr)
+
+#                     for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
+#                         modifier = sig_get_id(ptr)
+#                         if modifier['id'] == subx:
+#                             print(modifier['id'], modifier[suby])
+#                     for ptr in feature['provokerConditions']: # if it doesn't change, it's not in tiers
+#                         modifier = sig_get_id(ptr)
+#                         if modifier['id'] == subx:
+#                             print(modifier['id'], modifier[suby])
+
+#                     for ptr in tier['triggerConditions']:
+#                         modifier = sig_get_id(ptr)
+#                         if modifier['id'] == subx:
+#                             print(modifier['id'], modifier[suby])
+#                     for ptr in tier['provokerConditions']:
+#                         modifier = sig_get_id(ptr)
+#                         if modifier['id'] == subx:
+#                             print(modifier['id'], modifier[suby])
+
+#                     for modifierset in tier['modifierSets']:
+#                         for modifierptr in modifierset['modifiers']:
+#                             modifier = sig_get_id(modifierptr)
+#                             if modifier['id'] == subx:
+#                                 print(modifier['id'], modifier[suby])
+#                             if 'delayedModifier' in modifier:
+#                                 delay = sig_get_id(modifier['delayedModifier'])
+#                                 if 'id' in delay and delay['id'] == subx:
+#                                     print(delay['id'], delay[suby])
+#                             if 'convertTo' in modifier:
+#                                 convertt = sig_get_id(modifier['convertTo'])
+#                                 if 'id' in convertt and convertt['id'] == subx:
+#                                     print(convertt['id'], convertt[suby])
+#                             if 'effects' in modifier:
+#                                 for xptr in modifier['effects']:
+#                                     x = sig_get_id(xptr['modifier'])
+#                                     if 'id' in x and x['id'] == subx:
+#                                         print(x['id'], x[suby])
+
+#                     for modifier in tier['additionalStringSubstitutions']:
+#                         if modifier['id'] == subx and suby in modifier:
+#                             print(modifier['id'], modifier[suby])
+
+#             break
+
+# for key in feature:
+#     if key[:2] != 'm_':
+#         print(key, feature[key])
+
+# for key in tier:
+#     if key[:2] != 'm_':
+#         print(key, tier[key])
 
 def get_variants():
     variants = {}
@@ -192,6 +296,8 @@ def get_variants():
                 'sa': build_ability(variant['signatureAbility']),
                 'fandom': corpus['en'][variant['displayVariantName']]
             }
+            if id == 'pTech':
+                assert 0
     return variants
 
 # UTILITY FUNCTIONS
