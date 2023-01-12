@@ -4,7 +4,6 @@ data_processing/input/DummyDll
 data_processing/input/localization
 data_processing/input/signatureabilities
 data_processing/output
-image_processing/input/Art Capture
 image_processing/input/palettizedimages
 image_processing/input/talkingheads
 image_processing/output
