@@ -2,14 +2,14 @@ import json
 import UnityPy
 from data_processing import file
 
-localization = UnityPy.load('data_processing/input/localization')
+loc = UnityPy.load('data_processing/input/localization')
 
 corpus = {}
-for key in localization.container:
-    obj = localization.container[key].read()
-    k = obj.name
-    v = json.loads(bytes(obj.script))
-    corpus[k] = v
+for key in loc.container:
+    val = loc.container[key].read()
+    language = val.name
+    translations = json.loads(bytes(val.script))
+    corpus[language] = translations
 
 keys = [
     'Key_DisplayName',
