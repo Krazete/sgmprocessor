@@ -20,7 +20,7 @@ if __name__ == '__main__':
     file.mkdir('image_processing/output/mask/shadow')
     file.mkdir('image_processing/output/mask/color')
 
-    capture = 'image_processing/input/Art Capture'
+    capture = 'image_processing/input/portraits'
     for character in os.listdir(capture):
         directory = os.path.join(capture, character)
         if os.path.isdir(directory):

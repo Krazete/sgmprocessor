@@ -16,7 +16,7 @@ if __name__ == '__main__':
     file.mkdir('image_processing/output')
     file.mkdir(dir_portrait)
 
-    capture = 'image_processing/input/Art Capture'
+    capture = 'image_processing/input/portraits'
     for character in os.listdir(capture):
         directory = os.path.join(capture, character)
         if os.path.isdir(directory):
@@ -34,6 +34,6 @@ if __name__ == '__main__':
                     portrait.putalpha(s)
                     scaled_portrait = portrait.resize((int(dim * scale) for dim in portrait.size), Image.Resampling.LANCZOS)
                     # save with ids instead of names
-                    variant = re.sub('[^a-zA-Z0-9 -_!]', '_', stems[0])
+                    variant = re.sub('[^a-zA-Z0-9]', '', stems[0])
                     file.mkdir(os.path.join(dir_portrait, fid[character]))
                     scaled_portrait.save(os.path.join(dir_portrait, fid[character], vid[variant] + '.png'))

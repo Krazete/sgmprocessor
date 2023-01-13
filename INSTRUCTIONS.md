@@ -24,7 +24,7 @@ I'll refine those instructions later.
 Sections II-IV require programs that only run on Windows, so you must install a Windows machine if you are working on a Mac.
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | VirtualBox | https://www.virtualbox.org/wiki/Downloads |
 | Windows 10 ISO | https://www.microsoft.com/en-us/software-download/windows10ISO |
 
@@ -37,7 +37,7 @@ Sections II-IV require programs that only run on Windows, so you must install a 
 This step is necessary for the AssetStudio and UABE programs in sections II-IV.
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | APKTool | https://ibotpeaches.github.io/Apktool/install |
 | Latest APK | https://apkpure.com/skullgirls/com.autumn.skullgirls |
 
@@ -50,7 +50,7 @@ This step is necessary for the AssetStudio and UABE programs in sections II-IV.
 AssetStudio is used for extracting most files because it's easier to use and it organizes its exported assets by type.
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | AssetStudio Requirements | https://github.com/Perfare/AssetStudio#requirements |
 | AssetStudio | https://github.com/Perfare/AssetStudio |
 | iMazing* | https://imazing.com |
@@ -75,7 +75,7 @@ AssetStudio is used for extracting most files because it's easier to use and it 
 UABE is used for extracting scripts because it exports nicely formatted JSON files while AssetStudio tends to miss important script data.
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | Visual C++ 2010 | https://www.microsoft.com/en-us/download/details.aspx?id=14632 |
 | UnityAssetBundleExtractor | https://github.com/DerPopo/UABE |
 | Il2CppDumper | https://github.com/Perfare/Il2CppDumper |
@@ -129,7 +129,7 @@ For some reason, Beowulf's BaseCharacter file is sometimes unreadable and cannot
 There is no need to verify the extracted data; I just wanted to include a link to DevX in this document. This program helps in understanding the file structure of the APK and does not require a Windows machine.
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | DevX Unity Unpacker | http://devxdevelopment.com/UnityUnpacker |
 
 1. With DevX, open `sgm.apk`. Use the default settings.
@@ -151,7 +151,7 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 ## I. Generate Gallery Data
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | Python 3 | https://www.python.org/downloads |
 
 1. Move a copy of the `Beowulf-` file into `MonoBehaviourShared` if necessary.
@@ -162,7 +162,7 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 ## II. Generate Portraits
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | Pillow | https://pillow.readthedocs.io/en/stable/installation.html |
 
 1. Move `Art Capture` into `image_processing/input`.
@@ -181,7 +181,7 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 ## IV. Compress PNG Images
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | Pngyu | https://nukesaq88.github.io/Pngyu |
 
 1. Open Pngyu and drag `portrait` and `move` from `data_processing/output` into the Pngyu window.
@@ -191,7 +191,7 @@ If an `ImportError` occurs for any `.py` file, modify each script so the line `f
 ## V. Generate Loading GIFs
 
 | Download | Link |
-|---|---|
+| --- | --- |
 | Gifsicle | http://www.lcdf.org/gifsicle |
 
 1. If you want optimized GIFs, install Gifsicle by following instructions found on its GitHub repository.
