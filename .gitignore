@@ -3,6 +3,7 @@ data_processing/input/base.apk
 data_processing/input/DummyDll
 data_processing/input/localization
 data_processing/input/signatureabilities
+data_processing/input/typetrees.json
 data_processing/output
 image_processing/input/palettizedimages
 image_processing/input/talkingheads
