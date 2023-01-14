@@ -65,7 +65,7 @@ def create_id(parent, data):
     id = data['humanReadableGuid']
     if id == '':
         id = data['guid']
-        print(id)
+        print('Unintuitive ID:', id) # todo: make better message here
 
     dupe = False
     while id in parent:
@@ -200,14 +200,15 @@ def build_ability(abilityptr):
             blah['title'] = feature['title']
         return blah
 
-    componentptrs = ability['m_Component']
-    for componentptr in componentptrs:
-        component = sig_get_id(componentptr['component'])
-        if 'title' in component and 'features' in component:
-            return {
-                'title': component['title'],
-                'features': [build_feature(featureptr) for featureptr in component['features']]
-            }
+    if 'm_Component' in ability:
+        componentptrs = ability['m_Component']
+        for componentptr in componentptrs:
+            component = sig_get_id(componentptr['component'])
+            if 'title' in component and 'features' in component:
+                return {
+                    'title': component['title'],
+                    'features': [build_feature(featureptr) for featureptr in component['features']]
+                }
     return {}
 
 # abilityptr = variant['signatureAbility']
@@ -332,16 +333,15 @@ def check_sas():
 # above is updated, below is old #
 ##################################    
 
-def get_sms(character_keys):
+def get_sms():
     sms = {}
-    for character_key in character_keys:
-        character = sa0[character_key]
-        for pointer in character['specialMoves']['Array']:
-            sm = follow_id(sa0, pointer)
-            id = create_id(sms, sm)
-            if sm['cooldownTimes']['Array'] == [-1]: # competitive pvp burst
+    for character in get_monos('BaseCharacterData'):
+        for ptr in character['specialMoves']:
+            sm = sa0_get_id(ptr)
+            if sm['isInCompetitiveCollection']:
                 continue
-            icon = follow_id(sa0, sm['palettizedIcon'])
+            id = create_id(sms, sm)
+            icon = sa0_get_id(sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             sma_key = sm['signatureAbility']
             sms[id] = {
@@ -359,14 +359,15 @@ def get_sms(character_keys):
             }
     return sms
 
-def get_bbs(character_keys):
+def get_bbs():
     bbs = {}
-    for character_key in character_keys:
-        character = sa0[character_key]
-        for pointer in character['blockbusters']['Array']:
-            bb = follow_id(sa0, pointer)
+    for character in get_monos('BaseCharacterData'):
+        for ptr in character['blockbusters']:
+            bb = sa0_get_id(ptr)
+            if bb['isInCompetitiveCollection']:
+                continue
             id = create_id(bbs, bb)
-            icon = follow_id(sa0, bb['palettizedIcon'])
+            icon = sa0_get_id(bb['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
             bba_key = bb['signatureAbility']
             bbs[id] = {
@@ -427,8 +428,8 @@ def get_corpus_keys(data):
 if __name__ == '__main__':
     characters = get_characters()
     variants = get_variants()
-    # sms = get_sms()
-    # bbs = get_bbs()
+    sms = get_sms()
+    bbs = get_bbs()
     # catalysts = get_catalysts()
 
     check_sas() # expected: pShoot
@@ -437,15 +438,15 @@ if __name__ == '__main__':
 
     file.save(characters, 'data_processing/output/characters.json', True)
     file.save(variants, 'data_processing/output/variants.json', True)
-    # file.save(sms, 'data_processing/output/sms.json')
-    # file.save(bbs, 'data_processing/output/bbs.json')
+    file.save(sms, 'data_processing/output/sms.json')
+    file.save(bbs, 'data_processing/output/bbs.json')
     # file.save(catalysts, 'data_processing/output/catalysts.json')
 
     corpus_keys = set()
     corpus_keys |= get_corpus_keys(characters)
     corpus_keys |= get_corpus_keys(variants)
-    # corpus_keys |= get_corpus_keys(sms)
-    # corpus_keys |= get_corpus_keys(bbs)
+    corpus_keys |= get_corpus_keys(sms)
+    corpus_keys |= get_corpus_keys(bbs)
     # corpus_keys |= get_corpus_keys(catalysts)
 
     for language in corpus:
