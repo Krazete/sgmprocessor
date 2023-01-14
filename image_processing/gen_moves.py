@@ -52,4 +52,4 @@ if __name__ == '__main__':
             name_prefix = obj.name.split('_')[0]
             spectral_ids = spectral_log.get(name_prefix, [])
             sprite = petrify_sprite(obj.image, spectral_ids)
-            sprite.save('image_processing/output/move/{}.png'.format(obj.name))
+            sprite.save('image_processing/output/move/{}.png'.format(obj.name.lower()))
