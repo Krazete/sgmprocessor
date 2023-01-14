@@ -136,7 +136,7 @@
 
 | Program | Note |
 | --- | --- |
-| [AssetStudio](https://github.com/Perfare/AssetStudio) | AssetStudio is used for extracting most files because it's easier to use and it organizes its exported assets by type. |
+| [AssetStudio](https://github.com/Perfare/AssetStudio) | AssetStudio the most user-friendly Unity extraction program. |
 | [DevX Unity Unpacker](http://devxdevelopment.com/UnityUnpacker) | This program helps in understanding the APK's file structure. It works on MacOS, Windows, and Android. |
 | [UnityAssetBundleExtractor](https://github.com/DerPopo/UABE) | This is the program I used before switching to UnityPy. |
 | [Pngyu](https://nukesaq88.github.io/Pngyu) | For compressing PNGs. Don't use this on the sprites meant for SGM Palette. |
