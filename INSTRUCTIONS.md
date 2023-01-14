@@ -100,8 +100,8 @@
 
 | Script | Function |
 | --- | --- |
-| `common.py` | Extract localizations of common terms. |
-| `gen_masteryicons.py` | Extract mastery icons. |
+| `data_processing/common.py` | Extract localizations of common terms. |
+| `data_processing/gen_masteryicons.py` | Extract mastery icons. |
 
 ---
 
@@ -127,8 +127,8 @@
 
 | Script | Function |
 | --- | --- |
-| `gen_moves.py` | Generate move icons. |
-| `gen_throbbers.py` | Generate loading GIFs. |
+| `image_processing/gen_moves.py` | Generate move icons. |
+| `image_processing/gen_throbbers.py` | Generate loading GIFs. |
 
 ---
 
