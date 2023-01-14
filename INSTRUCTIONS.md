@@ -2,9 +2,9 @@
 
 ## I. Retrieve Shallow Data Files
 
-These files are stored on your phone as is, so retrieving them is easy. Small patches, like translation fixes, likely involve updates to these files.
+> These files are stored on your phone as is, so retrieving them is easy. Small patches, like translation fixes, likely involve updates to these files.
 
-> If you have an iOS instead of an Android, download [iMazing](https://imazing.com) to access your phone's file system.
+*If you have an iOS instead of an Android, download [iMazing](https://imazing.com) to access your phone's file system.*
 
 1. Make sure Skullgirls Mobile is installed on your phone and updated from within the app.
 2. Connect your phone to your computer and set connection type to File Transfer.
@@ -16,7 +16,7 @@ These files are stored on your phone as is, so retrieving them is easy. Small pa
 
 ## II. Retrieve the APK
 
-> If you have an iOS instead of an Android, download the APK from someplace like [APKPure](https://apkpure.com/skullgirls-fighting-rpg/com.autumn.skullgirls) instead. Rename the downloaded APK to `base.apk` and skip this section.
+*If you have an iOS instead of an Android, download the APK from someplace like [APKPure](https://apkpure.com/skullgirls-fighting-rpg/com.autumn.skullgirls) instead. Rename the downloaded APK to `base.apk` and skip this section.*
 
 1. Install the Android Debug Bridge.
    - MacOS: In the Terminal, run `brew install android-platform-tools`.
@@ -64,7 +64,7 @@ These files are stored on your phone as is, so retrieving them is easy. Small pa
 
 ## Installing Libraries
 
-A virtual environment is recommended so that the required libraries can be installed to this project folder instead of your entire system.
+> A virtual environment is recommended so that the required libraries can be installed to this project folder instead of your entire system.
 
 1. Open the Command Prompt or Terminal and navigate to this project folder.
 2. Create a virtual environment with `python -m venv venv`.
@@ -87,7 +87,7 @@ A virtual environment is recommended so that the required libraries can be insta
 
 ## Generate TypeTrees
 
-TypeTrees are necessary for UnityPy to read the entirety of MonoBehaviour assets. Without it, many important details about fighter variants would be inaccessible.
+> TypeTrees are necessary for UnityPy to read the entirety of MonoBehaviour assets. Without it, many important details about fighter variants would be inaccessible.
 
 1. Install [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0). If you don't know which installer to use, the x64 option is the safest bet.
 2. Run `dataprocessing/gen_typetrees.py`. This will create `typetrees.json` in `data_processing/input`.
