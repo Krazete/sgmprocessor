@@ -80,6 +80,14 @@ def is_collectible(variant):
     'True if Variant has Marquee Ability (e.g. no Sparring Partners or Competitive Fighters).'
     return variant['superAbility']['resourcePath'] != ''
 
+def get_true_value(value):
+    'Return true value of ability data numbers.'
+    if isinstance(value, str):
+        return float(value)
+    if isinstance(value, dict):
+        return value['value'] / 2048
+    return value
+
 def build_character_ablity(abilityptr):
     ability = sa0_get_id(abilityptr)
     return {
@@ -87,54 +95,36 @@ def build_character_ablity(abilityptr):
         'description': ability['description']
     }
 
-def get_characters():
-    characters = {}
-    for character in get_monos('BaseCharacterData'):
-        id = create_id(characters, character)
-        variant = None # prevent assigning ma from variant in previous loop
-        for variant in get_monos('VariantCharacterData'):
-            if is_collectible(variant):
-                base = sa0_get_id(variant['baseCharacter'])
-                if base == character:
-                    break
-        characters[id] = {
-            'name': character['displayName'],
-            'ca': build_character_ablity(character['characterAbility']),
-            'ma': build_ability(variant['superAbility']), # todo: account for extra subtitle property
-            'pa': build_ability(character['prestigeAbility'])
-        }
-    return characters
+def build_prestige_ability(abilityptr, cid):
+    ability = sig_get_rp(abilityptr)
+
+    def get_extra(ptr, key):
+        extra = sig_get_id(ptr)
+        return get_true_value(extra[key])
+
+    componentptrs = ability['m_Component']
+    for componentptr in componentptrs:
+        component = sig_get_id(componentptr['component'])
+        if 'title' in component and 'description' in component:
+            match cid:
+                case 'an': extra = {'starPower': 1}
+                case 'be': extra = {'secondsElapsed': component['secondsElapsed']}
+                case 'bb': extra = {'comboCount': get_extra(component['comboCountCondition'], 'count')}
+                case 'mf': extra = {'evasion': get_extra(component['evasionModifier'], 'duration')} # interchangeable with 'guardBreakModifier'
+                case 'um': extra = {'hungerDifference': 1, 'regen': get_extra(component['regenModifier'], 'percentMaxLife')}
+                case 'va': extra = {'healthRecovered': 1, 'resurrection': get_extra(component['resurrectionModifier'], 'value')}
+                case _: extra = {}
+            return {
+                'title': component['title'],
+                'description': component['description'],
+                'chargeRate': get_true_value(component['chargePerAction']),
+                'base': get_true_value(component['baseBonus']),
+                'lvlBonus': get_true_value(component['bonusPerLevels']['numerator']) / component['bonusPerLevels']['denominator'],
+                'maxBonus': get_true_value(component['maxLevelBonus']) # todo: truncate this to the hundredths
+            } | extra
 
 def build_ability(abilityptr):
     ability = sig_get_rp(abilityptr)
-
-    def get_true_value(value):
-        if isinstance(value, str):
-            return float(value)
-        if isinstance(value, dict):
-            return value['value'] / 2048
-        return value
-
-    visited = set()
-    def iter_effects(data, skip_keys=['randomModifierList'], root=True):
-        if root:
-            visited.clear()
-        if isinstance(data, dict):
-            if 'm_PathID' in data:
-                id = data['m_PathID']
-                if id not in visited:
-                    data = sig_get_id(data)
-                visited.add(id)
-            if 'id' in data and data['id'] != '':
-                yield data
-            for key in data:
-                if key not in skip_keys:
-                    for subdata in iter_effects(data[key], skip_keys, False):
-                        yield subdata
-        elif isinstance(data, list):
-            for item in data:
-                for subdata in iter_effects(item, skip_keys, False):
-                    yield subdata
 
     def build_value(subx, suby, tier, feature):
         for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
@@ -200,7 +190,7 @@ def build_ability(abilityptr):
             blah['title'] = feature['title']
         return blah
 
-    if 'm_Component' in ability:
+    if 'm_Component' in ability: # because some moves don't have abilities
         componentptrs = ability['m_Component']
         for componentptr in componentptrs:
             component = sig_get_id(componentptr['component'])
@@ -211,75 +201,23 @@ def build_ability(abilityptr):
                 }
     return {}
 
-# abilityptr = variant['signatureAbility']
-# ability = sig_get_rp(abilityptr)
-# for componentptr in ability['m_Component']:
-#     component = sig_get_id(componentptr['component'])
-#     if 'title' in component and 'features' in component:
-#         print(component['title'])
-#         for featureptr in component['features']:
-#             feature = sig_get_id(featureptr)
-#             substitutions = []
-#             for substitution in feature['substitutions']:
-#                 x, y = substitution.split('.')
-#                 subx = x.upper()
-#                 suby = y[0].lower() + y[1:]
-#                 substitutions.append([subx, suby])
-#                 print(substitutions)
-
-#                 for tierptr in feature['tiers']:
-#                     tier = sig_get_id(tierptr)
-
-#                     for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
-#                         modifier = sig_get_id(ptr)
-#                         if modifier['id'] == subx:
-#                             print(modifier['id'], modifier[suby])
-#                     for ptr in feature['provokerConditions']: # if it doesn't change, it's not in tiers
-#                         modifier = sig_get_id(ptr)
-#                         if modifier['id'] == subx:
-#                             print(modifier['id'], modifier[suby])
-
-#                     for ptr in tier['triggerConditions']:
-#                         modifier = sig_get_id(ptr)
-#                         if modifier['id'] == subx:
-#                             print(modifier['id'], modifier[suby])
-#                     for ptr in tier['provokerConditions']:
-#                         modifier = sig_get_id(ptr)
-#                         if modifier['id'] == subx:
-#                             print(modifier['id'], modifier[suby])
-
-#                     for modifierset in tier['modifierSets']:
-#                         for modifierptr in modifierset['modifiers']:
-#                             modifier = sig_get_id(modifierptr)
-#                             if modifier['id'] == subx:
-#                                 print(modifier['id'], modifier[suby])
-#                             if 'delayedModifier' in modifier:
-#                                 delay = sig_get_id(modifier['delayedModifier'])
-#                                 if 'id' in delay and delay['id'] == subx:
-#                                     print(delay['id'], delay[suby])
-#                             if 'convertTo' in modifier:
-#                                 convertt = sig_get_id(modifier['convertTo'])
-#                                 if 'id' in convertt and convertt['id'] == subx:
-#                                     print(convertt['id'], convertt[suby])
-#                             if 'effects' in modifier:
-#                                 for xptr in modifier['effects']:
-#                                     x = sig_get_id(xptr['modifier'])
-#                                     if 'id' in x and x['id'] == subx:
-#                                         print(x['id'], x[suby])
-
-#                     for modifier in tier['additionalStringSubstitutions']:
-#                         if modifier['id'] == subx and suby in modifier:
-#                             print(modifier['id'], modifier[suby])
-
-#             break
-
-# for key in feature:
-#     if key[:2] != 'm_':
-#         print(key, feature[key])
-
-# for key in tier:
-#     if key[:2] != 'm_':
-#         print(key, tier[key])
+def get_characters():
+    characters = {}
+    for character in get_monos('BaseCharacterData'):
+        id = create_id(characters, character)
+        variant = None # prevent assigning ma from variant in previous loop
+        for variant in get_monos('VariantCharacterData'):
+            if is_collectible(variant):
+                base = sa0_get_id(variant['baseCharacter'])
+                if base == character:
+                    break
+        characters[id] = {
+            'name': character['displayName'],
+            'ca': build_character_ablity(character['characterAbility']),
+            'ma': build_ability(variant['superAbility']), # todo: account for extra subtitle property
+            'pa': build_prestige_ability(character['prestigeAbility'], id)
+        }
+    return characters
 
 def get_variants():
     variants = {}
@@ -298,40 +236,6 @@ def get_variants():
                 'fandom': corpus['en'][variant['displayVariantName']]
             }
     return variants
-
-# UTILITY FUNCTIONS
-
-def tally_monotypes():
-    monotypes = {}
-    for mono in sa0.values():
-        if mono.type.name == 'MonoBehaviour':
-            monotype = mono.read().m_Script.read().m_Name
-            monotypes.setdefault(monotype, 0)
-            monotypes[monotype] += 1
-    return monotypes
-
-def sign(n):
-    return 1 if n > 0 else -1 if n < 0 else 0
-
-def check_sas():
-    for key in variants:
-        features = variants[key]['sa']['features']
-        for i, feature in enumerate(features, 1):
-            tiers = [tier['values'] for tier in feature['tiers']]
-            constant = True
-            for j in range(len(tiers[0])):
-                avb = tiers[0][j] - tiers[1][j]
-                bvc = tiers[1][j] - tiers[2][j]
-                if sign(avb) != sign(bvc):
-                    print('Variant {}\'s SA{} is nonmonotonic at index {}: {}'.format(key, i, j, tiers))
-                if sign(avb) != 0 or sign(bvc) != 0:
-                    constant = False
-            if constant:
-                print('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
-
-##################################
-# above is updated, below is old #
-##################################    
 
 def get_sms():
     sms = {}
@@ -384,6 +288,143 @@ def get_bbs():
                 'ability': build_ability(bba_key)
             }
     return bbs
+
+# UTILITY FUNCTIONS
+
+def tally_monotypes():
+    monotypes = {}
+    for mono in sa0.values():
+        if mono.type.name == 'MonoBehaviour':
+            monotype = mono.read().m_Script.read().m_Name
+            monotypes.setdefault(monotype, 0)
+            monotypes[monotype] += 1
+    return monotypes
+
+def analyze_prestige_ability(cid):
+    standard_keys = [
+        'm_GameObject',
+        'm_Enabled',
+        'm_Script',
+        'm_Name',
+        'title',
+        'description',
+        'chargePerAction',
+        'baseBonus',
+        'bonusPerLevels',
+        'maxLevelBonus'
+    ]
+    for character in get_monos('BaseCharacterData'):
+        if character['humanReadableGuid'] == cid:
+            abilityptr = character['prestigeAbility']
+            ability = sig_get_rp(abilityptr)
+            for componentptr in ability['m_Component']:
+                component = sig_get_id(componentptr['component'])
+                if 'title' in component and 'description' in component:
+                    description = corpus['en'][component['description']]
+                    print(description)
+                    print(re.findall('{(\d)}', description))
+                    for key in component:
+                        if key not in standard_keys:
+                            try:
+                                ck = sig_get_id(component[key])
+                                print(key, {k: ck[k] for k in ck if k[:2] != 'm_' and ck[k]})
+                            except:
+                                print(key, component[key])
+            break
+
+def analyze_ability(variant):
+    abilityptr = variant['signatureAbility']
+    ability = sig_get_rp(abilityptr)
+    for componentptr in ability['m_Component']:
+        component = sig_get_id(componentptr['component'])
+        if 'title' in component and 'features' in component:
+            print(component['title'])
+            for featureptr in component['features']:
+                feature = sig_get_id(featureptr)
+                substitutions = []
+                for substitution in feature['substitutions']:
+                    x, y = substitution.split('.')
+                    subx = x.upper()
+                    suby = y[0].lower() + y[1:]
+                    substitutions.append([subx, suby])
+                    print(substitutions)
+
+                    for tierptr in feature['tiers']:
+                        tier = sig_get_id(tierptr)
+
+                        for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
+                            modifier = sig_get_id(ptr)
+                            if modifier['id'] == subx:
+                                print(modifier['id'], modifier[suby])
+                        for ptr in feature['provokerConditions']: # if it doesn't change, it's not in tiers
+                            modifier = sig_get_id(ptr)
+                            if modifier['id'] == subx:
+                                print(modifier['id'], modifier[suby])
+
+                        for ptr in tier['triggerConditions']:
+                            modifier = sig_get_id(ptr)
+                            if modifier['id'] == subx:
+                                print(modifier['id'], modifier[suby])
+                        for ptr in tier['provokerConditions']:
+                            modifier = sig_get_id(ptr)
+                            if modifier['id'] == subx:
+                                print(modifier['id'], modifier[suby])
+
+                        for modifierset in tier['modifierSets']:
+                            for modifierptr in modifierset['modifiers']:
+                                modifier = sig_get_id(modifierptr)
+                                if modifier['id'] == subx:
+                                    print(modifier['id'], modifier[suby])
+                                if 'delayedModifier' in modifier:
+                                    delay = sig_get_id(modifier['delayedModifier'])
+                                    if 'id' in delay and delay['id'] == subx:
+                                        print(delay['id'], delay[suby])
+                                if 'convertTo' in modifier:
+                                    convertt = sig_get_id(modifier['convertTo'])
+                                    if 'id' in convertt and convertt['id'] == subx:
+                                        print(convertt['id'], convertt[suby])
+                                if 'effects' in modifier:
+                                    for xptr in modifier['effects']:
+                                        x = sig_get_id(xptr['modifier'])
+                                        if 'id' in x and x['id'] == subx:
+                                            print(x['id'], x[suby])
+
+                        for modifier in tier['additionalStringSubstitutions']:
+                            if modifier['id'] == subx and suby in modifier:
+                                print(modifier['id'], modifier[suby])
+
+    #             break
+
+    # for key in feature:
+    #     if key[:2] != 'm_':
+    #         print(key, feature[key])
+
+    # for key in tier:
+    #     if key[:2] != 'm_':
+    #         print(key, tier[key])
+
+def sign(n):
+    return 1 if n > 0 else -1 if n < 0 else 0
+
+def check_sas():
+    for key in variants:
+        features = variants[key]['sa']['features']
+        for i, feature in enumerate(features, 1):
+            tiers = [tier['values'] for tier in feature['tiers']]
+            constant = True
+            for j in range(len(tiers[0])):
+                avb = tiers[0][j] - tiers[1][j]
+                bvc = tiers[1][j] - tiers[2][j]
+                if sign(avb) != sign(bvc):
+                    print('Variant {}\'s SA{} is nonmonotonic at index {}: {}'.format(key, i, j, tiers))
+                if sign(avb) != 0 or sign(bvc) != 0:
+                    constant = False
+            if constant:
+                print('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
+
+##################################
+# above is updated, below is old #
+##################################    
 
 def get_catalysts(catalyst_keys):
     catalysts = {}
