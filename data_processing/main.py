@@ -494,6 +494,3 @@ if __name__ == '__main__':
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
         corpus_core[''] = 'UNDEFINED'
         file.save(corpus_core, 'data_processing/output/{}.json'.format(language), True)
-
-    # with open('data_processing/output/corpus_en.json', 'w') as file:
-    #     json.dump(corpus['en'], file, indent=4, separators=(',', ': '))
