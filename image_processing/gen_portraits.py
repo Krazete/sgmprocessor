@@ -36,4 +36,5 @@ if __name__ == '__main__':
                     # save with ids instead of names
                     variant = re.sub('[^a-zA-Z0-9]', '', stems[0])
                     file.mkdir(os.path.join(dir_portrait, fid[character]))
-                    scaled_portrait.save(os.path.join(dir_portrait, fid[character], vid[variant] + '.png'))
+                    palettized_portrait = scaled_portrait.convert('P')
+                    palettized_portrait.save(os.path.join(dir_portrait, fid[character], vid[variant] + '.png'))

@@ -1,5 +1,5 @@
 import UnityPy
-from PIL import ImageMath
+from PIL import Image, ImageMath
 from image_processing import file
 
 spectral_log = {
@@ -52,4 +52,7 @@ if __name__ == '__main__':
             name_prefix = obj.name.split('_')[0]
             spectral_ids = spectral_log.get(name_prefix, [])
             sprite = petrify_sprite(obj.image, spectral_ids)
-            sprite.save('image_processing/output/move/{}.png'.format(obj.name.lower()))
+            scale = 140 / sprite.width # because of image resolution difference between old and new sprites
+            scaled_sprite = sprite.resize((int(dim * scale) for dim in sprite.size), Image.Resampling.LANCZOS)
+            palettized_sprite = scaled_sprite.convert('RGBA').convert('P') # intermediate RGBA conversion preserves transparency
+            palettized_sprite.save('image_processing/output/move/{}.png'.format(obj.name.lower()))
