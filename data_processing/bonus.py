@@ -21,11 +21,12 @@ def mine_corpus():
 # ]
 
 def mine_relic(reel):
+    print(reel['m_Name'])
     total = 0
     for lootTableSet in reel['lootTableSets']:
         total += lootTableSet['weight']
     for lootTableSet in reel['lootTableSets']:
-        print('{}% Chance'.format(lootTableSet['weight'] * 100 / total))
+        print('\t{}% Chance'.format(lootTableSet['weight'] * 100 / total))
         setptr = lootTableSet['lootTableSet']
         set = sa0_get_id(setptr)
         for tableptr in set['lootTables']:
@@ -33,7 +34,7 @@ def mine_relic(reel):
             for loot in table['loots']:
                 charptr = loot['loot']['character']
                 char = sa0_get_id(charptr)
-                print('\t' + corpus['en'][char['displayVariantName']])
+                print('\t\t' + corpus['en'][char['displayVariantName']])
 
 def mine_relic_id(relic_id):
     relic = sa0_get_id({'m_PathID': relic_id})
@@ -42,11 +43,13 @@ def mine_relic_id(relic_id):
 lootTypes = {
     0: 'Canopy Coin',
     1: 'Theonite',
+    2: 'Move',
     3: 'Fighter',
     4: 'Relic',
-    5: 'Move',
+    5: 'Random Move',
     6: 'Relic Shard',
     7: 'Skill Point',
+    8: '???', # undiscovered
     9: 'Key',
     10: 'Elemental Shard'
 }
@@ -59,6 +62,14 @@ def mine_loot(loot):
 
     extra = ''
     match lootType:
+        case 0:
+            pass
+        case 1:
+            pass
+        case 2:
+            gearptr = loot['gear']
+            gear = sa0_get_id(gearptr)
+            extra = '{}, {}'.format(['Bronze', 'Silver', 'Gold', 'Diamond'][gear['tier']], corpus['en'][gear['title']])
         case 3:
             charptr = loot['character']
             char = sa0_get_id(charptr)
@@ -81,6 +92,9 @@ def mine_loot(loot):
             extra = ['Bronze', 'Silver', 'Gold', 'Diamond'][loot['rarityTier']]
         case 10:
             extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # Neutral index is a guess
+        case _:
+            from pprint import pprint
+            pprint(loot)
     extra_suffix = ' ({})'.format(extra) if extra else extra
 
     print('\t{:7d} {}'.format(amount, lootName + plural) + extra_suffix)
@@ -115,7 +129,8 @@ def mine_pfset(pfset):
         pf = sa0_get_id(pfptr)
         mine_pf(pf)
 
-def mine_query(name):
+def event_search(name):
+    'Get info about the queried prize fights or daily events.'
     for mono in sa0.values():
         if mono.type.name == 'MonoBehaviour':
             monotype = mono.read().m_Script.read().m_Name
@@ -129,13 +144,35 @@ def mine_query(name):
                     else:
                         mine_pf(monotree)
 
+def relic_search(name):
+    'Get info about the queried relics.'
+    for mono in sa0.values():
+        if mono.type.name == 'MonoBehaviour':
+            monotype = mono.read().m_Script.read().m_Name
+            if 'LootTableSet' == monotype:
+                typetree = typetrees[monotype]
+                monotree = mono.read_typetree(typetree)
+                if name in monotree['m_Name']:
+                    print(monotree['m_Name'])
+                    for tableptr in monotree['lootTables']:
+                        table = sa0_get_id(tableptr)
+                        for loot in table['loots']:
+                            mine_loot(loot['loot'])
+
 if __name__ == '__main__':
     # mine_corpus()
 
-    mine_query('Squigly')
-    mine_query('BlackDahlia')
-    mine_query('Painwheel')
-    mine_query('Valentines')
-    mine_query('Water')
+    event_search('Squigly')
+    event_search('BlackDahlia')
+    event_search('Painwheel')
+    event_search('Valentines')
+    event_search('Water')
 
-    mine_relic_id(14419)
+    mine_relic_id(14419) 
+
+    relic_search('SpecialForces') # a spotlight relic
+
+    # relic function comparison
+    event_search('Costume') # halloween prize fight
+    relic_search('Spooky') # halloween relic (contents)
+    mine_relic_id(14417) # halloween relic (contents and odds)
