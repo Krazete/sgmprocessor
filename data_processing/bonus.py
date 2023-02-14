@@ -21,7 +21,7 @@ def mine_corpus():
 # ]
 
 def mine_relic(reel):
-    print(reel['m_Name'])
+    print('{} ({})'.format(corpus['en'][reel['title']], reel['m_Name']))
     total = 0
     for lootTableSet in reel['lootTableSets']:
         total += lootTableSet['weight']
@@ -32,9 +32,7 @@ def mine_relic(reel):
         for tableptr in set['lootTables']:
             table = sa0_get_id(tableptr)
             for loot in table['loots']:
-                charptr = loot['loot']['character']
-                char = sa0_get_id(charptr)
-                print('\t\t' + corpus['en'][char['displayVariantName']])
+                mine_loot(loot['loot'])
 
 def mine_relic_id(relic_id):
     relic = sa0_get_id({'m_PathID': relic_id})
@@ -81,7 +79,10 @@ def mine_loot(loot):
         case 5:
             tableptr = loot['nestedLootTable']
             table = sa0_get_id(tableptr)
-            extra = '{3} {4}, {2}'.format(*table['m_Name'].split('_'))
+            try:
+                extra = '{3} {4}, {2}'.format(*table['m_Name'].split('_'))
+            except:
+                extra = table['m_Name']
         case 6:
             extra = ['Bronze', 'Silver', 'Gold', 'Diamond'][loot['rarityTier']]
         case 7:
@@ -149,15 +150,11 @@ def relic_search(name):
     for mono in sa0.values():
         if mono.type.name == 'MonoBehaviour':
             monotype = mono.read().m_Script.read().m_Name
-            if 'LootTableSet' == monotype:
+            if 'GachaData' == monotype:
                 typetree = typetrees[monotype]
                 monotree = mono.read_typetree(typetree)
                 if name in monotree['m_Name']:
-                    print(monotree['m_Name'])
-                    for tableptr in monotree['lootTables']:
-                        table = sa0_get_id(tableptr)
-                        for loot in table['loots']:
-                            mine_loot(loot['loot'])
+                    mine_relic(monotree)
 
 if __name__ == '__main__':
     # mine_corpus()
@@ -171,8 +168,9 @@ if __name__ == '__main__':
     mine_relic_id(14419) 
 
     relic_search('SpecialForces') # a spotlight relic
+    # relic_search('') # all relics
 
     # relic function comparison
     event_search('Costume') # halloween prize fight
-    relic_search('Spooky') # halloween relic (contents)
-    mine_relic_id(14417) # halloween relic (contents and odds)
+    relic_search('Spooky') # halloween relic
+    mine_relic_id(14417) # halloween relic too
