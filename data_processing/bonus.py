@@ -31,7 +31,11 @@ def mine_relic(reel):
         set = sa0_get_id(setptr)
         for tableptr in set['lootTables']:
             table = sa0_get_id(tableptr)
+            subtotal = 0
             for loot in table['loots']:
+                subtotal += loot['weight']
+            for loot in table['loots']:
+                print('\t\t{:.3f}%'.format(loot['weight'] * 100 / subtotal), end="")
                 mine_loot(loot['loot'])
 
 def mine_relic_id(relic_id):
