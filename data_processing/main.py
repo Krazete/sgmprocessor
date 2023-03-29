@@ -149,7 +149,10 @@ def build_ability(abilityptr):
             for modifierptr in modifierset['modifiers']:
                 modifier = sig_get_id(modifierptr)
                 if modifier['id'] == subx:
-                    return modifier[suby]
+                    try:
+                        return modifier[suby]
+                    except:
+                        return modifier[suby.lower()] # hacky fix for rBlonde; todo: add this safety to all other subys
                 if 'delayedModifier' in modifier:
                     delay = sig_get_id(modifier['delayedModifier'])
                     if 'id' in delay and delay['id'] == subx:
