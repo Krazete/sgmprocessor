@@ -101,6 +101,7 @@
 | Script | Function |
 | --- | --- |
 | `data_processing/common.py` | Extract localizations of common terms. |
+| `data_processing/firebasepruner.py` | Prune stale votes from rankings database. |
 | `data_processing/gen_masteryicons.py` | Extract mastery icons. |
 | `data_processing/bonus.py` | Miscellaneous mining. |
 

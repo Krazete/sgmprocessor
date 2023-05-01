@@ -2,6 +2,7 @@ __pycache__
 data_processing/input/base.apk
 data_processing/input/DummyDll
 data_processing/input/localization
+data_processing/input/sgmobilegallery-export.json
 data_processing/input/signatureabilities
 data_processing/input/typetrees.json
 data_processing/output
