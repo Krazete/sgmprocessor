@@ -48,12 +48,17 @@ lootTypes = {
     2: 'Move',
     3: 'Fighter',
     4: 'Relic',
-    5: 'Random Move',
+    5: 'Randomized', # usually a move in pf rewards, varies in gifts
     6: 'Relic Shard',
     7: 'Skill Point',
-    8: '???', # undiscovered
     9: 'Key',
-    10: 'Elemental Shard'
+    10: 'Elemental Shard',
+    11: 'Elemental Essence',
+    12: 'Rift Coin',
+    16: 'Double XP Boost (4h)',
+    20: 'Double XP Boost (12h)',
+    23: 'Retake',
+    24: 'Golden Retake'
 }
 
 def mine_loot(loot):
@@ -64,10 +69,6 @@ def mine_loot(loot):
 
     extra = ''
     match lootType:
-        case 0:
-            pass
-        case 1:
-            pass
         case 2:
             gearptr = loot['gear']
             gear = sa0_get_id(gearptr)
@@ -96,10 +97,17 @@ def mine_loot(loot):
         case 9:
             extra = ['Bronze', 'Silver', 'Gold', 'Diamond'][loot['rarityTier']]
         case 10:
-            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # Neutral index is a guess
+            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # neutral doesn't exist
+        case 11:
+            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # neutral is just a placeholder
+        case 23:
+            baseptr = loot['baseCharacter']
+            base = sa0_get_id(baseptr)
+            extra = corpus['en'][base['displayName']]
         case _:
-            from pprint import pprint
-            pprint(loot)
+            if lootType not in lootTypes:
+                from pprint import pprint
+                pprint(loot)
     extra_suffix = ' ({})'.format(extra) if extra else extra
 
     print('\t{:7d} {}'.format(amount, lootName + plural) + extra_suffix)
@@ -159,6 +167,36 @@ def relic_search(name):
                 monotree = mono.read_typetree(typetree)
                 if name in monotree['m_Name']:
                     mine_relic(monotree)
+
+def mine_gifts():
+    for mono in sa0.values():
+        if mono.type.name == 'MonoBehaviour':
+            monotype = mono.read().m_Script.read().m_Name
+            if 'LootTableSet' == monotype:
+                typetree = typetrees[monotype]
+                monotree = mono.read_typetree(typetree)
+                if 'SocialGifts' in monotree['m_Name']:
+                    print(monotree['m_Name'])
+                    for tableptr in monotree['lootTables']:
+                        table = sa0_get_id(tableptr)
+                        print('\t', table['m_Name'])
+                        subtotal = 0
+                        for loot in table['loots']:
+                            subtotal += loot['weight']
+                        # print('\t\t', subtotal)
+                        for loot in table['loots']:
+                            # print('\t\t', loot['weight'])
+                            print('\t\t{:.3f}%'.format(loot['weight'] * 100 / subtotal), end="")
+                            mine_loot(loot['loot'])
+                            nested = sa0_get_id(loot['loot']['nestedLootTable'])
+                            nestedtotal = 0
+                            for nestedloot in nested['loots']:
+                                nestedtotal += nestedloot['weight']
+                            # print('\t\t\t', nestedtotal)
+                            for nestedloot in nested['loots']:
+                                # print('\t\t\t', nestedloot['weight'])
+                                print('\t\t\t{:.3f}%'.format(nestedloot['weight'] * 100 / nestedtotal), end="")
+                                mine_loot(nestedloot['loot'])
 
 if __name__ == '__main__':
     # mine_corpus()
