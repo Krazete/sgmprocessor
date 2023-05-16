@@ -5,6 +5,9 @@ def mine_corpus():
     with open('data_processing/output/corpus_en.json', 'w') as file:
         json.dump(corpus['en'], file, indent=4, separators=(',', ': '))
 
+def ptrIsNotNull(ptr):
+    return ptr['m_PathID'] != 0
+
 # lootKeys = [
 #     'lootType',
 #     'amount',
@@ -35,7 +38,7 @@ def mine_relic(reel):
             for loot in table['loots']:
                 subtotal += loot['weight']
             for loot in table['loots']:
-                print('\t\t{:.3f}%'.format(loot['weight'] * 100 / subtotal), end="")
+                print('\t\t{:.2f}%'.format(loot['weight'] * 100 / subtotal), end="")
                 mine_loot(loot['loot'])
 
 def mine_relic_id(relic_id):
@@ -55,10 +58,11 @@ lootTypes = {
     10: 'Elemental Shard',
     11: 'Elemental Essence',
     12: 'Rift Coin',
-    16: 'Double XP Boost (4h)',
-    20: 'Double XP Boost (12h)',
+    15: 'Catalyst',
+    16: 'Consumable',
+    20: 'Energy Refill',
     23: 'Retake',
-    24: 'Golden Retake'
+    24: 'Universal Retake'
 }
 
 def mine_loot(loot):
@@ -100,6 +104,14 @@ def mine_loot(loot):
             extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # neutral doesn't exist
         case 11:
             extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # neutral is just a placeholder
+        case 15:
+            modptr = loot['nodeModifier']
+            mod = sa0_get_id(modptr)
+            extra = '{}, {}'.format(['Bronze', 'Silver', 'Gold', 'Diamond'][mod['tier']], corpus['en'][mod['title']])
+        case 16:
+            itemptr = loot['consumable']
+            item = sa0_get_id(itemptr)
+            extra = corpus['en'][item['title']]
         case 23:
             baseptr = loot['baseCharacter']
             base = sa0_get_id(baseptr)
@@ -150,7 +162,7 @@ def event_search(name):
             if 'Event' in monotype:
                 typetree = typetrees[monotype]
                 monotree = mono.read_typetree(typetree)
-                if name in monotree['m_Name']:
+                if name.lower() in monotree['m_Name'].lower():
                     if 'contentDatas' in monotree: # skip redundant EventSets
                         continue
                         mine_pfset(monotree)
@@ -165,17 +177,18 @@ def relic_search(name):
             if 'GachaData' == monotype:
                 typetree = typetrees[monotype]
                 monotree = mono.read_typetree(typetree)
-                if name in monotree['m_Name']:
+                if name.lower() in monotree['m_Name'].lower():
                     mine_relic(monotree)
 
-def mine_gifts():
+def misc_search(name):
+    'Get info about other loot tables (notably, SocialGifts and AdReward).'
     for mono in sa0.values():
         if mono.type.name == 'MonoBehaviour':
             monotype = mono.read().m_Script.read().m_Name
             if 'LootTableSet' == monotype:
                 typetree = typetrees[monotype]
                 monotree = mono.read_typetree(typetree)
-                if 'SocialGifts' in monotree['m_Name']:
+                if name.lower() in monotree['m_Name'].lower():
                     print(monotree['m_Name'])
                     for tableptr in monotree['lootTables']:
                         table = sa0_get_id(tableptr)
@@ -186,17 +199,19 @@ def mine_gifts():
                         # print('\t\t', subtotal)
                         for loot in table['loots']:
                             # print('\t\t', loot['weight'])
-                            print('\t\t{:.3f}%'.format(loot['weight'] * 100 / subtotal), end="")
+                            print('\t\t{:.2f}%'.format(loot['weight'] * 100 / subtotal), end="")
                             mine_loot(loot['loot'])
-                            nested = sa0_get_id(loot['loot']['nestedLootTable'])
-                            nestedtotal = 0
-                            for nestedloot in nested['loots']:
-                                nestedtotal += nestedloot['weight']
-                            # print('\t\t\t', nestedtotal)
-                            for nestedloot in nested['loots']:
-                                # print('\t\t\t', nestedloot['weight'])
-                                print('\t\t\t{:.3f}%'.format(nestedloot['weight'] * 100 / nestedtotal), end="")
-                                mine_loot(nestedloot['loot'])
+                            nestedptr = loot['loot']['nestedLootTable']
+                            if ptrIsNotNull(nestedptr):
+                                nested = sa0_get_id(nestedptr)
+                                nestedtotal = 0
+                                for nestedloot in nested['loots']:
+                                    nestedtotal += nestedloot['weight']
+                                # print('\t\t\t', nestedtotal)
+                                for nestedloot in nested['loots']:
+                                    # print('\t\t\t', nestedloot['weight'])
+                                    print('\t\t\t{:.2f}%'.format(nestedloot['weight'] * 100 / nestedtotal), end="")
+                                    mine_loot(nestedloot['loot'])
 
 if __name__ == '__main__':
     # mine_corpus()
@@ -207,7 +222,7 @@ if __name__ == '__main__':
     event_search('Valentines')
     event_search('Water')
 
-    mine_relic_id(14419) 
+    mine_relic_id(14419) # relic id changes every patch
 
     relic_search('SpecialForces') # a spotlight relic
     # relic_search('') # all relics
@@ -216,3 +231,10 @@ if __name__ == '__main__':
     event_search('Costume') # halloween prize fight
     relic_search('Spooky') # halloween relic
     mine_relic_id(14417) # halloween relic too
+
+    relic_search('Hourly')
+    relic_search('Daily')
+
+    misc_search('Rift')
+    misc_search('Gifts')
+    misc_search('Ad')
