@@ -46,7 +46,10 @@ def get_monos(datatype):
     return monos
 
 def sa0_get_id(ptr):
-    return read_obj(sa0[ptr['m_PathID']])
+    id = ptr['m_PathID']
+    if id in sa0.keys():
+        return read_obj(sa0[ptr['m_PathID']])
+    return {}
 
 def sig_get_id(ptr):
     id = ptr['m_PathID']
@@ -250,7 +253,6 @@ def get_sms():
             id = create_id(sms, sm)
             icon = sa0_get_id(sm['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
-            sma_key = sm['signatureAbility']
             sms[id] = {
                 'base': character['humanReadableGuid'],
                 'icon': icon_name,
@@ -262,7 +264,7 @@ def get_sms():
                 'attack': sm['attackDamageMultipliers'],
                 'damage': sm['damageIndicatorLevels'],
                 'cooldown': sm['cooldownTimes'],
-                'ability': build_ability(sma_key)
+                'ability': build_ability(sm['signatureAbility'])
             }
     return sms
 
@@ -276,7 +278,6 @@ def get_bbs():
             id = create_id(bbs, bb)
             icon = sa0_get_id(bb['palettizedIcon'])
             icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
-            bba_key = bb['signatureAbility']
             bbs[id] = {
                 'base': character['humanReadableGuid'],
                 'icon': icon_name,
@@ -288,11 +289,47 @@ def get_bbs():
                 'attack': bb['attackDamageMultipliers'],
                 'damage': bb['damageIndicatorLevels'],
                 'strength': bb['strengthLevel'],
-                'ability': build_ability(bba_key)
+                'ability': build_ability(bb['signatureAbility'])
             }
     return bbs
 
-# UTILITY FUNCTIONS
+def get_catalysts():
+    catalysts = {}
+    for catalyst in get_monos('CollectibleNodeModifierData'):
+        id = create_id(catalysts, catalyst)
+        icon_name = catalyst['icon']['resourcePath'].split('/')[-1] # split just in case
+        constraints = {}
+        constraint = sa0_get_id(catalyst['abilityConstraint'])
+        if constraint:
+            if 'charactersNeeded' in constraint:
+                constraints['characters'] = []
+                for characterptr in constraint['charactersNeeded']:
+                    character = sa0_get_id(characterptr)
+                    constraints['characters'].append(character['humanReadableGuid'])
+            if 'elementsNeeded' in constraint:
+                constraints['elements'] = constraint['elementsNeeded']
+        catalysts[id] = {
+            'icon': icon_name,
+            'title': catalyst['title'],
+            'tier': catalyst['tier'],
+            'constraints': constraints,
+            'ability': build_ability(catalyst['signatureAbility'])
+        }
+    return catalysts
+
+def get_corpus_keys(data):
+    keys = set()
+    if isinstance(data, str) and data in corpus['en']:
+        keys.add(data)
+    elif isinstance(data, list):
+        for item in data:
+            keys |= get_corpus_keys(item)
+    elif isinstance(data, dict):
+        for key in data:
+            keys |= get_corpus_keys(data[key])
+    return keys
+
+# ANALYSIS FUNCTIONS
 
 def tally_monotypes():
     monotypes = {}
@@ -425,56 +462,12 @@ def check_sas():
             if constant:
                 print('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
 
-##################################
-# above is updated, below is old #
-##################################    
-
-def get_catalysts(catalyst_keys):
-    catalysts = {}
-    for catalyst_key in catalyst_keys:
-        catalyst = sa0[catalyst_key]
-        id = create_id(catalysts, catalyst)
-        characters = []
-        elements = []
-        constraint = follow_id(sa0, catalyst['abilityConstraint'])
-        if 'charactersNeeded' in constraint:
-            for pointer in constraint['charactersNeeded']['Array']:
-                character = follow_id(sa0, pointer)
-                characters.append(character['humanReadableGuid'])
-        if 'elementsNeeded' in constraint:
-            for element in constraint['elementsNeeded']['Array']:
-                elements.append(element)
-        cata_key = catalyst['signatureAbility']
-        catalysts[id] = {
-            'title': catalyst['title'],
-            'tier': catalyst['tier'],
-            'icon': catalyst['icon']['resourcePath'],
-            'randomCharacter': catalyst['randomCharacter'],
-            'randomElement': catalyst['randomElement'],
-            'specialCharacter': characters,
-            'specialElement': elements,
-            'ability': build_ability(cata_key)
-        }
-    return catalysts
-
-def get_corpus_keys(data):
-    keys = set()
-    if isinstance(data, str) and data in corpus['en']:
-        keys.add(data)
-    elif isinstance(data, list):
-        for item in data:
-            keys |= get_corpus_keys(item)
-    elif isinstance(data, dict):
-        for key in data:
-            keys |= get_corpus_keys(data[key])
-    return keys
-
 if __name__ == '__main__':
     characters = get_characters()
     variants = get_variants()
     sms = get_sms()
     bbs = get_bbs()
-    # catalysts = get_catalysts()
+    catalysts = get_catalysts()
 
     check_sas() # expected: pShoot
 
@@ -484,14 +477,14 @@ if __name__ == '__main__':
     file.save(variants, 'data_processing/output/variants.json', True)
     file.save(sms, 'data_processing/output/sms.json', True)
     file.save(bbs, 'data_processing/output/bbs.json', True)
-    # file.save(catalysts, 'data_processing/output/catalysts.json', True)
+    file.save(catalysts, 'data_processing/output/catalysts.json', True)
 
     corpus_keys = set()
     corpus_keys |= get_corpus_keys(characters)
     corpus_keys |= get_corpus_keys(variants)
     corpus_keys |= get_corpus_keys(sms)
     corpus_keys |= get_corpus_keys(bbs)
-    # corpus_keys |= get_corpus_keys(catalysts)
+    corpus_keys |= get_corpus_keys(catalysts)
 
     for language in corpus:
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
