@@ -11,10 +11,20 @@ for key in loc.container:
     translations = json.loads(bytes(val.script))
     corpus[language] = translations
 
+def find(q, n=16):
+    'Find relevant keys within the specific character limit.'
+    for i in corpus['en']:
+        if q.lower() in corpus['en'][i].lower() and len(corpus['en'][i]) < n:
+            print(i)
+            for lang in corpus:
+                print('{:>9s} {}'.format(lang, corpus[lang][i]))
+# find('catalyst')
+
 keys = [
     'Key_DisplayName',
     'Key_Fighter',
     'SkillTree_Gear',
+    'Key_NodeModifier',
     'MainMenu_Collection', # unused
     'Version_Login',
     'Popup_Download_Confirm_Header',
