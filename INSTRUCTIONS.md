@@ -102,8 +102,8 @@
 | --- | --- |
 | `data_processing/common.py` | Extract localizations of common terms. |
 | `data_processing/firebasepruner.py` | Prune stale votes from rankings database. |
-| `data_processing/gen_masteryicons.py` | Extract mastery icons. |
-| `data_processing/bonus.py` | Mine loot table data. |
+| `data_processing/extract_images.py` | Search for and extract images by name. |
+| `data_processing/loot.py` | Mine loot table data. |
 
 ---
 
