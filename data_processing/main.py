@@ -492,11 +492,11 @@ if __name__ == '__main__':
         file.save(corpus_core, 'data_processing/output/{}.json'.format(language), True)
 
     # catalyst icons
-    from data_processing.extract_images import extract_images
-    icons = []
-    for i in catalysts:
-        icon = catalysts[i]['icon']
-        if icon in icons:
-            continue
-        extract_images(icon, 'catalyst')
-        icons.append(icon)
+    # from data_processing.extract_images import extract_images
+    # icons = []
+    # for i in catalysts:
+    #     icon = catalysts[i]['icon']
+    #     if icon in icons:
+    #         continue
+    #     extract_images(icon, 'catalyst')
+    #     icons.append(icon)
