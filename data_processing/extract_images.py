@@ -6,12 +6,11 @@ file.mkdir('data_processing/output')
 
 apk = UnityPy.load('data_processing/input/base.apk')
 
-def extract_images(query, directory='image', flatten=True, skip_assets=[]):
+def extract_images(query, directory='image', flatten=True, first_only=False):
     flatpath = 'data_processing/output/' + directory
     file.mkdir(flatpath)
+    saved = {}
     for asset in apk.assets:
-        if asset.name in skip_assets:
-            continue
         for val in asset.values():
             if val.type.name == 'Sprite' or val.type.name == 'Texture2D':
                 value = val.read()
@@ -20,7 +19,14 @@ def extract_images(query, directory='image', flatten=True, skip_assets=[]):
                     if not flatten:
                         path += '/' + asset.name
                         file.mkdir(path)
-                    value.image.convert('P').save('{}/{}.png'.format(path, value.name))
+                    if value.name in saved:
+                        saved[value.name] += 1
+                        value.image.convert('P').save('{}/{} ({}).png'.format(path, value.name, saved[value.name]))
+                    else:
+                        saved[value.name] = 0
+                        value.image.convert('P').save('{}/{}.png'.format(path, value.name))
+                        if first_only:
+                            return
 
 if __name__ == '__main__':
     extract_images('MasteryIcon')
@@ -31,4 +37,4 @@ if __name__ == '__main__':
     for i in catalysts:
         icons.add(catalysts[i]['icon'])
     for icon in icons:
-        extract_images(icon, 'catalyst', skip_assets=['sharedassets0.assets'])
+        extract_images(icon, 'catalyst', first_only=True)
