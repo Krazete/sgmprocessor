@@ -6,7 +6,7 @@ file.mkdir('data_processing/output')
 
 apk = UnityPy.load('data_processing/input/base.apk')
 
-def extract_images(query, directory='image', flatten=True, first_only=False):
+def extract_images(query, directory='image', mode='P', flatten=True, first_only=False):
     flatpath = 'data_processing/output/' + directory
     file.mkdir(flatpath)
     saved = {}
@@ -15,21 +15,25 @@ def extract_images(query, directory='image', flatten=True, first_only=False):
             if val.type.name == 'Sprite' or val.type.name == 'Texture2D':
                 value = val.read()
                 if query.lower() in value.name.lower() and hasattr(value, 'image'):
+                    img = value.image
+                    if mode:
+                        img = value.image.convert(mode)
                     path = flatpath
                     if not flatten:
                         path += '/' + asset.name
                         file.mkdir(path)
                     if value.name in saved:
                         saved[value.name] += 1
-                        value.image.convert('P').save('{}/{} ({}).png'.format(path, value.name, saved[value.name]))
+                        img.save('{}/{} ({}).png'.format(path, value.name, saved[value.name]))
                     else:
                         saved[value.name] = 0
-                        value.image.convert('P').save('{}/{}.png'.format(path, value.name))
+                        img.save('{}/{}.png'.format(path, value.name))
                         if first_only:
                             return
 
 if __name__ == '__main__':
     extract_images('MasteryIcon')
+    extract_images('bunny', mode=False)
 
     from data_processing.main import get_catalysts
     catalysts = get_catalysts()
