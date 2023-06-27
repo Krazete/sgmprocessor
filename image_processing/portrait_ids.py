@@ -33,6 +33,7 @@ vid = {
     'NinjaStar': 'ninja',
     'SolarFlair': 'solar',
     'StarChild': 'starC',
+    # 'StarlightRose': 'sRose',
     'StarShine': 'sShine',
     'TimelessHero': 'hero',
     'TripleThreat': 'triple',
@@ -71,6 +72,7 @@ vid = {
     'LethalWeapon': 'lethalW',
     'MartialOutlaw': 'martialO',
     'Psycommander': 'psyco',
+    'RedRider': 'wildH',
     'SoulCrusher': 'soulC',
     'TriggerHappy': 'trigger',
     'Unfazed': 'unfazed',
@@ -89,6 +91,7 @@ vid = {
     'ToadWarrior': 'toad',
     'Understudy': 'uStudy',
     # Double
+    # 'AltarEgo': 'aEgo',
     'CreatureofHabit': 'cHabit',
     'Doublicious': 'dLicious',
     'EvergreenEvil': 'eEvil',
@@ -117,6 +120,7 @@ vid = {
     # Filia
     'BadHairDay': 'bHDay',
     'BadMsFrosty': 'bMFrosty',
+    'BlueStreak': 'bStreak',
     'ClassCutter': 'cCutter',
     'DjinnFrizz': 'djFriz',
     'DreadLocks': 'dLocks',
@@ -223,6 +227,7 @@ vid = {
     'DeathWish': 'wishfulEater',
     'EagerDeceiver': 'eagerDeceiver',
     'FreshHeir': 'freshHeir',
+    # 'Psykid': 'pKid',
     'PuddlePirate': 'puddlePirate',
     'RainingChamp': 'reigningChamp',
     'RoseTinted': 'roseTinted',
@@ -233,6 +238,7 @@ vid = {
     'Wunderkind': 'wunderKind',
     # Valentine
     'AssassinsGreed': 'aGreed',
+    # 'FinalFang': 'fFang',
     'GraveyardShift': 'gShift',
     'IcyHot': 'iHot',
     'KillJoy': 'kJoy',
