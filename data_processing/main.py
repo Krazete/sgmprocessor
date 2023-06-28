@@ -317,6 +317,28 @@ def get_catalysts():
         }
     return catalysts
 
+def get_artifacts():
+    artifacts = {}
+    for artifact in get_monos('MazeArtifactData'):
+        id = create_id(artifacts, artifact)
+        constraints = {}
+        constraint = sa0_get_id(artifact['abilityConstraint'])
+        if constraint:
+            if 'charactersNeeded' in constraint:
+                constraints['characters'] = []
+                for characterptr in constraint['charactersNeeded']:
+                    character = sa0_get_id(characterptr)
+                    constraints['characters'].append(character['humanReadableGuid'])
+            if 'elementsNeeded' in constraint:
+                constraints['elements'] = constraint['elementsNeeded']
+        artifacts[id] = {
+            'title': artifact['title'],
+            'tier': artifact['tier'],
+            'constraints': constraints,
+            'ability': build_ability(artifact['signatureAbility'])
+        }
+    return artifacts
+
 def get_corpus_keys(data):
     keys = set()
     if isinstance(data, str) and data in corpus['en']:
@@ -468,6 +490,7 @@ if __name__ == '__main__':
     sms = get_sms()
     bbs = get_bbs()
     catalysts = get_catalysts()
+    artifacts = get_artifacts()
 
     check_sas() # expected: pShoot
 
@@ -478,6 +501,7 @@ if __name__ == '__main__':
     file.save(sms, 'data_processing/output/sms.json', True)
     file.save(bbs, 'data_processing/output/bbs.json', True)
     file.save(catalysts, 'data_processing/output/catalysts.json', True)
+    file.save(artifacts, 'data_processing/output/artifacts.json', True)
 
     corpus_keys = set()
     corpus_keys |= get_corpus_keys(characters)
@@ -485,6 +509,7 @@ if __name__ == '__main__':
     corpus_keys |= get_corpus_keys(sms)
     corpus_keys |= get_corpus_keys(bbs)
     corpus_keys |= get_corpus_keys(catalysts)
+    corpus_keys |= get_corpus_keys(artifacts)
 
     for language in corpus:
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
