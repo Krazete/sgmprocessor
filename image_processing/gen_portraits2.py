@@ -19,9 +19,8 @@ def get_masks():
 def apply_mask(im, mask):
     mask_size = (296, 354) # because black dahlia has a nonstandard mask.size
     scaled_mask = mask.resize((int(dim * 7 / 3) for dim in mask_size), Image.Resampling.LANCZOS)
-    squared_mask = ImageChops.multiply(scaled_mask, scaled_mask)
     a = Image.new('L', im.size)
-    a.paste(squared_mask, (2, 66))
+    a.paste(scaled_mask, (2, 66))
     im.putalpha(a)
 
 if __name__ == '__main__':
