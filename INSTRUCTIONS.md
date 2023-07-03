@@ -115,6 +115,12 @@
 
 ## Generate Portraits for SGM Gallery
 
+1. Run `image_processing/gen_portraits2.py`.
+
+This process used to take multiple manual steps, necessary in the absence of palettized sprites.
+I kept using this method even after learning of the palettized files, but the addition of Altar Ego Double (with her colored shadow/lines) finally forced a revision.
+The old method is listed below.
+
 1. Run `image_processing/gen_masks.py`.
 2. Edit the images in `image_processing/output/mask/shadow`.
    - Create a nice silhouette of each portrait.
