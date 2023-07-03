@@ -6,8 +6,6 @@ from image_processing import file
 from image_processing.gen_moves import get_mask
 from image_processing.portrait_ids import fid, vid
 
-mask_scale = 7 / 3
-
 def get_masks():
     palettizedimages = UnityPy.load('image_processing/input/palettizedimages')
     masks = {}
@@ -20,12 +18,11 @@ def get_masks():
 
 def apply_mask(im, mask):
     mask_size = (296, 354) # because black dahlia has a nonstandard mask.size
-    scaled_mask = mask.resize((int(dim * mask_scale) for dim in mask_size), Image.Resampling.LANCZOS)
+    scaled_mask = mask.resize((int(dim * 7 / 3) for dim in mask_size), Image.Resampling.LANCZOS)
     squared_mask = ImageChops.multiply(scaled_mask, scaled_mask)
     a = Image.new('L', im.size)
     a.paste(squared_mask, (2, 66))
     im.putalpha(a)
-    return im
 
 if __name__ == '__main__':
     masks = get_masks()
@@ -49,8 +46,9 @@ if __name__ == '__main__':
                 if len(stems):
                     variant = re.sub(nonalphanumeric, '', stems[0])
                     file.mkdir(os.path.join(dir_output, fid[character]))
-                    portrait = apply_mask(im, mask)
-                    scaled_portrait = im.resize((int(dim / mask_scale) for dim in im.size), Image.Resampling.LANCZOS)
+                    apply_mask(im, mask)
+                    scale = 300 / im.height
+                    scaled_portrait = im.resize((int(dim * scale) for dim in im.size), Image.Resampling.LANCZOS)
                     palettized_portrait = scaled_portrait.convert('P')
                     palettized_portrait.save(os.path.join(dir_output, fid[character], vid[variant] + '.png'))
                 else:
