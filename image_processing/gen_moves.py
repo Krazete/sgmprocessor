@@ -16,28 +16,39 @@ spectral_log = {
     'Umbrella': [35, 36, 47]
 }
 
-def petrify_sprite(im, spectral_ids=[]):
-    'Return grayscale version of codified sprite, with spectral areas rendered translucent.'
+def get_mask(im, character=None):
+    'Return mask of sprite, with spectral areas rendered translucent.'
     r = im.getchannel(0) # palette
     g = im.getchannel(1) # linework
     b = im.getchannel(2) # detail
 
-    # mask detail with palette areas and subtract inverted linework
-    sprite = ImageMath.eval('convert((r > 0) * b - (0xFF - g), "L")', r=r, g=g, b=b)
-
+    spectral_ids = spectral_log.get(character, [])
     if len(spectral_ids):
-        spectral_areas = ' + '.join('(r == {})'.format(id) for id in spectral_ids)
+        spectral_areas = '({})'.format(' + '.join('(r == {})'.format(id) for id in spectral_ids))
         # create scaled binary mask of palette areas minus spectral areas
-        opaque = ImageMath.eval('convert(0xFF * (r > 0) * (1 - (' + spectral_areas + ')), "L")', r=r)
+        opaque = ImageMath.eval('convert(0xFF * (r > 0) * (1 - {}), "L")'.format(spectral_areas), r=r)
         # mask detail with spectral areas and scale to adjust intensity
-        translucent = ImageMath.eval('convert(0xFF * (b * (' + spectral_areas + ') - 0x64) / (0xFF - 0x64), "L")', r=r, b=b)
+        translucent = ImageMath.eval('convert(0xFF * (b * {} - 0x64) / (0xFF - 0x64), "L")'.format(spectral_areas), r=r, b=b)
         # add together opaque mask, translucent mask, and inverted linework
         a = ImageMath.eval('convert(o + t + (0xFF - g), "L")', o=opaque, t=translucent, g=g)
     else:
         # create scaled binary mask of palette areas and add inverted linework
         a = ImageMath.eval('convert(0xFF * (r > 0) + (0xFF - g), "L")', r=r, g=g)
 
+    return a
+
+def petrify_sprite(im, character=None):
+    'Return grayscale version of sprite.'
+    r = im.getchannel(0) # palette
+    g = im.getchannel(1) # linework
+    b = im.getchannel(2) # detail
+
+    # mask detail with palette areas and subtract inverted linework
+    sprite = ImageMath.eval('convert((r > 0) * b - (0xFF - g), "L")', r=r, g=g, b=b)
+    # apply mask
+    a = get_mask(im, character)
     sprite.putalpha(a)
+
     return sprite
 
 if __name__ == '__main__':
@@ -49,9 +60,8 @@ if __name__ == '__main__':
     for key in palettizedimages.container:
         obj = palettizedimages.container[key].read()
         if '_BB' in obj.name or '_SM' in obj.name:
-            name_prefix = obj.name.split('_')[0]
-            spectral_ids = spectral_log.get(name_prefix, [])
-            sprite = petrify_sprite(obj.image, spectral_ids)
+            character = obj.name.split('_')[0]
+            sprite = petrify_sprite(obj.image, character)
             scale = 140 / sprite.width # because of image resolution difference between old and new sprites
             scaled_sprite = sprite.resize((int(dim * scale) for dim in sprite.size), Image.Resampling.LANCZOS)
             palettized_sprite = scaled_sprite.convert('RGBA').convert('P') # intermediate RGBA conversion preserves transparency
