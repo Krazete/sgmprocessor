@@ -115,10 +115,12 @@
 
 ## Generate Portraits for SGM Gallery
 
-1. Run `image_processing/gen_portraits2.py`.
+- Run `image_processing/gen_portraits2.py`.
 
 This process used to take multiple manual steps, necessary in the absence of palettized sprites.
-I kept using this method even after learning of the palettized files, but the addition of Altar Ego Double (with her colored shadow/lines) finally forced a revision.
+I kept using this method even after learning of the palettized files, but Altar Ego Double (with her colored shadow/lines) finally forced a revision.
+In addition to stylized lines, the new method can also handle translucency (like Fukua's orbs).
+
 The old method is listed below.
 
 1. Run `image_processing/gen_masks.py`.
