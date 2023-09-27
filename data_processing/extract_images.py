@@ -33,6 +33,7 @@ def extract_images(query, directory='image', mode='P', flatten=True, first_only=
 
 if __name__ == '__main__':
     extract_images('MasteryIcon')
+    extract_images('character_symbol')
     extract_images('bunny', mode=False)
 
     from data_processing.main import get_catalysts
