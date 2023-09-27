@@ -186,7 +186,7 @@ vid = {
     'TwistedMettle': 'tMett',
     'WebCrawler': 'wCrawler',
     # Parasoul
-    'BombShell': 'bShell',
+    'Bombshell': 'bShell',
     'HeavyReign': 'hReign',
     'HighRuler': 'hRuler',
     'IvyLeague': 'iLeague',
