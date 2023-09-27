@@ -29,6 +29,7 @@
 2. Connect your phone to your computer, set connection type to File Transfer, and enable debugging.
    1. In your phone settings, open Additional Settings.
    2. Turn on Developer Options, then turn on USB Debugging.
+      - If you don't see this option, turn activate developer mode by going to System > About and tapping Version > Build Number seven times.
    3. Make sure USB Configuration is set to MTP (Media Transfer Protocol).
 3. Open the Command Prompt or Terminal and extract the APK with ADB.
    1. Run `adb devices` to make sure your device is accessible. If the list is empty, recheck the previous step.
