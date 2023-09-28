@@ -186,6 +186,8 @@ def build_ability(abilityptr):
         feature = sig_get_id(featureptr)
         substitutions = []
         for sub in feature['substitutions']: # todo: rename these sub variables
+            if '.' not in sub:
+                continue
             subx, suby = sub.split('.')
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
         blah = { # todo: refine the addition of the title attribute for marquee abilities

@@ -40,6 +40,8 @@ def mine_relic(reel):
             for loot in table['loots']:
                 print('\t\t{:.2f}%'.format(loot['weight'] * 100 / subtotal), end="")
                 mine_loot(loot['loot'])
+            print('\t\tSubtotal Weight: {}'.format(subtotal))
+        print('\tTotal Weight: {}'.format(total))
 
 def mine_relic_id(relic_id):
     relic = sa0_get_id({'m_PathID': relic_id})
@@ -125,11 +127,11 @@ def mine_loot(loot):
     print('\t{:7d} {}'.format(amount, lootName + plural) + extra_suffix)
 
 def mine_pf(pf):
-    print(pf['humanReadableGuid'])
+    print(pf.get('humanReadableGuid', pf.get('guid', 'NO GUID')))
     if 'actSelectContent' in pf:
         title = pf['actSelectContent']['title']
         subtitle = pf['actSelectContent']['subtitle']
-        print('{} ({})'.format(corpus['en'][title], corpus['en'][subtitle]))
+        print('{} ({})'.format(corpus['en'].get(title, title), corpus['en'].get(subtitle, subtitle)))
     for side in ['player', 'enemy']:
         if side + 'FightModifiers' in pf:
             print('{} Modifiers:'.format(side).upper())
@@ -212,8 +214,30 @@ def misc_search(name):
                                     # print('\t\t\t', nestedloot['weight'])
                                     print('\t\t\t{:.2f}%'.format(nestedloot['weight'] * 100 / nestedtotal), end="")
                                     mine_loot(nestedloot['loot'])
+                                print('\t\t\tSubtotal Weight: {}'.format(nestedtotal))
+                        print('\t\tTotal Weight: {}'.format(subtotal))
+
+def pipe_all(f):
+    import sys, traceback
+    stdout = sys.stdout
+    try:
+        with open('data_processing/output/odds/{}.txt'.format(f.__name__), 'w') as fp:
+            sys.stdout = fp
+            f('')
+        sys.stdout = stdout
+    except Exception as e:
+        sys.stdout = stdout
+        print(traceback.format_exc())
+        print(e)
 
 if __name__ == '__main__':
+    file.mkdir('data_processing/output')
+    file.mkdir('data_processing/output/odds')
+    pipe_all(event_search)
+    pipe_all(relic_search)
+    pipe_all(misc_search)
+    assert False
+
     # mine_corpus()
 
     event_search('Squigly')
