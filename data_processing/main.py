@@ -176,10 +176,11 @@ def build_ability(abilityptr):
 
     def build_tier(tierptr, feature, substitutions):
         tier = sig_get_id(tierptr)
+        values = [get_true_value(build_value(subx, suby, tier, feature)) for subx, suby in substitutions]
 
         return {
             "level": tier['unlockAtLevel'],
-            "values": [get_true_value(build_value(subx, suby, tier, feature)) for subx, suby in substitutions]
+            "values": [value for value in values if value is not None] # for bug introduced by aComp (Apex Complex)
         }
 
     def build_feature(featureptr):
