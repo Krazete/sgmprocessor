@@ -397,7 +397,38 @@ def analyze_prestige_ability(cid):
                                 print(key, component[key])
             break
 
-def analyze_ability(variant):
+def expand(obj): # pretty print an object, including all m_PathID pointers
+    dfslog = []
+    s = []
+    def dfs(obj, lvl):
+        indent = '  ' * lvl
+        if isinstance(obj, dict):
+            if 'm_PathID' in obj:
+                pid = obj['m_PathID']
+                s.append('{}(Path ID: {})'.format(indent, pid))
+                if pid not in dfslog:
+                    dfslog.append(pid)
+                    s.append(indent + '{')
+                    dfs(sig_get_id(obj), lvl + 1)
+                    s.append(indent + '}')
+            else:
+                for k in obj:
+                    s.append(indent + k + ':')
+                    dfs(obj[k], lvl + 1)
+        elif isinstance(obj, list):
+            s.append(indent + '(List)')
+            for i in obj:
+                dfs(i, lvl + 1)
+        else:
+            s.append('{}{}'.format(indent, obj))
+    dfs(obj, 0)
+    return '\n'.join(s)
+
+def analyze_ability(id):
+    for variant in get_monos('VariantCharacterData'):
+        if is_collectible(variant) and variant['humanReadableGuid'] == id:
+            break
+    print('VARIANT:\n{}'.format(variant))
     abilityptr = variant['signatureAbility']
     ability = sig_get_rp(abilityptr)
     for componentptr in ability['m_Component']:
@@ -457,6 +488,10 @@ def analyze_ability(variant):
                         for modifier in tier['additionalStringSubstitutions']:
                             if modifier['id'] == subx and suby in modifier:
                                 print(modifier['id'], modifier[suby])
+                    # if subx == 'DMG': # studying variant 'sSold'
+                    #     with open('data_processing/output/analysis_sSold.txt', 'w') as fp:
+                    #         fp.write(expand(tier))
+                    #     assert False
 
     #             break
 
