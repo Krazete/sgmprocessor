@@ -155,7 +155,7 @@ def build_ability(abilityptr):
                     try:
                         return modifier[suby]
                     except:
-                        return modifier[suby.lower()] # hacky fix for rBlonde; todo: add this safety to all other subys
+                        return modifier[suby.lower()] # hacky fix for rBlonde
                 if 'delayedModifier' in modifier:
                     delay = sig_get_id(modifier['delayedModifier'])
                     if 'id' in delay and delay['id'] == subx:
@@ -174,7 +174,7 @@ def build_ability(abilityptr):
             if modifier['id'] == subx and suby in modifier:
                 return modifier[suby]
 
-        for subfeatureptr in feature['subFeatures']: # recurse(?) through subfeatures
+        for subfeatureptr in feature['subFeatures']: # recurse through subfeatures
             subfeature = sig_get_id(subfeatureptr)
             for subtierptr in subfeature['tiers']:
                 subtier = sig_get_id(subtierptr)
@@ -196,7 +196,7 @@ def build_ability(abilityptr):
     def build_feature(featureptr):
         feature = sig_get_id(featureptr)
         substitutions = []
-        for sub in feature['substitutions']: # todo: rename these sub variables
+        for sub in feature['substitutions']: # e.g. BLEED.Duration, ARMOR.StacksOnProc, HEALTH.PercentMaxLife
             if '.' not in sub:
                 continue
             subx, suby = sub.split('.')
@@ -438,7 +438,7 @@ def analyze_ability(id):
     for variant in get_monos('VariantCharacterData'):
         if is_collectible(variant) and variant['humanReadableGuid'] == id:
             break
-    print('VARIANT:\n{}'.format(variant))
+    print('VARIANT:\n', variant)
     abilityptr = variant['signatureAbility']
     ability = sig_get_rp(abilityptr)
     for componentptr in ability['m_Component']:
