@@ -129,7 +129,7 @@ def build_prestige_ability(abilityptr, cid):
 def build_ability(abilityptr):
     ability = sig_get_rp(abilityptr)
 
-    def build_value(subx, suby, tier, feature):
+    def build_value(subx, suby, level, tier, feature):
         for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
             modifier = sig_get_id(ptr)
             if modifier['id'] == subx:
@@ -174,13 +174,23 @@ def build_ability(abilityptr):
             if modifier['id'] == subx and suby in modifier:
                 return modifier[suby]
 
+        for subfeatureptr in feature['subFeatures']: # recurse(?) through subfeatures
+            subfeature = sig_get_id(subfeatureptr)
+            for subtierptr in subfeature['tiers']:
+                subtier = sig_get_id(subtierptr)
+                sublevel = subtier['unlockAtLevel']
+                if level == sublevel:
+                    subvalue = build_value(subx, suby, level, subtier, subfeature)
+                    if subvalue:
+                        return subvalue
+
     def build_tier(tierptr, feature, substitutions):
         tier = sig_get_id(tierptr)
-        values = [get_true_value(build_value(subx, suby, tier, feature)) for subx, suby in substitutions]
+        level = tier['unlockAtLevel']
 
         return {
-            "level": tier['unlockAtLevel'],
-            "values": [value for value in values if value is not None] # for bug introduced by aComp (Apex Complex)
+            "level": level,
+            "values": [get_true_value(build_value(subx, suby, level, tier, feature)) for subx, suby in substitutions]
         }
 
     def build_feature(featureptr):
@@ -510,6 +520,8 @@ def check_sas():
     for key in variants:
         features = variants[key]['sa']['features']
         for i, feature in enumerate(features, 1):
+            if i >= 3: # newer variants (>=6.0.0) tend to have extra empty SAs for some reason
+                continue
             tiers = [tier['values'] for tier in feature['tiers']]
             constant = True
             for j in range(len(tiers[0])):
