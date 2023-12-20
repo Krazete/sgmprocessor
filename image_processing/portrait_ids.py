@@ -25,6 +25,7 @@ fid = {
 vid = {
     # Annie
     'AgelessWonder': 'aWond',
+    'CosmicRebel': 'rForce',
     'FireBranded': 'heat',
     'GalacticGlamour': 'galaxy',
     'HeatSynced': 'hSync', # replaced with Fire Branded
@@ -47,6 +48,7 @@ vid = {
     'FreedomFighter': 'fFight',
     'HypeMan': 'hMan',
     'NumberOne': 'nOne',
+    'OgreAchiever': 'oGre',
     'SnakeBite': 'sBite',
     'Underdog': 'uDog',
     'WeekendWarrior': 'wWarr',
@@ -133,6 +135,7 @@ vid = {
     'RockStar': 'rStar',
     'Windswept': 'wSwept',
     # Fukua
+    'ApexComplex': 'aComp',
     'ChameleonTwist': 'twist',
     'DreamDemon': 'dDemon',
     'FeatheredEdges': 'feath',
@@ -189,6 +192,7 @@ vid = {
     'Bombshell': 'bShell',
     'HeavyReign': 'hReign',
     'HighRuler': 'hRuler',
+    'Indomitable': 'iDom',
     'IvyLeague': 'iLeague',
     'NoEgrets': 'nEgrets',
     'Primed': 'prime',
@@ -216,6 +220,7 @@ vid = {
     # Robo-Fortune
     'BlueBomber': 'bBomb',
     'BlueScreen': 'blueS',
+    'BufferZone': 'aSent',
     'HeadHunter': 'metro',
     'M3OW': 'm3ow',
     'NumberCruncher': 'nCrunch',
@@ -265,6 +270,7 @@ vid = {
     'OhMai': 'oMai',
     'PyroTechnique': 'pTech',
     'Scrub': 'scrub',
+    'SeraphSoldier': 'sSold',
     'SilentKill': 'sKill',
     'SurgeonGeneral': 'sGeneral',
     'TresChic': 'tChic',
