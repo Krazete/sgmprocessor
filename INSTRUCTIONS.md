@@ -35,8 +35,9 @@
    1. Run `adb devices` to make sure your device is accessible. If the list is empty, recheck the previous step.
    2. Run `adb shell pm list packages -3 -f` to list directories of all APKs.
    3. Find the line with `com.autumn.skullgirls`. Copy the directory path (between `package:` and `/base.apk=com.autumn.skullgirls`).
-   4. Navigate to wherever you want the extracted files to go.
-   5. Run `adb pull THE_PATH_YOU_JUST_COPIED`. This extracts the folder to your current directory. The extracted folder will contain `base.apk` and `lib`.
+   5. Navigate to wherever you want the extracted files to go.
+   6. Run `adb pull THE_PATH_YOU_JUST_COPIED`. This extracts the folder to your current directory. The extracted folder will contain `base.apk` and `lib`.
+      - If this gives a Permission Denied error, rerun the line with `/base.apk` appended on the directory path and once again with `/lib` appended.
 4. Copy `base.apk` to `data_processing/input`.
 
 ## III. Decompile the APK
