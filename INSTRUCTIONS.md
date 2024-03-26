@@ -92,7 +92,7 @@
 > TypeTrees are necessary for UnityPy to read the entirety of MonoBehaviour assets. Without it, many important details about fighter variants would be inaccessible.
 
 1. Install [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0). If you don't know which installer to use, the x64 option is the safest bet.
-2. Run `dataprocessing/gen_typetrees.py`. This will create `typetrees.json` in `data_processing/input`.
+2. Run `data_processing/gen_typetrees.py`. This will create `typetrees.json` in `data_processing/input`.
 
 ## Generate Data for SGM Gallery
 
