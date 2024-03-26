@@ -6,6 +6,8 @@ data_processing/input/sgmobilegallery-export.json
 data_processing/input/signatureabilities
 data_processing/input/typetrees.json
 data_processing/output
+image_processing/input/cosmetics
+image_processing/input/liveops
 image_processing/input/palettizedimages
 image_processing/input/talkingheads
 image_processing/output
