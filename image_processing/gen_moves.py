@@ -24,16 +24,27 @@ def get_mask(im, character=None):
 
     spectral_ids = spectral_log.get(character, [])
     if len(spectral_ids):
-        spectral_areas = '({})'.format(' + '.join('(r == {})'.format(id) for id in spectral_ids))
         # create scaled binary mask of palette areas minus spectral areas
-        opaque = ImageMath.eval('convert(0xFF * (r > 0) * (1 - {}), "L")'.format(spectral_areas), r=r)
+        opaque = ImageMath.lambda_eval(
+            lambda _: _['convert'](0xFF * (_['r'] > 0) * (1 - sum(_['r'] == id for id in spectral_ids)), 'L'),
+            r=r
+        )
         # mask detail with spectral areas and scale to adjust intensity
-        translucent = ImageMath.eval('convert(0xFF * (b * {} - 0x64) / (0xFF - 0x64), "L")'.format(spectral_areas), r=r, b=b)
+        translucent = ImageMath.lambda_eval(
+            lambda _: _['convert'](0xFF * (_['b'] * sum(_['r'] == id for id in spectral_ids) - 0x64) / (0xFF - 0x64), 'L'),
+            r=r, b=b
+        )
         # add together opaque mask, translucent mask, and inverted linework
-        a = ImageMath.eval('convert(o + t + (0xFF - g), "L")', o=opaque, t=translucent, g=g)
+        a = ImageMath.lambda_eval(
+            lambda _: _['convert'](_['o'] + _['t'] + (0xFF - _['g']), 'L'),
+            o=opaque, t=translucent, g=g
+        )
     else:
         # create scaled binary mask of palette areas and add inverted linework
-        a = ImageMath.eval('convert(0xFF * (r > 0) + (0xFF - g), "L")', r=r, g=g)
+        a = ImageMath.lambda_eval(
+            lambda _: _['convert'](0xFF * (_['r'] > 0) + (0xFF - _['g']), 'L'),
+            r=r, g=g
+        )
 
     return a
 
@@ -44,7 +55,10 @@ def petrify_sprite(im, character=None):
     b = im.getchannel(2) # detail
 
     # mask detail with palette areas and subtract inverted linework
-    sprite = ImageMath.eval('convert((r > 0) * b - (0xFF - g), "L")', r=r, g=g, b=b)
+    sprite = ImageMath.lambda_eval(
+        lambda _: _['convert']((_['r'] > 0) * _['b'] - (0xFF - _['g']), 'L'),
+        r=r, g=g, b=b
+    )
     # apply mask
     a = get_mask(im, character)
     sprite.putalpha(a)
