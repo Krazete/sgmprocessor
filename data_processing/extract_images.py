@@ -6,29 +6,28 @@ file.mkdir('data_processing/output')
 
 apk = UnityPy.load('data_processing/input/base.apk')
 
-def extract_images(query, directory='image', mode='P', flatten=True, first_only=False):
-    flatpath = 'data_processing/output/' + directory
-    file.mkdir(flatpath)
-    saved = {}
+def extract_images(query, directory='image', mode='P', first_only=False):
+    path = 'data_processing/output/' + directory
+    file.mkdir(path + '/Sprite')
+    file.mkdir(path + '/Texture2D')
+    saved = {'Sprite': {}, 'Texture2D': {}}
     for asset in apk.assets:
         for val in asset.values():
             try:
-                if val.type.name == 'Sprite' or val.type.name == 'Texture2D':
+                vtn = val.type.name
+                if vtn == 'Sprite' or vtn == 'Texture2D':
                     value = val.read()
-                    if query.lower() in value.name.lower() and hasattr(value, 'image'):
+                    vn = value.name
+                    if query.lower() in vn.lower() and hasattr(value, 'image'):
                         img = value.image
                         if mode:
                             img = value.image.convert(mode)
-                        path = flatpath
-                        if not flatten:
-                            path += '/' + asset.name
-                            file.mkdir(path)
-                        if value.name in saved:
-                            saved[value.name] += 1
-                            img.save('{}/{} ({}).png'.format(path, value.name, saved[value.name]))
+                        if vn in saved[vtn]:
+                            saved[vtn][vn] += 1
+                            img.save('{}/{}/{} ({}).png'.format(path, vtn, vn, saved[vtn][vn]))
                         else:
-                            saved[value.name] = 0
-                            img.save('{}/{}.png'.format(path, value.name))
+                            saved[vtn][vn] = 0
+                            img.save('{}/{}/{}.png'.format(path, vtn, vn))
                             if first_only:
                                 return
             except:
