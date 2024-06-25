@@ -112,7 +112,6 @@ def build_prestige_ability(abilityptr, cid):
             match cid:
                 case 'an': extra = {'starPower': 1}
                 case 'be': extra = {'secondsElapsed': component['secondsElapsed']}
-                case 'bb': extra = {'comboCount': get_extra(component['comboCountCondition'], 'count')}
                 case 'mf': extra = {'evasion': get_extra(component['evasionModifier'], 'duration')} # interchangeable with 'guardBreakModifier'
                 case 'um': extra = {'hungerDifference': 1, 'regen': get_extra(component['regenModifier'], 'percentMaxLife')}
                 case 'va': extra = {'healthRecovered': 1, 'resurrection': get_extra(component['resurrectionModifier'], 'value')}
@@ -183,6 +182,20 @@ def build_ability(abilityptr):
                     subvalue = build_value(subx, suby, level, subtier, subfeature)
                     if subvalue:
                         return subvalue
+
+        for subfeatureptr in feature['subFeatures']: # recurse through subfeatures and ignore level checks
+            subfeature = sig_get_id(subfeatureptr)
+            for subtierptr in subfeature['tiers']:
+                subtier = sig_get_id(subtierptr)
+                sublevel = subtier['unlockAtLevel']
+                subvalue = build_value(subx, suby, level, subtier, subfeature)
+                if subvalue:
+                    print('Warning: Value for ability extracted from feature without regard for tier level.')
+                    print('\tSubstitution:', subx, suby)
+                    print('\tValue:', get_true_value(subvalue))
+                    print('\tLevel:', level)
+                    print('\tAbility:', corpus['en'][feature['description']])
+                    return subvalue
 
     def build_tier(tierptr, feature, substitutions):
         tier = sig_get_id(tierptr)
@@ -525,6 +538,11 @@ def check_sas():
             tiers = [tier['values'] for tier in feature['tiers']]
             constant = True
             for j in range(len(tiers[0])):
+                if tiers[0][j] == None or tiers[1][j] == None or tiers[2][j] == None:
+                    print('WARNING: \'None\' detected in SA:', key)
+                    if tiers[0][j] == None and tiers[1][j] == None and tiers[2][j] == None:
+                        print('\t(This affects all tiers, so this is probably ignorable.)')
+                    continue
                 avb = tiers[0][j] - tiers[1][j]
                 bvc = tiers[1][j] - tiers[2][j]
                 if sign(avb) != sign(bvc):
