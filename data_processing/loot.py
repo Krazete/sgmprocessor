@@ -67,7 +67,7 @@ lootTypes = {
     24: 'Universal Retake'
 }
 
-def mine_loot(loot):
+def mine_loot(loot, showID=False):
     amount = loot['amount']
     lootType = loot['lootType']
     plural = 's' if lootType != 1 and amount > 1 else ''
@@ -86,7 +86,9 @@ def mine_loot(loot):
         case 4:
             reelptr = loot['reel']
             reel = sa0_get_id(reelptr)
-            extra = '{}, ID: {}'.format(corpus['en'][reel['title']], reelptr['m_PathID'])
+            extra = corpus['en'][reel['title']]
+            if showID:
+                extra += ', ID: {}'.format(reelptr['m_PathID'])
         case 5:
             tableptr = loot['nestedLootTable']
             table = sa0_get_id(tableptr)
