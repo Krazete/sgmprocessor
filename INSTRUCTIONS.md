@@ -1,5 +1,7 @@
 # Preparing Input Data
 
+> Note: You can run `adbget.sh` to complete steps I and II (given you already have adb installed).
+
 ## I. Retrieve Shallow Data Files
 
 > These files are stored on your phone as is, so retrieving them is easy. Small patches, like translation fixes, likely involve updates to these files.
