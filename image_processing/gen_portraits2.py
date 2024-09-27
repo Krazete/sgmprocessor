@@ -1,22 +1,26 @@
 import os
 import re
 import UnityPy
-from PIL import Image, ImageChops, ImageMath
+from PIL import Image, ImageOps
 from image_processing import file
 from image_processing.gen_moves import get_mask
 from image_processing.portrait_ids import fid, vid
 
 def get_masks():
+    'Return full mask and line mask for every character portrait.'
     palettizedimages = UnityPy.load('image_processing/input/palettizedimages')
     masks = {}
+    lines = {}
     for key in palettizedimages.container:
         obj = palettizedimages.container[key].read()
         if '_Portrait' in obj.name:
             character = obj.name.split('_')[0]
             masks[character] = get_mask(obj.image, character)
-    return masks
+            lines[character] = ImageOps.invert(obj.image.getchannel(1))
+    return masks, lines
 
 def apply_mask(im, mask):
+    'Apply a mask or line mask to a variant portrait.'
     mask_size = (296, 354) # because black dahlia has a nonstandard mask.size
     scaled_mask = mask.resize((int(dim * 7 / 3) for dim in mask_size), Image.Resampling.LANCZOS)
     a = Image.new('L', im.size)
@@ -24,7 +28,7 @@ def apply_mask(im, mask):
     im.putalpha(a)
 
 if __name__ == '__main__':
-    masks = get_masks()
+    masks, lines = get_masks()
 
     nonalphanumeric = re.compile('[^a-zA-Z0-9]')
     fid_suffixes = '|'.join([id.split(' ')[-1] for id in fid])
@@ -39,7 +43,8 @@ if __name__ == '__main__':
     for character in os.listdir(dir_input):
         directory = os.path.join(dir_input, character)
         if os.path.isdir(directory):
-            mask = masks[re.sub(nonalphanumeric, '', character)]
+            maskname = re.sub(nonalphanumeric, '', character)
+            mask = masks[maskname]
             for filename, im in file.iter_img(directory):
                 stems = re.findall(vid_pattern, filename)
                 if len(stems):
@@ -52,3 +57,7 @@ if __name__ == '__main__':
                     palettized_portrait.save(os.path.join(dir_output, fid[character], vid[variant] + '.png'))
                 else:
                     print('No variant detected in filename:', filename)
+            line = lines[maskname]
+            placeholder = Image.new('RGBA', (640, 1000))
+            apply_mask(placeholder, line)
+            placeholder.save(os.path.join(dir_output, fid[character], 'placeholder.png'))
