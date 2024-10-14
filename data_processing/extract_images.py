@@ -1,5 +1,6 @@
 import UnityPy
 from data_processing import file
+from argparse import ArgumentParser
 
 file.mkdir('data_processing')
 file.mkdir('data_processing/output')
@@ -34,14 +35,21 @@ def extract_images(query, directory='image', mode='P', first_only=False):
                 continue
 
 if __name__ == '__main__':
-    extract_images('MasteryIcon')
-    extract_images('character_symbol')
-    extract_images('bunny', mode=False)
+    parser = ArgumentParser()
+    parser.add_argument('-q', '--query', help='filename query')
+    args = parser.parse_args()
+    if args.query:
+        extract_images(args.query)
+    else:
+        extract_images('florence')
+        extract_images('MasteryIcon')
+        extract_images('character_symbol')
+        extract_images('bunny', mode=False)
 
-    from data_processing.main import get_catalysts
-    catalysts = get_catalysts()
-    icons = set()
-    for i in catalysts:
-        icons.add(catalysts[i]['icon'])
-    for icon in icons:
-        extract_images(icon, 'catalyst', first_only=True)
+        from data_processing.main import get_catalysts
+        catalysts = get_catalysts()
+        icons = set()
+        for i in catalysts:
+            icons.add(catalysts[i]['icon'])
+        for icon in icons:
+            extract_images(icon, 'catalyst', first_only=True)
