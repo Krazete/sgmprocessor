@@ -62,9 +62,12 @@ lootTypes = {
     12: 'Rift Coin',
     15: 'Catalyst',
     16: 'Consumable',
+    # 17: 'Unknown; something in the Show Me Your Moves! prize fight',
     20: 'Energy Refill',
     23: 'Retake',
-    24: 'Universal Retake'
+    24: 'Universal Retake',
+    26: 'Guest Star',
+    27: 'Stardust'
 }
 
 def mine_loot(loot, showID=False):
@@ -116,10 +119,15 @@ def mine_loot(loot, showID=False):
             itemptr = loot['consumable']
             item = sa0_get_id(itemptr)
             extra = corpus['en'][item['title']]
+        # case 17:
         case 23:
             baseptr = loot['baseCharacter']
             base = sa0_get_id(baseptr)
             extra = corpus['en'][base['displayName']]
+        case 26:
+            gearptr = loot['gear']
+            gear = sa0_get_id(gearptr)
+            extra = '{}, {}'.format(gear['title'].split('_')[1], corpus['en'][gear['title']], gear['description']) # todo: detect base guest star properly and differentiate variants
         case _:
             if lootType not in lootTypes:
                 from pprint import pprint

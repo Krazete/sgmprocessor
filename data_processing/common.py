@@ -30,6 +30,7 @@ keys = [
     'Popup_Download_Confirm_Header',
     'Collection_Characters',
     'Collection_SMoves',
+    'Gear_Filter_Assists',
     'Gear_Filter_Assists_Plural',
     'Collection_NodeModifiers',
     'Maze_Artifacts',
