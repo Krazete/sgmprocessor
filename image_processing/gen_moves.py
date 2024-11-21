@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     for key in palettizedimages.container:
         obj = palettizedimages.container[key].read()
-        if '_BB' in obj.name or '_SM' in obj.name:
+        if '_BB' in obj.name or '_SM' in obj.name or '_AM' in obj.name:
             character = obj.name.split('_')[0]
             sprite = petrify_sprite(obj.image, character)
             scale = 140 / sprite.width # because of image resolution difference between old and new sprites
