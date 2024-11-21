@@ -30,7 +30,9 @@ keys = [
     'Popup_Download_Confirm_Header',
     'Collection_Characters',
     'Collection_SMoves',
+    'Gear_Filter_Assists_Plural',
     'Collection_NodeModifiers',
+    'Maze_Artifacts',
     'Ranked_Rating', # unused (pluralized in css)
     'Loading_Status_Loading',
     'Popup_Error_Header',
@@ -80,6 +82,8 @@ common = {key: {language: corpus[language][key] for language in corpus} for key 
 
 file.mkdir('data_processing/output')
 file.save(common, 'data_processing/output/common.json', True)
+
+file.save(corpus['en'], 'data_processing/output/corpus_en.json', True) # export the entire corpus too, in case searching is needed
 
 # regex-search for:
 #     "(.+?)": "(.+?)",?
