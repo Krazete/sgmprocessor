@@ -319,6 +319,32 @@ def get_bbs():
             }
     return bbs
 
+def get_gss():
+    gss = {}
+    for character in get_monos('AssistCharacterData'):
+        for ptr in character['assistMoves']:
+            gs = sa0_get_id(ptr)
+            if gs['isInCompetitiveCollection']:
+                continue
+            id = create_id(gss, gs)
+            icon = sa0_get_id(gs['palettizedIcon'])
+            icon_name = icon['dynamicSprite']['resourcePath'].split('/')[-1]
+            gss[id] = {
+                'base': character['humanReadableGuid'],
+                'icon': icon_name,
+                'title': gs['title'],
+                'name': gs['variantName'],
+                'type': 1,
+                'tier': gs['tier'],
+                'gear': gs['gearDamageTier'],
+                'cost': gs['gearPointsCost'],
+                'attack': gs['attackDamageMultipliers'],
+                'damage': gs['damageIndicatorLevels'],
+                'strength': gs['strengthLevel'],
+                'ability': build_ability(gs['signatureAbility'])
+            }
+    return gss
+
 def get_catalysts():
     catalysts = {}
     for catalyst in get_monos('CollectibleNodeModifierData'):
@@ -557,6 +583,7 @@ if __name__ == '__main__':
     variants = get_variants()
     sms = get_sms()
     bbs = get_bbs()
+    gss = get_gss()
     catalysts = get_catalysts()
     artifacts = get_artifacts()
 
@@ -568,6 +595,7 @@ if __name__ == '__main__':
     file.save(variants, 'data_processing/output/variants.json', True)
     file.save(sms, 'data_processing/output/sms.json', True)
     file.save(bbs, 'data_processing/output/bbs.json', True)
+    file.save(gss, 'data_processing/output/gss.json', True)
     file.save(catalysts, 'data_processing/output/catalysts.json', True)
     file.save(artifacts, 'data_processing/output/artifacts.json', True)
 
@@ -576,6 +604,7 @@ if __name__ == '__main__':
     corpus_keys |= get_corpus_keys(variants)
     corpus_keys |= get_corpus_keys(sms)
     corpus_keys |= get_corpus_keys(bbs)
+    corpus_keys |= get_corpus_keys(gss)
     corpus_keys |= get_corpus_keys(catalysts)
     corpus_keys |= get_corpus_keys(artifacts)
 
