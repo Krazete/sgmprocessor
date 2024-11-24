@@ -337,10 +337,10 @@ def get_gss():
                 'type': 1,
                 'tier': gs['tier'],
                 'element': gs['element'],
-                'gear': gs['gearDamageTier'],
-                'cost': gs['gearPointsCost'],
+                # 'gear': gs['gearDamageTier'],
+                # 'cost': gs['gearPointsCost'],
                 'attack': gs['attackDamageMultipliers'],
-                'damage': gs['damageIndicatorLevels'],
+                # 'damage': gs['damageIndicatorLevels'],
                 'strength': gs['strengthLevel'],
                 # 'bar': gs['superbarCost'], # idk what this is
                 # 'rate': get_true_value(gs['usageProbabilityMultiplier']), # idk what this is

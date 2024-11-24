@@ -50,6 +50,7 @@ keys = [
 
     'Status_Unblockable',
     'SM_Damage',
+    'GearDetails_AssistBonusDamage',
     'None',
     'Dmg_00_VeryLow',
     'Dmg_01_Low',
