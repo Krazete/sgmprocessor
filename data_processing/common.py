@@ -44,6 +44,7 @@ keys = [
     'SkillTree_CharacterAbility_Title',
     'CharacterDetails_SA',
     'SkillTree_SuperAbility_Title',
+    'Key_PrestigeAbility',
     'LabBattle_Map_Offense_Main',
     'LabBattle_Map_Defense_Main',
 
