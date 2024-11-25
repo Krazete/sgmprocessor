@@ -7,13 +7,17 @@ spectral_log = {
     'Beowulf': [61],
     'BigBand': [53],
     'BlackDahlia': [47, 62, 64],
+    'BrainDrain': [45],
     'Cerebella': [34],
     'Eliza': [66],
     'Fukua': [27, 28],
+    "Marie": [50, 51, 54],
+    'Minette': [72],
     'Parasoul': [37],
     'RoboFortune': [49, 50, 52, 53],
     'Squigly': [43],
-    'Umbrella': [35, 36, 47]
+    'Umbrella': [35, 36, 47],
+    "Valentine": [38] # not necessary; only used in Final Fang card art
 }
 
 def get_mask(im, character=None):
