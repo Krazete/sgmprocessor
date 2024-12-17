@@ -127,7 +127,7 @@ def mine_loot(loot, showID=False):
         case 26:
             gearptr = loot['gear']
             gear = sa0_get_id(gearptr)
-            extra = '{}, {}'.format(gear['title'].split('_')[1], corpus['en'][gear['title']], gear['description']) # todo: detect base guest star properly and differentiate variants
+            extra = '{}, {}'.format(gear['title'].split('_')[1], corpus['en'][gear['title']]) # todo: detect base guest star properly and differentiate variants
         case _:
             if lootType not in lootTypes:
                 from pprint import pprint
