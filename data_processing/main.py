@@ -154,7 +154,7 @@ def build_ability(abilityptr):
                     try:
                         return modifier[suby]
                     except:
-                        return modifier[suby.lower()] # hacky fix for rBlonde
+                        return modifier[suby.lower()] # hacky fix for rBlonde (Regally Blonde)
                 if 'delayedModifier' in modifier:
                     delay = sig_get_id(modifier['delayedModifier'])
                     if 'id' in delay and delay['id'] == subx:
@@ -213,6 +213,8 @@ def build_ability(abilityptr):
             if '.' not in sub:
                 continue
             subx, suby = sub.split('.')
+            if sub == 'PROB.Probability': # hacky fix for pIcon (Don Passione)
+                suby = 'Value'
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
         blah = { # todo: refine the addition of the title attribute for marquee abilities
             'description': feature['description'],
