@@ -4,7 +4,7 @@ import UnityPy
 from functools import lru_cache
 from data_processing import file
 
-# DATA INITIALIZATION
+### DATA INITIALIZATION ###
 
 apk = UnityPy.load('data_processing/input/base.apk')
 for sa0 in apk.assets:
@@ -26,7 +26,7 @@ sig = UnityPy.load('data_processing/input/signatureabilities')
 with open('data_processing/input/typetrees.json', 'r') as fp:
     typetrees = json.load(fp)
 
-# MAIN FUNCTIONS
+### MAIN FUNCTIONS ###
 
 def read_obj(obj):
     typetree = typetrees[obj.read().m_Script.read().m_Name]
@@ -68,14 +68,14 @@ def create_id(parent, data):
     id = data['humanReadableGuid']
     if id == '':
         id = data['guid']
-        print('Unintuitive ID:', id) # todo: make better message here
+        warn('Unintuitive ID:', id, expected=True) # todo: make better message here
 
     dupe = False
     while id in parent:
         dupe = True
         id += '_'
     if dupe: # warn about a possible ID inconsistency which may need manual fixing
-        print('WARNING: A non-unique ID has been detected and renamed:', id)
+        warn('A non-unique ID has been detected and renamed:', id, expected=(id == 'rCopy_' or '-sm-' in id or '-bb-' in id))
 
     return id
 
@@ -190,7 +190,7 @@ def build_ability(abilityptr):
                 sublevel = subtier['unlockAtLevel']
                 subvalue = build_value(subx, suby, level, subtier, subfeature)
                 if subvalue:
-                    print('Warning: Value for ability extracted from feature without regard for tier level.')
+                    warn('Value for ability extracted from feature without regard for tier level.')
                     print('\tSubstitution:', subx, suby)
                     print('\tValue:', get_true_value(subvalue))
                     print('\tLevel:', level)
@@ -406,7 +406,7 @@ def get_corpus_keys(data):
             keys |= get_corpus_keys(data[key])
     return keys
 
-# ANALYSIS FUNCTIONS
+### ANALYSIS ###
 
 def tally_monotypes():
     monotypes = {}
@@ -555,6 +555,11 @@ def analyze_ability(id):
     #     if key[:2] != 'm_':
     #         print(key, tier[key])
 
+### UTILITY ###
+
+def warn(*args, expected=[None]):
+    print('(ignore)' if expected == True or expected[0] in expected[1:] else '[WARNING]', *args)
+
 def sign(n):
     return 1 if n > 0 else -1 if n < 0 else 0
 
@@ -568,18 +573,19 @@ def check_sas():
             constant = True
             for j in range(len(tiers[0])):
                 if tiers[0][j] == None or tiers[1][j] == None or tiers[2][j] == None:
-                    print('WARNING: \'None\' detected in SA:', key)
+                    warn('\'None\' detected in SA:', key, expected=[(key, j), ('hCat', 2), ('wishfulEater', 2)])
                     if tiers[0][j] == None and tiers[1][j] == None and tiers[2][j] == None:
-                        print('\t(This affects all tiers, so this is probably ignorable.)')
+                        if j > 1:
+                            print('\t(Probably ignorable, as this affects all tiers and occurs with SA{}.)'.format(j + 1))
                     continue
                 avb = tiers[0][j] - tiers[1][j]
                 bvc = tiers[1][j] - tiers[2][j]
                 if sign(avb) != sign(bvc):
-                    print('Variant {}\'s SA{} is nonmonotonic at index {}: {}'.format(key, i, j, tiers))
+                    warn('Variant {}\'s SA{} is nonmonotonic at index {}: {}'.format(key, i, j, tiers), expected=[key, 'pShoot'])
                 if sign(avb) != 0 or sign(bvc) != 0:
                     constant = False
             if constant:
-                print('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
+                warn('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
 
 if __name__ == '__main__':
     characters = get_characters()
@@ -590,7 +596,7 @@ if __name__ == '__main__':
     catalysts = get_catalysts()
     artifacts = get_artifacts()
 
-    check_sas() # expected: pShoot
+    check_sas()
 
     file.mkdir('data_processing/output')
 
