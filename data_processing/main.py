@@ -213,7 +213,7 @@ def build_ability(abilityptr):
             if '.' not in sub:
                 continue
             subx, suby = sub.split('.')
-            if sub == 'PROB.Probability': # hacky fix for pIcon (Don Passione)
+            if feature['description'] == 'Char_Eliza_D_V3_SA_Desc' and sub == 'PROB.Probability': # hacky fix for pIcon (Don Passione)
                 suby = 'Value'
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
         blah = { # todo: refine the addition of the title attribute for marquee abilities
