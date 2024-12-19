@@ -111,6 +111,7 @@ def build_prestige_ability(abilityptr, cid):
         if 'title' in component and 'description' in component:
             match cid:
                 case 'an': extra = {'starPower': 1}
+                case 'bb': extra = {'comboCount': get_extra(component['comboCountCondition'], 'count')}
                 case 'be': extra = {'secondsElapsed': component['secondsElapsed']}
                 case 'mf': extra = {'evasion': get_extra(component['evasionModifier'], 'duration')} # interchangeable with 'guardBreakModifier'
                 case 'um': extra = {'hungerDifference': 1, 'regen': get_extra(component['regenModifier'], 'percentMaxLife')}
