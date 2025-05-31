@@ -231,7 +231,7 @@ def pipe_all(f):
     import sys, traceback
     stdout = sys.stdout
     try:
-        with open('data_processing/output/odds/{}.txt'.format(f.__name__), 'w') as fp:
+        with open('data_processing/output/sgmodds/{}.txt'.format(f.__name__), 'w') as fp:
             sys.stdout = fp
             f('')
         sys.stdout = stdout
@@ -242,7 +242,7 @@ def pipe_all(f):
 
 if __name__ == '__main__':
     file.mkdir('data_processing/output')
-    file.mkdir('data_processing/output/odds')
+    file.mkdir('data_processing/output/sgmodds')
     pipe_all(event_search)
     pipe_all(relic_search)
     pipe_all(misc_search)

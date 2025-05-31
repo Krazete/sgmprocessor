@@ -1,5 +1,17 @@
 #!/bin/bash
 
+read -p "Delete base and DummyDll? (y/n)"$'\n' delbad
+if [[ $delbad == [Yy] ]]; then
+    rm -r data_processing/input/base
+    rm -r data_processing/input/DummyDll
+    echo "Folders deleted."
+else
+    echo "Folders retained."
+fi
+
+adb start-server
+read -p "Press any key to start."$'\n' -r -n 1 -s
+
 phone=sdcard/Android/data/com.autumn.skullgirls/files/
 dp=data_processing/input/
 ip=image_processing/input/
@@ -30,3 +42,6 @@ adb pull -a $phone"palettizedimages" $ip"palettizedimages"
 adb pull -a $phone"cosmetics" $ip"cosmetics"
 adb pull -a $phone"liveops" $ip"liveops"
 adb pull -a $phone"talkingheads" $ip"talkingheads"
+
+echo "Extraction complete."
+read -p "Press any key to exit." -r -n 1 -s
