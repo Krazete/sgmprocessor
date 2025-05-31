@@ -1,12 +1,17 @@
 import os
 import re
+import json
 from PIL import Image, ImageOps, ImageChops
 from image_processing import file
-from image_processing.portrait_ids import fid, vid
+
+with open('image_processing/input/portrait_cid.json', 'r') as fp:
+    cid = json.load(fp)
+with open('image_processing/input/portrait_vid.json', 'r') as fp:
+    vid = json.load(fp)
 
 if __name__ == '__main__':
-    fid_suffixes = '|'.join([id.split(' ')[-1] for id in fid])
-    pattern = re.compile('(?:{})_(.+)_PortraitMarquee_'.format(fid_suffixes))
+    cid_suffixes = '|'.join([id.split(' ')[-1] for id in cid])
+    pattern = re.compile('(?:{})_(.+)_PortraitMarquee_'.format(cid_suffixes))
     scale = 3 / 10
 
     dir_shadow = 'image_processing/input/mask/shadow'
@@ -35,6 +40,6 @@ if __name__ == '__main__':
                     scaled_portrait = portrait.resize((int(dim * scale) for dim in portrait.size), Image.Resampling.LANCZOS)
                     # save with ids instead of names
                     variant = re.sub('[^a-zA-Z0-9]', '', stems[0])
-                    file.mkdir(os.path.join(dir_portrait, fid[character]))
+                    file.mkdir(os.path.join(dir_portrait, cid[character]))
                     palettized_portrait = scaled_portrait.convert('P')
-                    palettized_portrait.save(os.path.join(dir_portrait, fid[character], vid[variant] + '.png'))
+                    palettized_portrait.save(os.path.join(dir_portrait, cid[character], vid[variant] + '.png'))

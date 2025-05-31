@@ -1,10 +1,10 @@
 import os
 import re
+import json
 import UnityPy
 from PIL import Image, ImageChops, ImageMath
 from image_processing import file
 from image_processing.gen_moves import get_mask
-from image_processing.portrait_ids import fid, vid
 
 def get_masks():
     palettizedimages = UnityPy.load('image_processing/input/palettizedimages')
@@ -24,11 +24,15 @@ def apply_mask(im, mask):
     im.putalpha(a)
 
 if __name__ == '__main__':
+    with open('image_processing/input/portrait_cid.json', 'r') as fp:
+        cid = json.load(fp)
+    with open('image_processing/input/portrait_vid.json', 'r') as fp:
+        vid = json.load(fp)
+        missing_vid = set(vid.keys())
     masks = get_masks()
 
-    nonalphanumeric = re.compile('[^a-zA-Z0-9]')
-    fid_suffixes = '|'.join([id.split(' ')[-1] for id in fid])
-    vid_pattern = re.compile('(?:{})_(.+)_PortraitMarquee_'.format(fid_suffixes))
+    cid_suffixes = '|'.join([id.split(' ')[-1] for id in cid])
+    vid_pattern = re.compile('(?:{})_(.+)_PortraitMarquee_'.format(cid_suffixes))
 
     dir_input = 'image_processing/input/portrait'
     dir_output = 'image_processing/output/portrait'
@@ -39,16 +43,23 @@ if __name__ == '__main__':
     for character in os.listdir(dir_input):
         directory = os.path.join(dir_input, character)
         if os.path.isdir(directory):
-            mask = masks[re.sub(nonalphanumeric, '', character)]
+            mask = masks[re.sub(r'\W|_', '', character)]
             for filename, im in file.iter_img(directory):
                 stems = re.findall(vid_pattern, filename)
                 if len(stems):
-                    variant = re.sub(nonalphanumeric, '', stems[0])
-                    file.mkdir(os.path.join(dir_output, fid[character]))
+                    variant = re.sub(r'\W|_', '', stems[0])
+                    file.mkdir(os.path.join(dir_output, cid[character]))
                     apply_mask(im, mask)
                     scale = 300 / im.height
                     scaled_portrait = im.resize((int(dim * scale) for dim in im.size), Image.Resampling.LANCZOS)
-                    palettized_portrait = scaled_portrait.convert('P')
-                    palettized_portrait.save(os.path.join(dir_output, fid[character], vid[variant] + '.png'))
+                    palettized_portrait = scaled_portrait.convert('P', colors=128)
+                    palettized_portrait.save(os.path.join(dir_output, cid[character], vid[variant] + '.png'))
+                    if vid[variant] == 'rCopy':
+                        palettized_portrait.save(os.path.join(dir_output, cid[character], vid[variant] + '_.png'))
+                    missing_vid.remove(variant)
                 else:
                     print('No variant detected in filename:', filename)
+    
+    print('Missing Variants:')
+    for variant in missing_vid:
+        print(variant)

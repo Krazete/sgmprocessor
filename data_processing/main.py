@@ -624,3 +624,20 @@ if __name__ == '__main__':
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
         corpus_core[''] = 'UNDEFINED'
         file.save(corpus_core, 'data_processing/output/{}.json'.format(language), True)
+    
+    portrait_cids = {}
+    for cid in characters:
+        portrait_cids.setdefault(corpus['en'][characters[cid]['name']], cid)
+    file.save(portrait_cids, 'image_processing/input/portrait_cid.json', True)
+
+    portrait_vids = {
+        'HeatSynced': 'hSync', # replaced with Fire Branded
+    }
+    for vid in variants:
+        vname = corpus['en'][variants[vid]['name']]
+        vname = re.sub('è', 'e', vname) # Très Chic
+        vname = re.sub(r'\W|_', '', vname)
+        portrait_vids.setdefault(vname, vid)
+        if vid == 'rCopy_': # Robocopy or Rough Copy
+            portrait_vids[vname] = 'rCopy'
+    file.save(portrait_vids, 'image_processing/input/portrait_vid.json', True)
