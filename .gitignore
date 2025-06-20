@@ -12,5 +12,6 @@ image_processing/input/cosmetics
 image_processing/input/liveops
 image_processing/input/palettizedimages
 image_processing/input/talkingheads
-image_processing/output
+image_processing/output/*
+!image_processing/output/stanley
 venv
