@@ -122,22 +122,23 @@
 1. Run `data_processing/main.py` if you haven't already.
    - This updates the index of character and variant names and ids.
 2. Run `image_processing/gen_portraits2.py`.
+   - This also calls `image_processing/gen_portraits4stanley.py`, creating assets for Stanley (Fel's Skullgirls Mobile Discord bot).
 
-This process used to take multiple manual steps, necessary in the absence of palettized sprites.
-I kept using this method even after learning of the palettized files, but Altar Ego Double (with her colored shadow/lines) finally forced a revision.
-In addition to stylized lines, the new method can also handle translucency (like Fukua's orbs).
-
-The old method is listed below.
-
-1. Run `image_processing/gen_masks.py`.
-2. Edit the images in `image_processing/output/mask/shadow`.
-   - Create a nice silhouette of each portrait.
-   - Use `image_processing/input/circle.png` and `image_processing/input/circle2.png` to help with edges.
-3. Edit the images in `image_processing/output/mask/color`.
-   - Cut out areas that do not contain any information about the portraits' color.
-4. Move `mask` into `image_processing/input`.
-5. Make sure `image_processing/portrait_ids.py` (now `image_processing/input/portrait_cid.json` and `image_processing/input/portrait_vid.json`) is up to date with all current variant ids.
-6. Run `image_processing/gen_portraits.py`.
+> This process used to take multiple manual steps, necessary in the absence of palettized sprites.
+> I kept using this method even after learning of the palettized files, but Altar Ego Double (with her colored shadow/lines) finally forced a revision.
+> In addition to stylized lines, the new method can also handle translucency (like Fukua's orbs).
+> 
+> The old method is listed below.
+> 
+> 1. Run `image_processing/gen_masks.py`.
+> 2. Edit the images in `image_processing/output/mask/shadow`.
+>    - Create a nice silhouette of each portrait.
+>    - Use `image_processing/input/circle.png` and `image_processing/input/circle2.png` to help with edges.
+> 3. Edit the images in `image_processing/output/mask/color`.
+>    - Cut out areas that do not contain any information about the portraits' color.
+> 4. Move `mask` into `image_processing/input`.
+> 5. Make sure `image_processing/portrait_ids.py` (now `image_processing/input/portrait_cid.json` and `image_processing/input/portrait_vid.json`) is up to date with all current variant ids.
+> 6. Run `image_processing/gen_portraits.py`.
 
 ## Other Scripts
 
