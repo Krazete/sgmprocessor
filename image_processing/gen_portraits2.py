@@ -61,8 +61,11 @@ if __name__ == '__main__':
                 else:
                     print('No variant detected in filename:', filename)
     
-    print('Missing Variants:')
-    for variant in missing_vid:
-        print(variant)
+    if missing_vid:
+        print('Missing Variants:')
+        for variant in missing_vid:
+            print(variant)
+    else:
+        print('Complete.')
     
     gen_stanley()
