@@ -216,6 +216,8 @@ def build_ability(abilityptr):
             subx, suby = sub.split('.')
             if feature['description'] == 'Char_Eliza_D_V3_SA_Desc' and sub == 'PROB.Probability': # hacky fix for pIcon (Don Passione)
                 suby = 'Value'
+            if feature['description'] == 'Char_MsFortune_SA_ReversalOfFortune_Desc' and sub == 'CURSE.Duration': # hacky fix for fCookie (Fortune Cookie)
+                suby = 'Value'
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
         blah = { # todo: refine the addition of the title attribute for marquee abilities
             'description': feature['description'],
@@ -492,6 +494,7 @@ def analyze_ability(id):
             print(component['title'])
             for featureptr in component['features']:
                 feature = sig_get_id(featureptr)
+                print('>', feature['description'])
                 substitutions = []
                 for substitution in feature['substitutions']:
                     x, y = substitution.split('.')
@@ -543,8 +546,8 @@ def analyze_ability(id):
                         for modifier in tier['additionalStringSubstitutions']:
                             if modifier['id'] == subx and suby in modifier:
                                 print(modifier['id'], modifier[suby])
-                    # if subx == 'DMG': # studying variant 'sSold'
-                    #     with open('data_processing/output/analysis_sSold.txt', 'w') as fp:
+                    # if subx == 'DMG': # study variant in depth; change subx as needed
+                    #     with open('data_processing/output/analysis_{}.txt'.format(id), 'w') as fp:
                     #         fp.write(expand(tier))
                     #     assert False
 
