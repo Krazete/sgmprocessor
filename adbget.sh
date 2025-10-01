@@ -45,3 +45,5 @@ adb pull -a $phone"talkingheads" $ip"talkingheads"
 
 echo "Extraction complete."
 read -p "Press any key to exit." -r -n 1 -s
+
+start https://github.com/Krazete/sgmprocessor/blob/master/INSTRUCTIONS.md#iii-decompile-the-apk
