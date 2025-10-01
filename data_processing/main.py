@@ -193,11 +193,9 @@ def build_ability(abilityptr):
                 sublevel = subtier['unlockAtLevel']
                 subvalue = build_value(subx, suby, level, subtier, subfeature)
                 if subvalue:
-                    warn('Value for ability extracted from feature without regard for tier level.')
-                    print('\tSubstitution:', subx, suby)
-                    print('\tValue:', get_true_value(subvalue))
-                    print('\tLevel:', level)
+                    warn('Value for ability extracted from feature without regard for tier level.') # , expected=[level, 2, 3])
                     print('\tAbility:', corpus['en'][feature['description']])
+                    print('\tLevel {}: {}.{} = {}'.format(level, subx, suby, get_true_value(subvalue)))
                     return subvalue
 
     def build_tier(tierptr, feature, substitutions):
