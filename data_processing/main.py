@@ -130,48 +130,50 @@ def build_ability(abilityptr):
     ability = sig_get_rp(abilityptr)
 
     def build_value(subx, suby, level, tier, feature):
+        def hasProperSub(thing, subx=subx, suby=suby):
+            return 'id' in thing and thing['id'] == subx and suby in thing
+
         for ptr in feature['triggerConditions']: # if it doesn't change, it's not in tiers
             modifier = sig_get_id(ptr)
-            if modifier['id'] == subx:
+            if hasProperSub(modifier):
                 return modifier[suby]
         for ptr in feature['provokerConditions']: # if it doesn't change, it's not in tiers
             modifier = sig_get_id(ptr)
-            if modifier['id'] == subx:
+            if hasProperSub(modifier):
                 return modifier[suby]
 
         for ptr in tier['triggerConditions']:
             modifier = sig_get_id(ptr)
-            if modifier['id'] == subx:
+            if hasProperSub(modifier):
                 return modifier[suby]
         for ptr in tier['provokerConditions']:
             modifier = sig_get_id(ptr)
-            if modifier['id'] == subx:
+            if hasProperSub(modifier):
                 return modifier[suby]
 
         for modifierset in tier['modifierSets']:
             for modifierptr in modifierset['modifiers']:
                 modifier = sig_get_id(modifierptr)
-                if modifier['id'] == subx:
-                    try:
-                        return modifier[suby]
-                    except:
-                        return modifier[suby.lower()] # hacky fix for rBlonde (Regally Blonde)
+                if hasProperSub(modifier):
+                    return modifier[suby]
+                elif hasProperSub(modifier, suby=suby.lower()): # hacky fix for rBlonde (Regally Blonde)
+                    return modifier[suby.lower()]
                 if 'delayedModifier' in modifier:
                     delay = sig_get_id(modifier['delayedModifier'])
-                    if 'id' in delay and delay['id'] == subx:
+                    if hasProperSub(delay):
                         return delay[suby]
                 if 'convertTo' in modifier:
                     converttt = sig_get_id(modifier['convertTo'])
-                    if 'id' in converttt and converttt['id'] == subx:
+                    if hasProperSub(converttt):
                         return converttt[suby]
                 if 'effects' in modifier:
                     for xptr in modifier['effects']:
                         x = sig_get_id(xptr['modifier'])
-                        if 'id' in x and x['id'] == subx:
+                        if hasProperSub(x):
                             return x[suby]
 
         for modifier in tier['additionalStringSubstitutions']:
-            if modifier['id'] == subx and suby in modifier:
+            if hasProperSub(modifier):
                 return modifier[suby]
 
         for subfeatureptr in feature['subFeatures']: # recurse through subfeatures
@@ -214,14 +216,21 @@ def build_ability(abilityptr):
             if '.' not in sub:
                 continue
             subx, suby = sub.split('.')
-            if feature['description'] == 'Char_Eliza_D_V3_SA_Desc' and sub == 'PROB.Probability': # hacky fix for pIcon (Don Passione)
-                suby = 'Value'
-            if feature['description'] == 'Char_MsFortune_SA_ReversalOfFortune_Desc' and sub == 'CURSE.Duration': # hacky fix for fCookie (Fortune Cookie)
+            if feature['description'] == 'Char_BlackDahlia_SA_SpecialistToolkit_Desc' and sub == 'HEALTH.Value': # hacky fix for bHazard (Biohazard)
+                subx = ''
+            if any([
+                feature['description'] == 'Char_Eliza_D_V3_SA_Desc' and sub == 'PROB.Probability', # hacky fix for pIcon (Don Passione)
+                feature['description'] == 'Char_MsFortune_SA_ReversalOfFortune_Desc' and sub == 'CURSE.Duration', # hacky fix for fCookie (Fortune Cookie)
+                feature['description'] == 'SA_Parasoul_Tears2' and sub == 'TEARDAMAGE.percentMaxLife', # hacky fix for pPride (Princess Pride)
+            ]):
                 suby = 'Value'
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
+        tierptrs = feature['tiers']
+        if feature['description'] == 'Char_Eliza_SA_RitualSacrifice_Desc': # hacky fix for Draccy (Dark Lord)
+            tierptrs = sig_get_id(feature['subFeatures'][0])['tiers']
         blah = { # todo: refine the addition of the title attribute for marquee abilities
             'description': feature['description'],
-            'tiers': [build_tier(tierptr, feature, substitutions) for tierptr in feature['tiers']]
+            'tiers': [build_tier(tierptr, feature, substitutions) for tierptr in tierptrs]
         }
         if 'title' in feature and feature['title'] != '':
             blah['title'] = feature['title']
@@ -577,12 +586,12 @@ def check_sas():
                 continue
             tiers = [tier['values'] for tier in feature['tiers']]
             constant = True
+            if len(tiers) < 3:
+                warn('Insufficient number of tiers in SA:', key)
+                continue
             for j in range(len(tiers[0])):
                 if tiers[0][j] == None or tiers[1][j] == None or tiers[2][j] == None:
-                    warn('\'None\' detected in SA:', key, expected=[(key, j), ('hCat', 2), ('wishfulEater', 2)])
-                    if tiers[0][j] == None and tiers[1][j] == None and tiers[2][j] == None:
-                        if j > 1:
-                            print('\t(Probably ignorable, as this affects all tiers and occurs with SA{}.)'.format(j + 1))
+                    warn('\'None\' detected in SA:', key, expected=[(key, j), ('hCat', 2), ('wishfulEater', 2), ('zeraora', 0)])
                     continue
                 avb = tiers[0][j] - tiers[1][j]
                 bvc = tiers[1][j] - tiers[2][j]
@@ -630,7 +639,7 @@ if __name__ == '__main__':
     
     portrait_cids = {}
     for cid in characters:
-        portrait_cids.setdefault(corpus['en'][characters[cid]['name']], cid)
+        _ = portrait_cids.setdefault(corpus['en'][characters[cid]['name']], cid) # prevent printing
     file.save(portrait_cids, 'image_processing/input/portrait_cid.json', True)
 
     portrait_vids = {
@@ -640,7 +649,7 @@ if __name__ == '__main__':
         vname = corpus['en'][variants[vid]['name']]
         vname = re.sub('è', 'e', vname) # Très Chic
         vname = re.sub(r'\W|_', '', vname)
-        portrait_vids.setdefault(vname, vid)
+        _ = portrait_vids.setdefault(vname, vid) # prevent printing
         if vid == 'rCopy_': # Robocopy or Rough Copy
             portrait_vids[vname] = 'rCopy'
     file.save(portrait_vids, 'image_processing/input/portrait_vid.json', True)
