@@ -2,6 +2,7 @@ __pycache__
 data_processing/input/base
 data_processing/input/base.apk
 data_processing/input/DummyDll
+data_processing/input/Il2CppDumper*
 data_processing/input/libil2cpp.so
 data_processing/input/localization
 data_processing/input/sgmobilegallery-export.json
