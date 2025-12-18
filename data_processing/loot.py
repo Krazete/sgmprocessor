@@ -62,12 +62,16 @@ lootTypes = {
     12: 'Rift Coin',
     15: 'Catalyst',
     16: 'Consumable',
-    # 17: 'Unknown; something in the Show Me Your Moves! prize fight',
+    17: '10+1 Retake Relic Voucher', # something in the Show Me Your Moves! prize fight',
     20: 'Energy Refill',
     23: 'Retake',
     24: 'Universal Retake',
     26: 'Guest Star',
-    27: 'Stardust'
+    27: 'Stardust',
+    28: 'Guild Chest',
+    29: 'Gold Guild Chest',
+    # 30: '',
+    # 31: '', # something in guild chests
 }
 
 def mine_loot(loot, showID=False):
@@ -108,9 +112,9 @@ def mine_loot(loot, showID=False):
         case 9:
             extra = ['Bronze', 'Silver', 'Gold', 'Diamond'][loot['rarityTier']]
         case 10:
-            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # neutral doesn't exist
+            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light', 'Random'][loot['elementType']] # neutral doesn't exist
         case 11:
-            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light'][loot['elementType']] # neutral is just a placeholder
+            extra = ['Neutral', 'Fire', 'Water', 'Air', 'Dark', 'Light', 'Random'][loot['elementType']] # neutral is just a placeholder
         case 15:
             modptr = loot['nodeModifier']
             mod = sa0_get_id(modptr)
@@ -128,6 +132,10 @@ def mine_loot(loot, showID=False):
             gearptr = loot['gear']
             gear = sa0_get_id(gearptr)
             extra = '{}, {}'.format(gear['title'].split('_')[1], corpus['en'][gear['title']]) # todo: detect base guest star properly and differentiate variants
+        case 31:
+            itemptr = loot['consumable']
+            item = sa0_get_id(itemptr)
+            extra = corpus['en'][item['title']]
         case _:
             if lootType not in lootTypes:
                 from pprint import pprint
