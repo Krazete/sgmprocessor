@@ -71,7 +71,7 @@ lootTypes = {
     28: 'Guild Chest',
     29: 'Gold Guild Chest',
     # 30: '',
-    # 31: '', # something in guild chests
+    31: 'Free Undying Ticket',
 }
 
 def mine_loot(loot, showID=False):
