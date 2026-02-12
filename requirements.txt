@@ -1,4 +1,4 @@
 UnityPy==1.9.22
-Pillow==10.3.0
+Pillow==12.1.1
 clr_loader==0.2.4
 pythonnet==3.0.1
