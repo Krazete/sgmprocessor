@@ -21,7 +21,10 @@
 *If you have an iOS instead of an Android, download the APK from someplace like [APKPure](https://apkpure.com/skullgirls-fighting-rpg/com.autumn.skullgirls) instead. Rename the downloaded APK to `base.apk` and skip this section.*
 
 1. Install the Android Debug Bridge.
-   - MacOS: In the Terminal, run `brew install android-platform-tools`.
+   - MacOS:
+     ```sh
+     brew install android-platform-tools
+     ```
    - Windows: Download [SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools.html#downloads) and move the folder `platform-tools` somewhere safe. To give the Command Prompt global access to the adb command, you must also add `platform-tools` to your system PATH:
      1. Open System Settings > System > About.
      2. From the right sidebar, click Advanced System Settings to open System Properties.
@@ -34,8 +37,14 @@
       - If you don't see this option, turn activate developer mode by going to System > About and tapping Version > Build Number seven times.
    3. Make sure USB Configuration is set to MTP (Media Transfer Protocol).
 3. Open the Command Prompt or Terminal and extract the APK with ADB.
-   1. Run `adb devices` to make sure your device is accessible. If the list is empty, recheck the previous step.
-   2. Run `adb shell pm list packages -3 -f` to list directories of all APKs.
+   1. Make sure your device is accessible. If the returned list is empty, recheck the previous step.
+      ```sh
+      adb devices
+      ```
+   2. List directories of all APKs.
+      ```sh
+      adb shell pm list packages -3 -f
+      ```
    3. Find the line with `com.autumn.skullgirls`. Copy the directory path (between `package:` and `/base.apk=com.autumn.skullgirls`).
    5. Navigate to wherever you want the extracted files to go.
    6. Run `adb pull THE_PATH_YOU_JUST_COPIED`. This extracts the folder to your current directory. The extracted folder will contain `base.apk` and `lib`.
@@ -46,7 +55,10 @@
 
 1. Install [APKTool](https://ibotpeaches.github.io/Apktool/install).
 2. In the Command Prompt or Terminal, navigate to the directory where `base.apk` is located.
-3. Enter `apktool d base.apk -f -o base`. This decompiles `base.apk` into the folder named `base`.
+3. Decompile `base.apk` into the folder named `base`.
+   ```sh
+   apktool d base.apk -f -o base
+   ```
 
 ## IV. Generate DummyDll
 
@@ -71,12 +83,28 @@
 > A virtual environment is recommended so that the required libraries can be installed to this project folder instead of your entire system.
 
 1. Open the Command Prompt or Terminal and navigate to this project folder.
-2. Create a virtual environment with `python -m venv venv`.
+2. Create a virtual environment.
+   ```sh
+   python -m venv venv
+   ```
 3. Activate the virtual environment.
-   - MacOS: Enter `source venv/bin/activate`.
-   - Windows: Enter `venv/Scripts/Activate.ps1`. You may need to enter `Set-ExecutionPolicy Unrestricted -Scope Process` first if there is a security error.
-4. Install this project's requirements with `pip install -r requirements.txt`.
-   - You can enter `pip freeze` to see the installed libraries.
+   - MacOS:
+      ```sh
+      source venv/bin/activate
+      ```
+   - Windows:
+      ```sh
+      venv/Scripts/Activate.ps1
+      ```
+      If there is a security error, run the following line and then try the above again.
+      ```sh
+      Set-ExecutionPolicy Unrestricted -Scope Process
+      ```
+4. Install this project's requirements.
+   ```sh
+   pip install -r requirements.txt
+   ```
+   You can enter `pip freeze` to see the installed libraries.
 5. Exit the virtual environment with `deactivate`. The libraries should remain accessible. If they don't, activate the environment again to run any scripts.
 
 ## Running Scripts
@@ -84,6 +112,15 @@
 - If using Visual Studio Code, press `Shift+Enter` to run selected lines.
 - If using the Command Prompt or Terminal, navigate to this project folder and enter `python -m FOLDER.SCRIPT` to run the script `FOLDER/SCRIPT.py`.
   - E.g. `python -m data_processing.main`.
+
+> Copy and paste the following to run all necessary scripts.
+> ```sh
+> python -m data_processing.gen_typetrees
+> python -m data_processing.main
+> python -m data_processing.loot
+> python -m image_processing.gen_sprites
+> python -m image_processing.gen_portraits2
+> ```
 
 ---
 
