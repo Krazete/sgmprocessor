@@ -12,7 +12,6 @@ def dichotimize_gif(im):
     return frames
 
 if __name__ == '__main__':
-    file.mkdir('image_processing/output')
     file.mkdir('image_processing/output/throbber')
 
     for filename, im in file.iter_img('image_processing/input/throbber'):

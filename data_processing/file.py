@@ -35,5 +35,4 @@ def save(data, path, pretty=False):
 
 def mkdir(directory):
     'Create directory unless it already exists.'
-    if not os.path.exists(directory):
-        os.mkdir(directory)
+    os.makedirs(directory, exist_ok=True)

@@ -245,7 +245,6 @@ def pipe_all(f):
         print(e)
 
 if __name__ == '__main__':
-    file.mkdir('data_processing/output')
     file.mkdir('data_processing/output/sgmodds')
     pipe_all(event_search)
     pipe_all(relic_search)

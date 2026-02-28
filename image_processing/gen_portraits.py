@@ -18,9 +18,6 @@ if __name__ == '__main__':
     dir_color = 'image_processing/input/mask/color'
     dir_portrait = 'image_processing/output/portrait'
 
-    file.mkdir('image_processing/output')
-    file.mkdir(dir_portrait)
-
     capture = 'image_processing/input/portrait'
     for character in os.listdir(capture):
         directory = os.path.join(capture, character)

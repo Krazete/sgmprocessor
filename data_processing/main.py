@@ -611,15 +611,15 @@ if __name__ == '__main__':
 
     check_sas()
 
-    file.mkdir('data_processing/output')
+    file.mkdir('data_processing/output/sgm/data')
 
-    file.save(characters, 'data_processing/output/characters.json', True)
-    file.save(variants, 'data_processing/output/variants.json', True)
-    file.save(sms, 'data_processing/output/sms.json', True)
-    file.save(bbs, 'data_processing/output/bbs.json', True)
-    file.save(gss, 'data_processing/output/gss.json', True)
-    file.save(catalysts, 'data_processing/output/catalysts.json', True)
-    file.save(artifacts, 'data_processing/output/artifacts.json', True)
+    file.save(characters, 'data_processing/output/sgm/data/characters.json', True)
+    file.save(variants, 'data_processing/output/sgm/data/variants.json', True)
+    file.save(sms, 'data_processing/output/sgm/data/sms.json', True)
+    file.save(bbs, 'data_processing/output/sgm/data/bbs.json', True)
+    file.save(gss, 'data_processing/output/sgm/data/gss.json', True)
+    file.save(catalysts, 'data_processing/output/sgm/data/catalysts.json', True)
+    file.save(artifacts, 'data_processing/output/sgm/data/artifacts.json', True)
 
     corpus_keys = set()
     corpus_keys |= get_corpus_keys(characters)
@@ -633,7 +633,7 @@ if __name__ == '__main__':
     for language in corpus:
         corpus_core = {key: corpus[language][key] for key in corpus_keys if key in corpus[language]}
         corpus_core[''] = 'UNDEFINED'
-        file.save(corpus_core, 'data_processing/output/{}.json'.format(language), True)
+        file.save(corpus_core, 'data_processing/output/sgm/data/{}.json'.format(language), True)
     
     portrait_cids = {}
     for cid in characters:

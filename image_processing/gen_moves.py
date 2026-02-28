@@ -72,8 +72,7 @@ def petrify_sprite(im, character=None):
 if __name__ == '__main__':
     palettizedimages = UnityPy.load('image_processing/input/palettizedimages')
 
-    file.mkdir('image_processing/output')
-    file.mkdir('image_processing/output/move')
+    file.mkdir('image_processing/output/sgm/image/move')
 
     for key in palettizedimages.container:
         obj = palettizedimages.container[key].read()
@@ -83,4 +82,4 @@ if __name__ == '__main__':
             scale = 140 / sprite.width # because of image resolution difference between old and new sprites
             scaled_sprite = sprite.resize((int(dim * scale) for dim in sprite.size), Image.Resampling.LANCZOS)
             palettized_sprite = scaled_sprite.convert('RGBA').convert('P') # intermediate RGBA conversion preserves transparency
-            palettized_sprite.save('image_processing/output/move/{}.png'.format(obj.name.lower()))
+            palettized_sprite.save('image_processing/output/sgm/image/move/{}.png'.format(obj.name.lower()))

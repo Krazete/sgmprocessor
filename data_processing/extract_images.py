@@ -3,14 +3,10 @@ from PIL import Image
 from data_processing import file
 from argparse import ArgumentParser
 
-file.mkdir('data_processing')
-file.mkdir('data_processing/output')
-
 apk = UnityPy.load('data_processing/input/base.apk')
 
 def extract_images(query, directory='image', fltr=None, mode='P', first_only=False):
     path = 'data_processing/output/' + directory
-    file.mkdir(path)
     file.mkdir(path + '/Sprite')
     file.mkdir(path + '/Texture2D')
     saved = {'Sprite': {}, 'Texture2D': {}}

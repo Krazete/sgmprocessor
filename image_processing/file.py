@@ -26,5 +26,4 @@ def save_gif(frames, path, delay=-1, show_error=True):
 
 def mkdir(directory):
     'Create directory unless it already exists.'
-    if not os.path.exists(directory):
-        os.mkdir(directory)
+    os.makedirs(directory, exist_ok=True)

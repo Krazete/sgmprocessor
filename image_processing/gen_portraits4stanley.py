@@ -14,10 +14,7 @@ def gen_stanley():
     vid_pattern = re.compile('(?:{})_(.+)_PortraitMarquee_'.format(cid_suffixes))
 
     dir_input = 'image_processing/input/portrait'
-    dir_output = 'image_processing/output/stanley'
-
-    file.mkdir('image_processing/output')
-    file.mkdir(dir_output)
+    dir_output = 'image_processing/output/sgm/image/stanley'
 
     for character in os.listdir(dir_input):
         directory = os.path.join(dir_input, character)

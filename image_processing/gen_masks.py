@@ -15,8 +15,6 @@ def get_double(im):
     return b, b.convert('1', dither=False)
 
 if __name__ == '__main__':
-    file.mkdir('image_processing/output')
-    file.mkdir('image_processing/output/mask')
     file.mkdir('image_processing/output/mask/shadow')
     file.mkdir('image_processing/output/mask/color')
 
