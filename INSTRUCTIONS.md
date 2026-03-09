@@ -92,7 +92,10 @@
       ```sh
       source venv/bin/activate
       ```
-   - Windows:
+   - Windows: (depends on the shell; Command Prompt or Powershell)
+      ```sh
+      venv/Scripts/activate
+      ```
       ```sh
       venv/Scripts/Activate.ps1
       ```
