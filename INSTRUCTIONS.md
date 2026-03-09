@@ -94,7 +94,7 @@
       ```
    - Windows: (depends on the shell; Command Prompt or Powershell)
       ```sh
-      venv/Scripts/activate
+      venv\Scripts\activate
       ```
       ```sh
       venv/Scripts/Activate.ps1
