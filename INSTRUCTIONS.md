@@ -66,7 +66,7 @@
    - MacOS: Use an [online version of Il2CppDumper](https://il2cppdumper.com).
    - Windows: Download [Il2CppDumper](https://github.com/Perfare/Il2CppDumper). Open `Il2CppDumper.exe`.
 2. It will ask for `libil2cpp.so` and then `global-metadata.dat`.
-   - `libil2cpp.so` is in `lib/arm64`.
+   - `libil2cpp.so` is either in `lib/arm64` or on the same level as `base`.
    - `global-metadata.dat` is in `base/assets/bin/Data/Managed/Metadata`.
 3. A folder named `DummyDll` will be generated. Move `DummyDll` into `data_processing/input`.
 
@@ -123,6 +123,7 @@
 > python -m data_processing.loot
 > python -m image_processing.gen_sprites
 > python -m image_processing.gen_portraits2
+> 
 > ```
 
 ---
