@@ -123,6 +123,7 @@
 > python -m data_processing.loot
 > python -m image_processing.gen_sprites
 > python -m image_processing.gen_portraits2
+> moveout.sh
 > 
 > ```
 
