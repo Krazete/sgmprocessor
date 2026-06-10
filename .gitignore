@@ -1,4 +1,5 @@
 __pycache__
+venv
 data_processing/input/base
 data_processing/input/base.apk
 data_processing/input/DummyDll
@@ -14,4 +15,4 @@ image_processing/input/liveops
 image_processing/input/palettizedimages
 image_processing/input/talkingheads
 image_processing/output
-venv
+wikibotlogin.txt

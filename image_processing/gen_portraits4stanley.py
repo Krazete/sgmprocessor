@@ -30,3 +30,6 @@ def gen_stanley():
                     palettized_portrait.save(os.path.join(dir_output, cid[character], vid[variant] + '.png'))
                     if vid[variant] == 'rCopy':
                         palettized_portrait.save(os.path.join(dir_output, cid[character], vid[variant] + '_.png'))
+
+if __name__ == '__main__':
+    gen_stanley()

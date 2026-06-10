@@ -116,16 +116,21 @@
 - If using the Command Prompt or Terminal, navigate to this project folder and enter `python -m FOLDER.SCRIPT` to run the script `FOLDER/SCRIPT.py`.
   - E.g. `python -m data_processing.main`.
 
-> Copy and paste the following to run all necessary scripts.
-> ```sh
-> python -m data_processing.gen_typetrees
-> python -m data_processing.main
-> python -m data_processing.loot
-> python -m image_processing.gen_sprites
-> python -m image_processing.gen_portraits2
-> moveout.sh
-> 
-> ```
+> Run `update.sh` to run all necessary scripts. This includes the following:
+> * `/data_processing/`
+>   * `gen_typetrees.py`
+>   * `main.py`
+>   * `loot.py`
+> * `/image_processing/`
+>   * `gen_sprites.py`
+>   * `gen_portraits2.py`
+>   * `gen_portraits4stanley.py`
+> * `update_outputs.py`
+> * `update_versions.py`
+> * `../sgmpalette/`
+>   * `update_directory.py`
+> * `update_wiki.py`
+> The scripts prefixed with `update_` expect the `sgm`, `sgmpalette`, and `sgmodds` repos to exist at the same level as this repository.
 
 ---
 
@@ -164,23 +169,22 @@
 1. Run `data_processing/main.py` if you haven't already.
    - This updates the index of character and variant names and ids.
 2. Run `image_processing/gen_portraits2.py`.
-   - This also calls `image_processing/gen_portraits4stanley.py`, creating assets for Stanley (Fel's Skullgirls Mobile Discord bot).
-
-> This process used to take multiple manual steps, necessary in the absence of palettized sprites.
-> I kept using this method even after learning of the palettized files, but Altar Ego Double (with her colored shadow/lines) finally forced a revision.
-> In addition to stylized lines, the new method can also handle translucency (like Fukua's orbs).
-> 
-> The old method is listed below.
-> 
-> 1. Run `image_processing/gen_masks.py`.
-> 2. Edit the images in `image_processing/output/mask/shadow`.
->    - Create a nice silhouette of each portrait.
->    - Use `image_processing/input/circle.png` and `image_processing/input/circle2.png` to help with edges.
-> 3. Edit the images in `image_processing/output/mask/color`.
->    - Cut out areas that do not contain any information about the portraits' color.
-> 4. Move `mask` into `image_processing/input`.
-> 5. Make sure `image_processing/portrait_ids.py` (now `image_processing/input/portrait_cid.json` and `image_processing/input/portrait_vid.json`) is up to date with all current variant ids.
-> 6. Run `image_processing/gen_portraits.py`.
+   > This process used to take multiple manual steps, necessary in the absence of palettized sprites.
+   > I kept using this method even after learning of the palettized files, but Altar Ego Double (with her colored shadow/lines) finally forced a revision.
+   > In addition to stylized lines, the new method can also handle translucency (like Fukua's orbs).
+   > 
+   > The old method is listed below.
+   > 
+   > 1. Run `image_processing/gen_masks.py`.
+   > 2. Edit the images in `image_processing/output/mask/shadow`.
+   >    - Create a nice silhouette of each portrait.
+   >    - Use `image_processing/input/circle.png` and `image_processing/input/circle2.png` to help with edges.
+   > 3. Edit the images in `image_processing/output/mask/color`.
+   >    - Cut out areas that do not contain any information about the portraits' color.
+   > 4. Move `mask` into `image_processing/input`.
+   > 5. Make sure `image_processing/portrait_ids.py` (now `image_processing/input/portrait_cid.json` and `image_processing/input/portrait_vid.json`) is up to date with all current variant ids.
+   > 6. Run `image_processing/gen_portraits.py`.
+3. Run `image_processing/gen_portraits4stanley.py` to create assets for Stanley (Fel's Skullgirls Mobile Discord bot).
 
 ## Other Scripts
 

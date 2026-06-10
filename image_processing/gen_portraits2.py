@@ -5,7 +5,6 @@ import UnityPy
 from PIL import Image
 from image_processing import file
 from image_processing.gen_moves import get_mask
-from image_processing.gen_portraits4stanley import gen_stanley
 
 def get_masks():
     palettizedimages = UnityPy.load('image_processing/input/palettizedimages')
@@ -64,5 +63,3 @@ if __name__ == '__main__':
             print(variant)
     else:
         print('Complete.')
-    
-    gen_stanley()

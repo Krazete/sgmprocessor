@@ -418,6 +418,12 @@ def get_corpus_keys(data):
             keys |= get_corpus_keys(data[key])
     return keys
 
+def get_version():
+    for obj in apk.objects:
+        if obj.type.name == 'MonoBehaviour' and obj.read().name == 'VersionData':
+            vd = read_obj(obj)
+            return '{}.{}.{}'.format(vd['major'], vd['minor'], vd['patch'])
+
 ### ANALYSIS ###
 
 def tally_monotypes():
@@ -651,3 +657,7 @@ if __name__ == '__main__':
         if vid == 'rCopy_': # Robocopy or Rough Copy
             portrait_vids[vname] = 'rCopy'
     file.save(portrait_vids, 'image_processing/input/portrait_vid.json', True)
+
+    version = get_version()
+    with open('data_processing/output/version.txt', 'w') as fp:
+        fp.write(version)
