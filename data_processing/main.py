@@ -158,6 +158,10 @@ def build_ability(abilityptr):
                     return modifier[suby]
                 elif hasProperSub(modifier, suby=suby.lower()): # hacky fix for rBlonde (Regally Blonde)
                     return modifier[suby.lower()]
+                if 'modifierToApply' in modifier: # hacky fix?; only used by wCard (Wildcard) afaik
+                    m2a = sig_get_id(modifier['modifierToApply'])
+                    if hasProperSub(m2a):
+                        return m2a[suby]
                 if 'delayedModifier' in modifier:
                     delay = sig_get_id(modifier['delayedModifier'])
                     if hasProperSub(delay):
@@ -214,12 +218,13 @@ def build_ability(abilityptr):
             if '.' not in sub:
                 continue
             subx, suby = sub.split('.')
-            if feature['description'] == 'Char_BlackDahlia_SA_SpecialistToolkit_Desc' and sub == 'HEALTH.Value': # hacky fix for bHazard (Biohazard)
-                subx = ''
+            if feature['description'] == 'Char_Peacock_SA_KillingJoke_Desc' and sub == 'REGEN.PERCENTMAXLIFE': # hacky fix for wCard (Wildcard)
+                suby = 'percentMaxLife'
             if any([
                 feature['description'] == 'Char_Eliza_D_V3_SA_Desc' and sub == 'PROB.Probability', # hacky fix for pIcon (Don Passione)
                 feature['description'] == 'Char_MsFortune_SA_ReversalOfFortune_Desc' and sub == 'CURSE.Duration', # hacky fix for fCookie (Fortune Cookie)
                 feature['description'] == 'SA_Parasoul_Tears2' and sub == 'TEARDAMAGE.percentMaxLife', # hacky fix for pPride (Princess Pride)
+                feature['description'] == 'Char_Squigly_SA_Wightout_Desc_NEW' and sub == 'WITHER.Duration', # hacky fix for dOWint (DeadOfWinter)
             ]):
                 suby = 'Value'
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
@@ -494,7 +499,7 @@ def expand(obj): # pretty print an object, including all m_PathID pointers
     dfs(obj, 0)
     return '\n'.join(s)
 
-def analyze_ability(id):
+def analyze_ability(id, subX=None):
     for variant in get_monos('VariantCharacterData'):
         if is_collectible(variant) and variant['humanReadableGuid'] == id:
             break
@@ -559,10 +564,10 @@ def analyze_ability(id):
                         for modifier in tier['additionalStringSubstitutions']:
                             if modifier['id'] == subx and suby in modifier:
                                 print(modifier['id'], modifier[suby])
-                    # if subx == 'DMG': # study variant in depth; change subx as needed
-                    #     with open('data_processing/output/analysis_{}.txt'.format(id), 'w') as fp:
-                    #         fp.write(expand(tier))
-                    #     assert False
+                    if subX and subx == subX: # study variant in depth; change subX as needed
+                        with open('data_processing/output/analysis_{}.txt'.format(id), 'w') as fp:
+                            fp.write(expand(tier))
+                        return
 
     #             break
 
