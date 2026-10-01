@@ -1,3 +1,4 @@
+import sys
 from data_processing.main import *
 corpus['en'][''] = ''
 
@@ -249,7 +250,7 @@ if __name__ == '__main__':
     pipe_all(event_search)
     pipe_all(relic_search)
     pipe_all(misc_search)
-    assert False
+    sys.exit('Loot table processing complete.')
 
     # mine_corpus()
 

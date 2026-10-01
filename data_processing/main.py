@@ -1,8 +1,10 @@
 import re
 import json
+import sys
 import UnityPy
 from functools import lru_cache
 from data_processing import file
+from argparse import ArgumentParser
 
 ### DATA INITIALIZATION ###
 
@@ -224,7 +226,7 @@ def build_ability(abilityptr):
                 feature['description'] == 'Char_Eliza_D_V3_SA_Desc' and sub == 'PROB.Probability', # hacky fix for pIcon (Don Passione)
                 feature['description'] == 'Char_MsFortune_SA_ReversalOfFortune_Desc' and sub == 'CURSE.Duration', # hacky fix for fCookie (Fortune Cookie)
                 feature['description'] == 'SA_Parasoul_Tears2' and sub == 'TEARDAMAGE.percentMaxLife', # hacky fix for pPride (Princess Pride)
-                feature['description'] == 'Char_Squigly_SA_Wightout_Desc_NEW' and sub == 'WITHER.Duration', # hacky fix for dOWint (DeadOfWinter)
+                feature['description'] == 'Char_Squigly_SA_Wightout_Desc_NEW' and sub == 'WITHER.Duration', # hacky fix for dOWint (Dead Of Winter)
             ]):
                 suby = 'Value'
             substitutions.append([subx.upper(), suby[0].lower() + suby[1:]])
@@ -612,6 +614,17 @@ def check_sas():
                 warn('Variant {}\'s SA{} is constant: {}'.format(key, i, tiers))
 
 if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('-a', '--analyze', help='analyze ability of variant by id')
+    parser.add_argument('-x', '--x', help='the substition value to analyze')
+    args = parser.parse_args()
+    if args.analyze:
+        if args.x:
+            analyze_ability(args.analyze, args.x)
+        else:
+            analyze_ability(args.analyze)
+        sys.exit('Analysis complete.')
+    
     characters = get_characters()
     variants = get_variants()
     sms = get_sms()
